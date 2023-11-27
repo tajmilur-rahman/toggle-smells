@@ -18,13 +18,19 @@ This repository so far will contain the logic for 3 off 6 above toggle smells us
 
 3. Open Visual studios and download python extension. Create a new file to identify feature toggles declared in config files.
 
-4. Install the following packages (import os, import glob, import re, import pandas as pd).
+4. Install the following packages (import os, import glob, import re, import pandas as pd, import numpy as np).
 
 
 ## INSTALLATION:
-1. Clone the repo using: https://github.com/tajmilur-rahman/toggle-smells.git
-2. Download the package and do: 
+1. Download the package and do: 
 *  pip install setuptools
-*  python setup.py sdist bdist_wheel
+*  python path/to/setup.py sdist bdist_wheel
 *  pip install togglesmell_detector_installer
-3. Access the downloaded file using: path/to/togglesmell_detector_installer 
+
+2. Access the downloaded file using: path/to/togglesmell_detector_installer
+
+
+### Toggle variable Extraction:
+### Dead Toggle Extraction:
+### Nested Toggle Extraction:
+### Spread Toggle Extraction:
