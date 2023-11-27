@@ -28,6 +28,7 @@ This repository so far will contain the logic for 3 off 6 above toggle smells us
 
 2. Access the downloaded file using: path/to/togglesmell_detector_installer
 
+3. File path inside every .py file must be changed with your local file path and read using glob and os libraries.
 
 ### Toggle variable Extraction:
 * Toggle variables inside config files are declared with the format starting with letter 'k' as you can see:
