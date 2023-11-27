@@ -32,7 +32,7 @@ This repository so far will contain the logic for 3 off 6 above toggle smells us
 
 
 ### Toggle variable Extraction:
-* Toggle variables inside config files are declared with the format starting with k as you can see:
+* Toggle variables inside config files are declared with the format starting with letter 'k' as you can see:
 ```
 const char kEnableExperimentalAccessibilityAutoclick[] =
     "enable-experimental-accessibility-autoclick";
@@ -50,5 +50,10 @@ const char kEnableExperimentalAccessibilityAutoclick[] =
     "enable-experimental-accessibility-language-detection";
 ```
 ### Dead Toggle Extraction:
+* These are variables not configured in switch or feature files, but still exists in code files.
+
 ### Nested Toggle Extraction:
+* Nested Usage
+
 ### Spread Toggle Extraction:
+* Toggle usage spread over components.
