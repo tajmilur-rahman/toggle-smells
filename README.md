@@ -21,15 +21,10 @@ This repository so far will contain the logic for 3 off 6 above toggle smells us
 4. Install the following packages (import os, import glob, import re, import pandas as pd).
 
 
-### Feature Toggle Variable Extraction:
-1. In the Scripts folder there is a file named togglr-extraction.py, run that file to get all the toggle variables thats been used in the targeted version.
-
-### Dead Toggle Extraction:
-
-
-### Nested Toggle Extraction:
-
-
-### Spread Toggle Extraction:
-
-
+##INSTALLATION:
+1. Clone the repo using: https://github.com/tajmilur-rahman/toggle-smells.git
+2. Download the package and do: 
+*  pip install setuptools
+*  python setup.py sdist bdist_wheel
+*  pip install togglesmell_detector_installer
+3. Access the downloaded file using: path/to/togglesmell_detector_installer 
