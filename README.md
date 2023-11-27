@@ -1,7 +1,6 @@
 # Toggle-Smells
 
-This Repo contains all files that are related to toggle-smells in chromium source code. It contains code files, that can identify smells in other projects as well. So far, we identified 6 toggle-smell usage patterns.
-    * Nested usage
+This Repo contains all files that are related to toggle-smells in chromium source code. It contains code files, that can identify smells in other projects as well. So far, we identified 6 toggle-smell usage patterns * Nested usage
     * Spread usage
     * Dead usage
     * Mixed usage
