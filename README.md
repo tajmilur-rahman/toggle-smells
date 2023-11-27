@@ -21,7 +21,7 @@ This repository so far will contain the logic for 3 off 6 above toggle smells us
 4. Install the following packages (import os, import glob, import re, import pandas as pd).
 
 
-##INSTALLATION:
+## INSTALLATION:
 1. Clone the repo using: https://github.com/tajmilur-rahman/toggle-smells.git
 2. Download the package and do: 
 *  pip install setuptools
