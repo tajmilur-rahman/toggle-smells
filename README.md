@@ -23,9 +23,7 @@ This repository so far will contain the logic for 3 off 6 above toggle smells us
 
 
 ## INSTALLATION:
-1. Download the package and do: 
-*  pip install setuptools
-*  python path/to/setup.py sdist bdist_wheel
+1. Download the package:
 *  pip install togglesmell_detector_installer
 
 2. Access the downloaded file using: path/to/togglesmell_detector_installer
