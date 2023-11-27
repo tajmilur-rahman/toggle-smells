@@ -8,7 +8,7 @@ This Repo contains all files that are related to toggle-smells in chromium sourc
 * enumeration usage
 * combinatorial usage
 
-    This repository so far will contain the logic for 3 off 6 above toggle smells usage patterns (Nested, Spread, Dead).
+This repository so far will contain the logic for 3 off 6 above toggle smells usage patterns (Nested, Spread, Dead).
 
 # 1. Chromium:
 
