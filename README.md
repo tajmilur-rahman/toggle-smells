@@ -24,14 +24,14 @@ This repository so far will contain the logic for 3 off 6 above toggle smells us
 
 ## INSTALLATION:
 1. Clone the repository:
-    * https://github.com/tajmilur-rahman/toggle-smells.git.
+* https://github.com/tajmilur-rahman/toggle-smells.git.
 
 2. Download the package:
-    * pip install togglesmell_detector_installer
+* pip install togglesmell_detector_installer
 
-3. Access the downloaded file using: path/to/togglesmell_detector_installer.
+4. Access the downloaded file using: path/to/togglesmell_detector_installer.
 
-4. File path inside every .py file must be changed with your local file path and read using glob and os libraries.
+5. File path inside every .py file must be changed with your local file path and read using glob and os libraries.
 
 ### Toggle variable Extraction:
 * Toggle variables inside config files are declared with the format starting with letter 'k' as you can see:
