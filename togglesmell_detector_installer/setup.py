@@ -1,12 +1,11 @@
-from setuptools import setup
-
+from setuptools import setup, find_packages
 setup(
     name='togglesmell_detector_installer',
     version='1.0',
-    py_modules=['nested-toggle-extraction'],
+    packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'togglesmell_detector_installer = nested-toggle-extraction:nested_toggle',
+            'togglesmell_detector_installer = my_package.nested-toggle-extraction.py:nested_toggle',
         ],
     },
 )
