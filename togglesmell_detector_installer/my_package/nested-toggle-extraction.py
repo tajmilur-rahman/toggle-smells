@@ -3,11 +3,10 @@ import glob
 import re
 import pandas as pd
 
-ch_version = '90.0.4390.0'
-#system_root = '/home/taj/Documents/ArchPrediction/ProcessedVersions'
-system_root = '/Users/govardhanrathamsetty/Desktop/ToggleSmell-Chromium/All versions/comp_ver'
-
 def nested_toggle(): 
+    ch_version = '90.0.4390.0'
+    #system_root = '/home/taj/Documents/ArchPrediction/ProcessedVersions'
+    system_root = '/Users/govardhanrathamsetty/Desktop/ToggleSmell-Chromium/All versions/comp_ver'
     all_cc_files = glob.glob(f'{system_root}/chromium {ch_version}/**/*.cc', recursive=True)
     file_contents = []
     for cc_file in all_cc_files:
