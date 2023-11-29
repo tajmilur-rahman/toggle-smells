@@ -26,10 +26,13 @@ This repository so far will contain the logic for 3 off 6 above toggle smells us
 1. Clone the repository:
 * https://github.com/tajmilur-rahman/toggle-smells.git.
 
-2. Download the package:
+2. redirect to the installer folder (togglesmell_detector_installer) using terminal/cmd prompt and use the following command:
+* python setup.py sdist bdist_wheel
+
+3. Download the package:
 * pip install togglesmell_detector_installer
 
-4. Access the downloaded file using: path/to/togglesmell_detector_installer.
+4. Access the downloaded file using: path/to/togglesmell_detector_installer.egg.
 
 5. File path inside every .py file must be changed with your local file path and read using glob and os libraries.
 
