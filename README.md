@@ -24,10 +24,10 @@ This repository so far will contain the logic for 3 off 6 above toggle smells us
 
 ## INSTALLATION:
 1. Clone the repository:
-   * https://github.com/tajmilur-rahman/toggle-smells.git.
+    * https://github.com/tajmilur-rahman/toggle-smells.git.
 
 2. Download the package:
-*  pip install togglesmell_detector_installer
+    * pip install togglesmell_detector_installer
 
 3. Access the downloaded file using: path/to/togglesmell_detector_installer.
 
