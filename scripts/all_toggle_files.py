@@ -81,7 +81,7 @@ def find_dead(toggles_list_form_config):   #check with 45th version, no dead tog
             print( list(set(container3)) )
 
 
-def nested_toggle(): 
+def extract_nested_toggles(): 
     all_cc_files = glob.glob(f'{system_root}/chromium {ch_version}/**/*.cc', recursive=True)
     file_contents = []
     for cc_file in all_cc_files:
@@ -132,7 +132,7 @@ def nested_toggle():
     return nested_toggles
 
 #Remove those rows with Component == None
-def spread_toggle(toggle_path_df,components_df):
+def extract_spread_toggles(toggle_path_df,components_df):
     path_items=[]
     tog_map=[]
     path_tog_match =[]
@@ -177,15 +177,15 @@ def spread_toggle(toggle_path_df,components_df):
 
 #print(extract_dead_toggles())
 
-#print(nested_toggle())
+#print(extract_nested_toggles())
 
 arg1 = (toggle_path_df, components_df)
 
 with concurrent.futures.ThreadPoolExecutor() as executor:
     # Submit tasks
-    future1 = executor.submit(spread_toggle, *arg1)
+    future1 = executor.submit(extract_spread_toggles, *arg1)
     future2 = executor.submit(extract_dead_toggles)
-    future3 = executor.submit(nested_toggle)
+    future3 = executor.submit(extract_nested_toggles)
 
     # Wait for tasks to complete
     concurrent.futures.wait([future1, future2, future3])
