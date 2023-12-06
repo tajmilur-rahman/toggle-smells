@@ -3,7 +3,7 @@ import glob
 import re
 import pandas as pd
 
-def nested_toggle(): 
+def main(): 
     ch_version = '90.0.4390.0'
     #system_root = '/home/taj/Documents/ArchPrediction/ProcessedVersions'
     system_root = '/Users/govardhanrathamsetty/Desktop/ToggleSmell-Chromium/All versions/comp_ver'
