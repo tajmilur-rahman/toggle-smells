@@ -5,7 +5,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'my_package = main:main',
+            'my_package = nested-toggle-extraction:main',
         ],
     },
 )
