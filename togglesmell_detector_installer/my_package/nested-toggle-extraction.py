@@ -55,5 +55,3 @@ def main():
     print('Following are the Nested Toggles:')
     print('---------------------------------')
     return nested_toggles
-    
-nested_toggle()
