@@ -1,12 +1,12 @@
 from setuptools import setup
 
 setup(
-    name='installer',
+    name='my_package',
     version='1.0',
     py_modules=['main'],
     entry_points={
         'console_scripts': [
-            'installer = main:main',
+            'my_package = main:main',
         ],
     },
 )
