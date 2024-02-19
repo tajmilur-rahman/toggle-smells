@@ -17,8 +17,8 @@ class FoundToggle:
         self.fname = fname
         self.type = type
 
-
 def get_toggles(config_files, toggle_patterns):
+    config_files = getSwitchFilesGlob() + getConfigFilesGlob()
     toggle_list = []
 
     for conf_file in config_files:
@@ -28,6 +28,7 @@ def get_toggles(config_files, toggle_patterns):
             file.close()
 
     toggle_list = list(filter(None, toggle_list))
+    toggle_patterns = [r'const char k[A-Z].*', r'\::Feature k[A-Z].*', r'\s*k[A-Z].*']
     found_toggles = []
     toggles = []
 
@@ -37,9 +38,9 @@ def get_toggles(config_files, toggle_patterns):
             found_toggles.extend(matches)
     found_toggles = list(filter(None, found_toggles))
 
-    # for k_toggles in found_toggles:
-    #     toggles.extend(re.findall(r'\b[k]\w*\b', k_toggles))
-    toggles = found_toggles
+    for k_toggles in found_toggles:
+        toggles.extend(re.findall(r'\b[k]\w*\b', k_toggles))
+
     return toggles
 
 
@@ -48,10 +49,13 @@ def extract_dead_toggles():
     return find_dead(toggles)
 
 
-def extract_mixed_toggles(toggles, regex_pattern):
+def extract_mixed_toggles():
     # toggles = get_toggles()
     # return find_mixed(toggles)
-    return find_toggle(regex_pattern, toggles)
+
+    cpp_mixed_regex = r'#if.*?(switches::%s).*?#endif'
+
+    return find_toggle(cpp_mixed_regex)
 
 def extract_enum_toggles():
     # toggles = get_toggles()
@@ -90,11 +94,17 @@ def regrex_playground():
             print(match)
 
 
-def find_toggle(regexp, toggles, system_root, project_name, file_extension):
-    mixed_toggles = []
-    all_files = glob.glob(f'{system_root}/{project_name}/**/**.{file_extension}', recursive=True)
+def find_toggle(regexp, toggles=None):
+    print(toggles)
+    if toggles is None:
+        toggles = ['kWebViewLogJsConsoleMessages', 'kWebViewSandboxedRenderer', 'kWebViewDisableSafebrowsingSupport', 'kWebViewSafebrowsingBlockAllResources', 'kHighlightAllWebViews', 'kWebViewVerboseLogging', 'kFinchSeedExpirationAge', 'kFinchSeedIgnorePendingDownload', 'kFinchSeedNoChargingRequirement', 'kFinchSeedMinDownloadPeriod', 'kFinchSeedMinUpdatePeriod', 'kWebViewEnableModernCookieSameSite', 'kWebViewSelectiveImageInversionDarkening', 'kWebViewFencedFrames', 'kWebViewDisableAppRecovery', 'kWebViewEnableAppRecovery', 'kWebViewEnableTrustTokensComponent', 'kWebViewTpcdMetadaComponent', 'kWebViewFpsComponent', 'kWebViewLogJsConsoleMessages', 'kWebViewSandboxedRenderer', 'kWebViewDisableSafebrowsingSupport', 'kWebViewSafebrowsingBlockAllResources', 'kHighlightAllWebViews', 'kWebViewVerboseLogging', 'kFinchSeedExpirationAge', 'kFinchSeedIgnorePendingDownload', 'kFinchSeedNoChargingRequirement', 'kFinchSeedMinDownloadPeriod', 'kFinchSeedMinUpdatePeriod', 'kWebViewEnableModernCookieSameSite', 'kWebViewSelectiveImageInversionDarkening', 'kWebViewFencedFrames', 'kWebViewDisableAppRecovery', 'kWebViewEnableAppRecovery', 'kWebViewEnableTrustTokensComponent', 'kWebViewTpcdMetadaComponent', 'kWebViewFpsComponent', 'kAggressiveCacheDiscardThreshold', 'kAllowFailedPolicyFetchForTest', 'kAllowOsInstall', 'kAlmanacApiUrl', 'kAlwaysEnableHdcp', 'kAppAutoLaunched', 'kAppOemManifestFile', 'kArcAvailability', 'kArcAvailable', 'kArcBlockKeyMint', 'keymint', 'kArcDataCleanupOnStart', 'kArcDisableAppSync', 'kArcDisableDexOptCache', 'kArcDisableDownloadProvider', 'kArcDisableGmsCoreCache', 'kArcDisableLocaleSync', 'kArcDisableMediaStoreMaintenance', 'kArcDisablePlayAutoInstall', 'kArcDisableTtsCache', 'kArcDisableUreadahead', 'kArcHostUreadaheadGeneration', 'kArcUseDevCaches', 'kArcErofs', 'kArcForcePostBootDexOpt', 'kArcForceShowOptInUi', 'kArcGeneratePlayAutoInstall', 'kArcInstallEventChromeLogForTests', 'kArcPackagesCacheMode', 'kArcPlayStoreAutoUpdate', 'kArcScale', 'kArcStartMode', 'kArcTosHostForTests', 'kPrivacyPolicyHostForTests', 'kArcVmUreadaheadMode', 'kArcHostUreadaheadMode', 'kArcVmUseHugePages', 'kAshBypassGlanceablesPref', 'kAshClearFastInkBuffer', 'kAshConstrainPointerToRoot', 'kAshContextualNudgesInterval', 'kAshContextualNudgesResetShownCount', 'kAshDebugShortcuts', 'kAshDeveloperShortcuts', 'kAshDisableTouchExplorationMode', 'kAshEnableMagnifierKeyScroller', 'kAshEnablePaletteOnAllDisplays', 'kAshEnableTabletMode', 'kAshEnableWaylandServer', 'kAshForceEnableStylusTools', 'kAshForceStatusAreaCollapsible', 'kGrowthCampaignsPath', 'kAshHideNotificationsForFactory', 'kAshNoNudges', 'kAshPowerButtonPosition', 'kAshSideVolumeButtonPosition', 'kAshTouchHud', 'kAshUiMode', 'kAshUiModeClamshell', 'kAshUiModeTablet', 'kAuraLegacyPowerButton', 'kCampbellKey']
 
-    for f in all_files:
+    mixed_toggles = []
+    all_cc_files = (file for file
+                    in glob.glob(f'{system_root}/chromium/**/**.cc', recursive=True)
+                    if ('switch' not in file and 'feature' not in file))
+
+    for f in all_cc_files:
         with open(f, 'rb') as file:
             content = repr(file.read().decode('utf-8'))
             for t in toggles:
@@ -245,7 +255,7 @@ def extract_spread_toggles(toggle_path_df, components_df):
 # extract_dead_toggles()
 # print(extract_nested_toggles())
 # arg1 = (toggle_path_df, components_df)
-# extract_mixed_toggles()
+extract_mixed_toggles()
 # with concurrent.futures.ThreadPoolExecutor() as executor:
 #     # Submit tasks
 #     # future1 = executor.submit(extract_spread_toggles, *arg1)

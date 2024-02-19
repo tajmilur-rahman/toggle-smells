@@ -1,12 +1,11 @@
 import glob
 
-
 system_root = '../../'
 ch_version = '80.0.3946.0'
 
 FileExtensionMap = {
     "GO": ['.go'],
-    "CPP": ['.cpp', '.c'],
+    "CPP": ['.cpp', '.c', '.cc'],
     "PYTHON": ['.py'],
     "JAVASCRIPT": ['.js'],
     "JAVA": ['.java'],
