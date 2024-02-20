@@ -19,5 +19,10 @@ def getSwitchFilesGlob(rootPath=system_root, projectName='chromium'):
 def getConfigFilesGlob(rootPath=system_root, projectName='chromium'):
     return glob.glob(f'{rootPath}/{projectName}/**/*.cc', recursive=True)
 
-
+"""
+regx = string[] of regx name, e.g. [r'GetBoolProperty.*%s']
+toggleName = string of toggle name
+"""
+def allRegExpOfToggles(regx, toggleName):
+    return [i%toggleName for i in regx]
 

@@ -48,15 +48,13 @@ def extract_dead_toggles():
     return find_dead(toggles)
 
 
-def extract_mixed_toggles(toggles, regex_pattern):
-    # toggles = get_toggles()
-    # return find_mixed(toggles)
-    return find_toggle(regex_pattern, toggles)
+def extract_mixed_toggles(toggles, regex_pattern, file_extension):
+    return find_toggle(regex_pattern, toggles, file_extension)
 
-def extract_enum_toggles():
-    # toggles = get_toggles()
-    cpp_enum_regex = r''
-    return find_toggle(cpp_enum_regex)
+
+def extract_enum_toggles(toggles, regex_pattern, file_extension):
+    return find_toggle(regex_pattern, toggles, file_extension)
+
 def regrex_playground():
     s = '''
     bool SubprocessNeedsResourceBundle(const std::string& process_type) {
