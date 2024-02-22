@@ -1,3 +1,0 @@
-[console_scripts]
-togglesmell_detector_installer = main:main
-
