@@ -18,5 +18,5 @@ Following are the usage patterns our tool can detect as of now.
 2. CD into ts-detector in commandline
 
 3. Use command:
-* python3 tsd.py <_language_> </source/code/directory/path> <config_file_postfix> <toggle_usage_type>
+* python3 tsd.py <_language_> <_/source/code/directory/path_> <_config_file_postfix_> <_toggle_usage_type_>
 * Example: python3 tsd.py C++ /Users/user/Documents/Data/chromium/ui/base switches.cc dead
