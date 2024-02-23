@@ -24,6 +24,7 @@ try:
 except:
     t_usage = None
 
+# Usage: python3 tsd.py <language> </source/path> <config_file_postfix> <toggle_usage_type>
 # Usage: python3 tsd.py C++ /Users/taj/Documents/Research/Data/chromium/ui/base switches.cc dead
 if __name__ == "__main__":
     source_path = source_path.rstrip("/")
