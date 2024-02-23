@@ -1,12 +1,13 @@
-general_patterns = {
-    'char_seq': r'.*?\}',
-    'pattern_key': r'\b[k]\w*\b',
-    'condition_count': r'\b(if|else|elseif)\b'
+general_usage_patterns = {
+    #'char_seq': r'.*?\}',
+    #'pattern_key': r'[::][k]\w*\b',
+    'pattern_key': r'switches[::][k][A-Z][A-Z,a-z]*',
+    #'condition_count': r'\b(if|else|elseif)\b'
 }
 
 toggle_patterns = {
-    'whitespace': r'\s*k[A-Z].*',
-    'feature': r'\::Feature k[A-Z].*',
+    #'whitespace': r'\s*k[A-Z].*',
+    #'feature': r'\::Feature k[A-Z].*',
     'const_char': r'const char k[A-Z].*'
 }
 
