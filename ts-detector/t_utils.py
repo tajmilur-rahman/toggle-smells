@@ -1,7 +1,7 @@
 import re
-import RegexC as cPatterns
-import RegexJava as jPatterns
-import RegexPython as pyPatterns
+import regex_c as c_patterns
+import regex_java as j_patterns
+import regex_python as py_patterns
 
 
 def detect(lang, code_files, t_config_files, t_usage):
@@ -98,20 +98,20 @@ def get_toggles_from_config_files(lang, config_files):
 def get_toggle_config_patterns(lang):
     toggle_patterns = []
     if lang.lower() == "c++":
-        toggle_patterns = list(cPatterns.toggle_config_patterns.values())
+        toggle_patterns = list(c_patterns.toggle_config_patterns.values())
     elif lang.lower() == "java":
-        toggle_patterns = list(jPatterns.toggle_config_patterns.values())
+        toggle_patterns = list(j_patterns.toggle_config_patterns.values())
     elif lang.lower() == "python":
-        toggle_patterns = list(pyPatterns.toggle_config_patterns.values())
+        toggle_patterns = list(py_patterns.toggle_config_patterns.values())
     return toggle_patterns
 
 
 def get_general_toggle_var_patterns(lang):
     general_toggle_var_patterns = []
     if lang.lower() == "c++":
-        general_toggle_var_patterns = list(cPatterns.general_toggle_var_patterns.values())
+        general_toggle_var_patterns = list(c_patterns.general_toggle_var_patterns.values())
     elif lang.lower() == "java":
-        general_toggle_var_patterns = list(jPatterns.general_toggle_var_patterns.values())
+        general_toggle_var_patterns = list(j_patterns.general_toggle_var_patterns.values())
     elif lang.lower() == "python":
-        general_toggle_var_patterns = list(pyPatterns.general_toggle_var_patterns.values())
+        general_toggle_var_patterns = list(py_patterns.general_toggle_var_patterns.values())
     return general_toggle_var_patterns
