@@ -21,5 +21,5 @@ if __name__ == "__main__":
     config_files = glob.glob(f'{source_path}/**/*_{t_conf_file}', recursive=True)
     code_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
 
-    deadToggles = ToggleUtils.detect(code_files, config_files, t_usage, lang)
+    deadToggles = ToggleUtils.detect(lang, code_files, config_files, t_usage)
     print(deadToggles)

@@ -1,53 +1,48 @@
 import re
-import TogglePatterns as patterns
+import RegexC as cPatterns
+import RegexJava as jPatterns
+import RegexPython as pyPatterns
 
 
-def detect(code_files, t_config_files, t_usage, lang):
+def detect(lang, code_files, t_config_files, t_usage):
+    if lang is None:
+        raise ValueError("Language is not defined.")
+
+    if code_files is None:
+        raise ValueError("A list of code files is required.")
+
+    if code_files is None:
+        raise ValueError("A list of config files is required.")
+
     if t_usage == "dead":
-        return extract_dead_toggles(code_files, t_config_files, lang)
+        return extract_dead_toggles(lang, code_files, t_config_files)
     elif t_usage == "spread":
-        return extract_spread_toggles(code_files, t_config_files, lang)
+        return extract_spread_toggles(lang, code_files, t_config_files)
     elif t_usage == "nested":
-        return extract_nested_toggles(code_files, t_config_files, lang)
+        return extract_nested_toggles(lang, code_files, t_config_files)
+    elif t_usage == "mixed":
+        return extract_mixed_toggles(lang, code_files, t_config_files)
+    elif t_usage == "enum":
+        return extract_enum_toggles(lang, code_files, t_config_files)
 
 
-def extract_dead_toggles(code_files, t_config_files, lang):
-    toggle_list = []
+def extract_dead_toggles(lang, code_files, t_config_files):
+    toggles = get_toggles_from_config_files(lang, t_config_files)
 
-    for conf_file in t_config_files:
-        with open(conf_file, 'r') as file:
-            file_content = file.read()
-            toggle_list.append(file_content)
-
-    toggles = []
-
-    toggle_list = list(filter(None, toggle_list))
-    toggle_patterns = list(patterns.toggle_patterns.values())
-
-    for toggle in toggle_list:
-        for pattern in toggle_patterns:
-            matches = re.findall(pattern, toggle)
-            toggles.extend(matches)
-
-    toggles = list(set(filter(None, toggles)))
-    return find_dead(code_files, toggles)
-
-
-def find_dead(code_files, toggles):
-    container1 = []
+    code_files_container = []
     for cc_file in code_files:
-        if 'switch' not in cc_file: # and 'feature' not in cc_file:
+        if 'switch' not in cc_file:  # and 'feature' not in cc_file:
             with open(cc_file, 'rb') as file:
                 try:
                     content = file.read().decode('utf-8')
-                    container1.append(content)
+                    code_files_container.append(content)
                 except UnicodeDecodeError:
                     pass
 
-    potential_toggle_vars = []
-    general_toggle_var_patterns = list(patterns.general_toggle_var_patterns.values())
+    general_toggle_var_patterns = get_general_toggle_var_patterns(lang)
 
-    for file_content in container1:
+    potential_toggle_vars = []
+    for file_content in code_files_container:
         for pattern in general_toggle_var_patterns:
             matches = re.findall(pattern, file_content)
             potential_toggle_vars.extend(matches)
@@ -64,8 +59,59 @@ def find_dead(code_files, toggles):
 
     return list(set(dead_toggles))
 
+
 def extract_spread_toggles(code_files, t_config_files, lang):
     return []
 
+
 def extract_nested_toggles(code_files, t_config_files, lang):
     return []
+
+
+def extract_mixed_toggles(code_files, t_config_files, lang):
+    return []
+
+
+def extract_enum_toggles(code_files, t_config_files, lang):
+    return []
+
+
+def get_toggles_from_config_files(lang, config_files):
+    toggle_list = []
+    for conf_file in config_files:
+        with open(conf_file, 'r') as file:
+            file_content = file.read()
+            toggle_list.append(file_content)
+
+    toggle_list = list(filter(None, toggle_list))
+    toggle_patterns = get_toggle_config_patterns(lang)
+
+    toggles = []
+    for toggle in toggle_list:
+        for pattern in toggle_patterns:
+            matches = re.findall(pattern, toggle)
+            toggles.extend(matches)
+
+    return list(set(filter(None, toggles)))
+
+
+def get_toggle_config_patterns(lang):
+    toggle_patterns = []
+    if lang.lower() == "c++":
+        toggle_patterns = list(cPatterns.toggle_config_patterns.values())
+    elif lang.lower() == "java":
+        toggle_patterns = list(jPatterns.toggle_config_patterns.values())
+    elif lang.lower() == "python":
+        toggle_patterns = list(pyPatterns.toggle_config_patterns.values())
+    return toggle_patterns
+
+
+def get_general_toggle_var_patterns(lang):
+    general_toggle_var_patterns = []
+    if lang.lower() == "c++":
+        general_toggle_var_patterns = list(cPatterns.general_toggle_var_patterns.values())
+    elif lang.lower() == "java":
+        general_toggle_var_patterns = list(jPatterns.general_toggle_var_patterns.values())
+    elif lang.lower() == "python":
+        general_toggle_var_patterns = list(pyPatterns.general_toggle_var_patterns.values())
+    return general_toggle_var_patterns
