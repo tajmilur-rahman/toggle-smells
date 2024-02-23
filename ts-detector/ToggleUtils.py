@@ -4,11 +4,11 @@ import TogglePatterns as patterns
 
 def detect(code_files, t_config_files, t_usage, lang):
     if t_usage == "dead":
-        extract_dead_toggles(code_files, t_config_files, lang)
+        return extract_dead_toggles(code_files, t_config_files, lang)
     elif t_usage == "spread":
-        extract_spread_toggles(code_files, t_config_files, lang)
+        return extract_spread_toggles(code_files, t_config_files, lang)
     elif t_usage == "nested":
-        extract_nested_toggles(code_files, t_config_files, lang)
+        return extract_nested_toggles(code_files, t_config_files, lang)
 
 
 def extract_dead_toggles(code_files, t_config_files, lang):
@@ -29,10 +29,7 @@ def extract_dead_toggles(code_files, t_config_files, lang):
             matches = re.findall(pattern, toggle)
             toggles.extend(matches)
 
-    toggles = list(filter(None, toggles))
-    #for k_toggles in found_toggles:
-    #    toggles.extend(re.findall(patterns.general_usage_patterns['pattern_key'], k_toggles))
-
+    toggles = list(set(filter(None, toggles)))
     return find_dead(code_files, toggles)
 
 
@@ -47,25 +44,25 @@ def find_dead(code_files, toggles):
                 except UnicodeDecodeError:
                     pass
 
-    container2 = []
-    dead_patterns = list(patterns.general_usage_patterns.values())
+    potential_toggle_vars = []
+    general_toggle_var_patterns = list(patterns.general_toggle_var_patterns.values())
 
     for file_content in container1:
-        for pattern in dead_patterns:
+        for pattern in general_toggle_var_patterns:
             matches = re.findall(pattern, file_content)
-            container2.extend(matches)
+            potential_toggle_vars.extend(matches)
 
-    dt_list = [re.findall(patterns.general_usage_patterns['pattern_key'], line) for line in container2]
     # TODO: Need to get back to this line because the cut-off threshold of 10 is not fully determined
-    dt_list = [j for i in dt_list for j in i if len(j) > 10]
+    # In Google Chrome a toggle variable is at least 10 char long. We will remove all others assuming those are not
+    # toggle variables
+    potential_toggle_vars = list(set([j for j in potential_toggle_vars if len(j) > 10]))
 
-    container3 = []
-    for dt in list(set(dt_list)):
-        if dt not in list(set(toggles)):
-            container3.append(dt)
+    dead_toggles = []
+    for dt in potential_toggle_vars:
+        if dt not in toggles:
+            dead_toggles.append(dt)
 
-    #print((len(list(set(dt_list))), len(list(set(container3)))))  # 3151 off 3454 toggles were seen in .cc files
-    return list(set(container3))
+    return list(set(dead_toggles))
 
 def extract_spread_toggles(code_files, t_config_files, lang):
     return []
