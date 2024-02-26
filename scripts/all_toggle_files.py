@@ -2,7 +2,7 @@ import glob
 import re
 import pandas as pd
 from scripts.util import *
-
+from FeatureFlag import *
 # system_root = '/Users/govardhanrathamsetty/Desktop/ToggleSmell-Chromium/All versions/comp_ver'
 # system_root = '/home/taj/Documents/ArchPrediction/ProcessedVersions'
 
@@ -10,13 +10,6 @@ from scripts.util import *
 # components_df = pd.read_csv('/Users/govardhanrathamsetty/Downloads/components.csv')
 # toggle_path_df = pd.read_csv('/Users/govardhanrathamsetty/Downloads/1000_comp_matching.csv')
 all_cc_files = glob.glob(f'{system_root}/chromium/**/*.cc', recursive=True)
-
-class FoundToggle:
-    def __init__(self, name, fname, type):
-        self.name = name
-        self.fname = fname
-        self.type = type
-
 
 def get_toggles(config_files, toggle_patterns):
     toggle_list = []
@@ -43,6 +36,29 @@ def get_toggles(config_files, toggle_patterns):
     return toggles
 
 
+# this should be feature flagged lol
+def get_toggles_new(config_files, toggle_patterns):
+    found_toggles = []
+
+    for conf_file in config_files:
+        with open(conf_file, 'r', encoding='UTF-8') as file:
+            file_content = file.read()
+            for pattern in toggle_patterns:
+                matches = re.findall(pattern, file_content)
+                for match in matches:
+                    if match is None:
+                        continue
+                    found_toggles.append(FoundToggle(match, conf_file))
+
+            file.close()
+
+
+    found_toggles = list(filter(None, found_toggles))
+
+    # for k_toggles in found_toggles:
+    #     toggles.extend(re.findall(r'\b[k]\w*\b', k_toggles))
+    toggles = found_toggles
+    return toggles
 def extract_dead_toggles():
     toggles = get_toggles()
     return find_dead(toggles)
