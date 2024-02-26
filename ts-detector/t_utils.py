@@ -11,7 +11,7 @@ def detect(lang, code_files, t_config_files, t_usage):
     if code_files is None:
         raise ValueError("A list of code files is required.")
 
-    if code_files is None:
+    if t_config_files is None:
         raise ValueError("A list of config files is required.")
 
     if t_usage == "dead":
