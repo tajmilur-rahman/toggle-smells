@@ -68,8 +68,29 @@ def extract_nested_toggles(code_files, t_config_files, lang):
     return []
 
 
-def extract_mixed_toggles(code_files, t_config_files, lang):
-    return []
+def extract_mixed_toggles(lang, code_files, t_config_files):
+    toggles = get_toggles_from_config_files(lang, t_config_files)
+
+    mixed_toggle_var_patterns = get_mixed_toggle_var_patterns(lang)
+
+    mixed_toggles = []
+    for f in code_files:
+        with open(f, 'rb') as file:
+            content = repr(file.read().decode('utf-8'))
+            for t in toggles:
+                try:
+                    for pattern in mixed_toggle_var_patterns:
+                        matches = re.findall(pattern%t, content)
+                        if len(matches) > 0:
+                            mixed_toggles.append(t)
+
+                            toggles.remove(t)
+                            break
+                except UnicodeDecodeError:
+                    pass
+            file.close()
+
+    return mixed_toggles
 
 
 def extract_enum_toggles(code_files, t_config_files, lang):
@@ -115,3 +136,15 @@ def get_general_toggle_var_patterns(lang):
     elif lang.lower() == "python":
         general_toggle_var_patterns = list(py_patterns.general_toggle_var_patterns.values())
     return general_toggle_var_patterns
+
+
+def get_mixed_toggle_var_patterns(lang):
+    mixed_toggle_patterns = []
+    if lang.lower() == "c++":
+        mixed_toggle_patterns = list(c_patterns.mixed_toggle_patterns.values())
+    elif lang.lower() == "java":
+        mixed_toggle_patterns = list(j_patterns.mixed_toggle_patterns.values())
+    elif lang.lower() == "python":
+        mixed_toggle_patterns = list(py_patterns.mixed_toggle_patterns.values())
+    return mixed_toggle_patterns
+

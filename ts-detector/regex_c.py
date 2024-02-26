@@ -11,3 +11,7 @@ nested_toggle_patterns = {
     'else_condition': r'else\s*\(.*?\}',
     'elseif_condition': r'elseif\s*\(.*?\}'
 }
+
+mixed_toggle_patterns = {
+    'pattern1': r'#if.*?(switches::%s).*?#endif'
+}
