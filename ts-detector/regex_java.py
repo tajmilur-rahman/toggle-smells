@@ -1,5 +1,5 @@
 general_toggle_var_patterns = {
-    'pattern1': r'switches\:\:([k][A-Z][a-z,A-Z]*)'
+    'pattern1': r'\s(\w*) = Setting\.boolSetting\(' #< this is only checked on project opensearch for now
 }
 
 toggle_config_patterns = {
