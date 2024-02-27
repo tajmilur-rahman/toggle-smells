@@ -28,6 +28,4 @@ def allRegExpOfToggles(regx, toggleName):
 
 
 def getPatternWithToggleName(patterns, toggleName):
-    for k in [p%toggleName for p in patterns]:
-        print(k)
     return [p%toggleName for p in patterns]

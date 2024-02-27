@@ -8,15 +8,33 @@ prefix = [
 ]
 project_name = 'opensearch'
 allFiles = glob.glob(f'{system_root}/{project_name}/**/**.java', recursive=True)
+allFiles = list(filter(lambda path: 'test' not in path and 'qa' not in path, allFiles))
 
 toggles = get_toggles_new(allFiles, prefix)
-for i in toggles:
-    print(i.name)
 
 #combination
-combine_pattern = [r'%s((\n|.?)*(&&))']
-getPatternWithToggleName(combine_pattern, toggles[0].name)
+combine_pattern = [r'(%s)((\n|.?){0,1}(&&))', r'&&\n\s*(%s)', r'\n\s*&&\s*(%s)']
 
+
+def getCombineToggles(toggles):
+    for file in allFiles:
+        with open(file, 'r') as f:
+            file_content = f.read()
+            for toggle in toggles:
+                patterns = getPatternWithToggleName(combine_pattern, toggle.name)
+                for pattern in patterns:
+                    matches = re.findall(pattern, file_content)
+                    if len(matches) > 0:
+                        print(toggle.name)
+                        print(file)
+                    for match in matches:
+                        if match is None:
+                            continue
+                        toggle.addUseInFile(file)
+
+            f.close()
+
+getCombineToggles(toggles)
 # for file in allFiles:
 #     with open(file, 'rb') as f:
 #         for t in toggles:

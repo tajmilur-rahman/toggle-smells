@@ -4,6 +4,7 @@ class FoundToggle:
         self.fname = fname
         self.type = []
         self.alias = []
+        self.useInFile = []
 
     def addType(self, type):
         if type not in self.type:
@@ -13,3 +14,6 @@ class FoundToggle:
         if alias not in self.alias:
             self.alias.append(alias)
 
+    def addUseInFile(self, useInFile):
+        if useInFile not in self.useInFile:
+            self.useInFile.append(useInFile)
