@@ -7,7 +7,7 @@ toggle_config_patterns = {
 }
 
 nested_toggle_patterns = {
-    'if_condition': r'if\s*\(.*?\}',
-    'else_condition': r'else\s*\(.*?\}',
-    'elseif_condition': r'elseif\s*\(.*?\}'
+    'if_condition': r'if\s+.*?\}',
+    'else_condition': r'else\s+.*?\}',
+    'elseif_condition': r'else if\s+.*?\}'
 }
