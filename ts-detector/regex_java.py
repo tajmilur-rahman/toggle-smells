@@ -11,3 +11,9 @@ nested_toggle_patterns = {
     'else_condition': r'else\s*\(.*?\}',
     'elseif_condition': r'elseif\s*\(.*?\}'
 }
+
+combinatory_toggle_pattens = {
+    'pattern1': r'(%s)((\n|.?){0,1}(&&))',
+    'pattern2': r'&&\n\s*(%s)',
+    'pattern3': r'\n\s*&&\s*(%s)',
+}
