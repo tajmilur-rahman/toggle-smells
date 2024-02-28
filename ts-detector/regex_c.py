@@ -15,3 +15,5 @@ nested_toggle_patterns = {
 mixed_toggle_patterns = {
     'pattern1': r'#if.*?(switches::%s).*?#endif'
 }
+
+file_extensions = ['.cc', '.cpp', '.h', '.hpp']

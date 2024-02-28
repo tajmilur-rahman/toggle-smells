@@ -11,3 +11,5 @@ nested_toggle_patterns = {
     'else_condition': r'else\s*\(.*?\}',
     'elseif_condition': r'elseif\s*\(.*?\}'
 }
+
+file_extensions = ['.py']

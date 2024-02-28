@@ -11,3 +11,5 @@ nested_toggle_patterns = {
     'else_condition': r'else\s+.*?\}',
     'elseif_condition': r'else if\s+.*?\}'
 }
+
+file_extensions = ['.go']

@@ -17,3 +17,5 @@ combinatory_toggle_pattens = {
     'pattern2': r'&&\n\s*(%s)',
     'pattern3': r'\n\s*&&\s*(%s)',
 }
+
+file_extensions = ['.java']
