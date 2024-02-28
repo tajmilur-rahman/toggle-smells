@@ -21,7 +21,7 @@ def getCombineToggles(toggles):
         with open(file, 'r') as f:
             file_content = f.read()
             for toggle in toggles:
-                patterns = getPatternWithToggleName(combine_pattern, toggle.name)
+                patterns = allRegExpOfToggles(combine_pattern, toggle.name)
                 for pattern in patterns:
                     matches = re.findall(pattern, file_content)
                     if len(matches) > 0:

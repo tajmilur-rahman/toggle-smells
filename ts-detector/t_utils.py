@@ -67,8 +67,30 @@ def extract_dead_toggles(lang, code_files, t_config_files):
     return list(set(dead_toggles))
 
 
-def extract_spread_toggles(code_files, t_config_files, lang):
-    return []
+def extract_spread_toggles(lang, code_files, t_config_files):
+    toggles = get_toggles_from_config_files(lang, t_config_files)
+
+    spread_toggles_check = {}
+    spread_toggles = []
+    for f in code_files:
+        with open(f, 'rb') as file:
+            content = repr(file.read().decode('utf-8'))
+            for t in toggles:
+                try:
+                    matches = re.findall(t, content)
+                    if len(matches) > 0:
+                        for m in matches:
+                            if m not in spread_toggles:
+                                spread_toggles_check[m] = 1
+                            else:
+                                spread_toggles_check[m] += 1
+                                spread_toggles.append(m)
+                        continue
+                except UnicodeDecodeError:
+                    pass
+            file.close()
+
+    return spread_toggles
 
 
 def extract_nested_toggles(code_files, t_config_files, lang):
@@ -126,10 +148,19 @@ def get_toggles_from_config_files(lang, config_files):
 def get_toggle_config_patterns(lang):
     return list(language_map[lang.lower()].toggle_config_patterns.values())
 
+
 def get_general_toggle_var_patterns(lang):
     return list(language_map[lang.lower()].general_toggle_var_patterns.values())
 
 
 def get_mixed_toggle_var_patterns(lang):
     return list(language_map[lang.lower()].mixed_toggle_patterns.values())
+
+
+# Fits a toggle name into regexes
+# regex is [] of patterns
+# toggleName string of name of toggle
+# e.g. ([r'%s()'], toggle1) => [r'toggle1()']
+def getRegexWithToggleName(regex, toggleName):
+    return [p%toggleName for p in regex]
 

@@ -25,7 +25,3 @@ toggleName = string of toggle name
 """
 def allRegExpOfToggles(regx, toggleName):
     return [i%toggleName for i in regx]
-
-
-def getPatternWithToggleName(patterns, toggleName):
-    return [p%toggleName for p in patterns]
