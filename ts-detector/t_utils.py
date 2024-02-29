@@ -1,8 +1,10 @@
 import re
+import os
 import regex_c as c_patterns
 import regex_java as j_patterns
 import regex_python as py_patterns
 import regex_go as go_patterns
+from collections import defaultdict
 
 language_map = {
     "c++": c_patterns,
@@ -61,28 +63,36 @@ def extract_dead_toggles(lang, code_files, t_config_files):
 
 
 def extract_spread_toggles(lang, code_files, t_config_files):
+    # two-dimensional dictionary to store toggle variables, directories, and counts
+    toggle_lookup = defaultdict(lambda: defaultdict(int))
     # get all toggles from config files
     toggles = get_toggles_from_config_files(lang, t_config_files)
 
-    spread_toggles_check = {}
-    spread_toggles = []
-    for f in code_files:
-        with open(f, 'rb') as file:
-            content = repr(file.read().decode('utf-8'))
-            for t in toggles:
-                try:
-                    matches = re.findall(t, content)
-                    if len(matches) > 0:
-                        for m in matches:
-                            if m not in spread_toggles:
-                                spread_toggles_check[m] = 1
-                            else:
-                                spread_toggles_check[m] += 1
-                                spread_toggles.append(m)
-                        continue
-                except UnicodeDecodeError:
-                    pass
-            file.close()
+    # walk through each directory
+    for code_file in code_files:
+        # get the directory of each file
+        directory = os.path.dirname(code_file)
+        with open(code_file, 'rb') as file:
+            try:
+                # read each file content
+                content = file.read().decode('utf-8')
+                # walk through list of toggle variables
+                for toggle in toggles:
+                    # check if any toggle is present in the file content
+                    if toggle in content:
+                        # map toggle to directory and increment count
+                        toggle_lookup[directory][toggle] += 1
+            except UnicodeDecodeError:
+                pass
+
+    # Aggregate toggle counts across directories
+    total_toggle_counts = defaultdict(int)
+    for directory, toggle_counts in toggle_lookup.items():
+        for toggle, count in toggle_counts.items():
+            total_toggle_counts[toggle] += count
+
+    # Filter toggles that are used in multiple directories
+    spread_toggles = {toggle: count for toggle, count in total_toggle_counts.items() if count > 1}
 
     return spread_toggles
 
