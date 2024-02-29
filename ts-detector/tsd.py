@@ -29,8 +29,20 @@ except:
 if __name__ == "__main__":
     source_path = source_path.rstrip("/")
     print("Source path: " + source_path + ", Config file pattern: " + t_conf_file + ", Toggle usage pattern: " + t_usage + ", Language: " + lang)
-    config_files = glob.glob(f'{source_path}/**/*_{t_conf_file}', recursive=True)
-    code_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
 
-    deadToggles = t_utils.detect(lang, code_files, config_files, t_usage)
-    print(deadToggles)
+    config_files = glob.glob(f'{source_path}/**/*_{t_conf_file}', recursive=True)
+
+    if lang.lower() == "c++":
+        c_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
+        cpp_files = glob.glob(f'{source_path}/**/*.cpp', recursive=True)
+        code_files = c_files + cpp_files
+    elif lang.lower() == "go":
+        code_files = glob.glob(f'{source_path}/**/*.go', recursive=True)
+    elif lang.lower() == "java":
+        code_files = glob.glob(f'{source_path}/**/*.java', recursive=True)
+    else:
+        config_files = None
+        code_files = None
+
+    detectedToggles = t_utils.detect(lang, code_files, config_files, t_usage)
+    print(detectedToggles)

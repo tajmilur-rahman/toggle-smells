@@ -11,3 +11,9 @@ nested_toggle_patterns = {
     'else_condition': r'else\s*\(.*?\}',
     'elseif_condition': r'elseif\s*\(.*?\}'
 }
+
+general_patterns = {
+    'char_seq': r'.*?\}',
+    'whitespace': r'\s*k[A-Z].*',
+    'condition_count': r'\b(if|else|elseif)\b'
+}
