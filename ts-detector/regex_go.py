@@ -12,4 +12,7 @@ nested_toggle_patterns = {
     'elseif_condition': r'else if\s+.*?\}'
 }
 
+spread_toggle_patterns = {
+    'parent_finder': [r'package (\w)*\n']
+}
 file_extensions = ['.go']

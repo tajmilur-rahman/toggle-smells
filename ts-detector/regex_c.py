@@ -16,4 +16,7 @@ mixed_toggle_patterns = {
     'pattern1': r'#if.*?(switches::%s).*?#endif'
 }
 
+spread_toggle_patterns = {
+    'parent_finder': [r'class (.*) \{(.|\n)*%s']
+}
 file_extensions = ['.cc', '.cpp', '.h', '.hpp']

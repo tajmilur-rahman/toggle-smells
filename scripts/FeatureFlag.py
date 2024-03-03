@@ -3,7 +3,7 @@ class FoundToggle:
         self.name = name
         self.fname = fname
         self.type = []
-        self.alias = []
+        self.alias = [] # => goes to validation in paper, should not be doing, not detecting at the moment
         self.useInFile = []
 
     def addType(self, type):

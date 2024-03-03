@@ -18,4 +18,7 @@ combinatory_toggle_pattens = {
     'pattern3': r'\n\s*&&\s*(%s)',
 }
 
+spread_toggle_patterns = {
+    'parent_finder': [r'class (.*) \{(.|\n)*%s']
+}
 file_extensions = ['.java']

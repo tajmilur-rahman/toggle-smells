@@ -12,4 +12,7 @@ nested_toggle_patterns = {
     'elseif_condition': r'elseif\s*\(.*?\}'
 }
 
+spread_toggle_patterns = {
+    'parent_finder': [r'class (.*) \{(.|\n)*%s']
+}
 file_extensions = ['.py']
