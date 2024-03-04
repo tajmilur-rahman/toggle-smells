@@ -14,6 +14,6 @@ nested_toggle_patterns = {
 
 general_patterns = {
     'char_seq': r'.*?\}',
-    'whitespace': r'\s*k[A-Z].*',
+    'whitespace': r'\s*(k[A-Z][a-zA-Z0-9]*)',
     'condition_count': r'\b(if|else|elseif)\b'
 }

@@ -51,95 +51,58 @@ def extract_dead_toggles(lang, code_files, t_config_files):
             potential_toggle_vars.extend(matches)
 
     # TODO: Need to get back to this line because the cut-off threshold of 10 is not fully determined
-    # In Google Chrome a toggle variable is at least 10 char long. We will remove all others assuming those are not
-    # toggle variables
-    potential_toggle_vars = list(set([j for j in potential_toggle_vars if len(j) > 10]))
+    min_toggle_var_length = 10
 
-    dead_toggles = []
-    for dt in potential_toggle_vars:
-        if dt not in toggles:
-            dead_toggles.append(dt)
-    return list(set(dead_toggles))
+    potential_toggle_vars = [var for var in potential_toggle_vars if len(var) > min_toggle_var_length]
+    # filter dead toggles
+    dead_toggles = list(set(potential_toggle_vars) - set(toggles))
+
+    return dead_toggles
 
 
-# Take module-path map as parameter in the future
 def extract_spread_toggles(lang, code_files, t_config_files):
-    # two-dimensional dictionary to store toggle variables, directories, and counts
-    toggle_lookup = defaultdict(lambda: defaultdict(int))
-    # get all toggles from config files
-    toggles = get_toggles_from_config_files(lang, t_config_files)
+    # dictionary to store toggle variables counts
+    toggle_lookup = defaultdict(int)
+    # get all toggles from config files as a set
+    toggles = set(get_toggles_from_config_files(lang, t_config_files))
 
     # walk through each directory
     for code_file in code_files:
-        # get the directory of each file
-        directory = os.path.dirname(code_file)
         with open(code_file, 'rb') as file:
             try:
                 # read each file content
                 content = file.read().decode('utf-8')
-                # walk through list of toggle variables
+                # check for toggle occurrences
                 for toggle in toggles:
-                    # check if any toggle is present in the file content
                     if toggle in content:
-                        # map toggle to directory and increment count
-                        toggle_lookup[directory][toggle] += 1
+                        # increment toggle count
+                        toggle_lookup[toggle] += 1
             except UnicodeDecodeError:
                 pass
 
-    # Aggregate toggle counts across directories
-    total_toggle_counts = defaultdict(int)
-    for directory, toggle_counts in toggle_lookup.items():
-        for toggle, count in toggle_counts.items():
-            total_toggle_counts[toggle] += count
-
-    # Filter toggles that are used in multiple directories
-    spread_toggles = {toggle: count for toggle, count in total_toggle_counts.items() if count > 1}
+    # filter toggles used in multiple directories
+    spread_toggles = {toggle: count for toggle, count in toggle_lookup.items() if count > 1}
 
     return spread_toggles
 
 
 def extract_nested_toggles(lang, code_files, t_config_files):
-    inner_scope_count = {}
-
-    # get all toggles from config files
-    toggles = get_toggles_from_config_files(lang, t_config_files)
-
+    nested_toggles = []
     # get all code file contents in a list
     code_files_contents = get_code_file_contents(lang, code_files)
+    # obtain nested toggle usage pattern
+    nested_patterns = get_nested_toggle_patterns(lang)
 
-    condensed_code = ''
     for content in code_files_contents:
-        statements_list = []
-        condensed_code = ''.join(content).replace(' ', '').replace('\n', ' ')
-        # obtain nested toggle usage pattern
-        nested_patterns = get_nested_toggle_patterns(lang)
-
-        for p in nested_patterns:
-            statements_list.append(re.findall(p, condensed_code))
-
-        for statements in statements_list:
-            for s in statements:
-                total_condition_count = len(re.findall(get_condition_count_patterns(lang), s))
-                inner_scope_count[s] = total_condition_count
-
-    regs = []
-    reg_matches = []
-
-    for key, value in inner_scope_count.items():
-        reg = re.compile(re.escape(key) + get_char_seq_patterns(lang) * value)
-        regs.append(reg)
-
-    for reg in regs:
-        matches = re.findall(reg, condensed_code)
-        reg_matches.append(matches)
-
-    code_lines = []
-    for match in reg_matches[0]:
-        code_lines.append(match.split(' '))
-
-    nested_toggles = []
-    for nested_toggle in code_lines[0]:
-        nested_toggles.extend(re.findall(get_whitespace_patterns(lang), nested_toggle))
+        for pattern in nested_patterns:
+            # check for nested occurrences in file content
+            matches = re.findall(pattern, content)
+            for match in matches:
+                # split the matched code into lines
+                code_lines = match.split('\n')
+                for line in code_lines:
+                    # extract nested toggle variable from each line
+                    nested_toggles.extend(re.findall(get_whitespace_patterns(lang), line))
 
     return nested_toggles
 
