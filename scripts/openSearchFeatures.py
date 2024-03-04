@@ -1,3 +1,5 @@
+import re
+
 from scripts.util import *
 import glob
 from scripts.all_toggle_files import *
@@ -7,7 +9,7 @@ prefix = [
     r'\s(\w*) = Setting\.boolSetting\('
 ]
 project_name = 'opensearch'
-allFiles = glob.glob(f'{system_root}/{project_name}/**/**.java', recursive=True)
+allFiles = glob.glob(f'{system_root}/{project_name}/**/*.java', recursive=True)
 allFiles = list(filter(lambda path: 'test' not in path and 'qa' not in path, allFiles))
 
 toggles = get_toggles_new(allFiles, prefix)
@@ -34,7 +36,7 @@ def getCombineToggles(toggles):
 
             f.close()
 
-getCombineToggles(toggles)
+# getCombineToggles(toggles)
 # for file in allFiles:
 #     with open(file, 'rb') as f:
 #         for t in toggles:
@@ -50,3 +52,23 @@ getCombineToggles(toggles)
 #   // This will not be included at compile time
 # }
 
+spread_pattern = r'class (.*( extends|implements \w*)*) \{(.|\n)*%s'
+
+
+def findParent(toggle) :
+    for file in allFiles:
+        with open(file, 'r') as f:
+            file_content = f.read()
+            patterns = allRegExpOfToggles([spread_pattern], toggle.name)
+            for pattern in patterns:
+                matches = re.findall(pattern, file_content)
+                for match in matches:
+                    print(match[0])
+                    toggle.addParent(match[0])
+
+            f.close()
+
+for toggle in toggles[:1]:
+    print(toggle.name)
+    findParent(toggle)
+    print(toggle.useParent)

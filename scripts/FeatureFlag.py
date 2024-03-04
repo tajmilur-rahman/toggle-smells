@@ -5,6 +5,7 @@ class FoundToggle:
         self.type = []
         self.alias = [] # => goes to validation in paper, should not be doing, not detecting at the moment
         self.useInFile = []
+        self.useParent = []
 
     def addType(self, type):
         if type not in self.type:
@@ -17,3 +18,7 @@ class FoundToggle:
     def addUseInFile(self, useInFile):
         if useInFile not in self.useInFile:
             self.useInFile.append(useInFile)
+
+    def addParent(self, parentName):
+        if parentName not in self.useParent:
+            self.useParent.append(parentName)

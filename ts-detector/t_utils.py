@@ -11,6 +11,7 @@ language_map = {
     "go": go_patterns
 }
 
+
 def detect(lang, code_files, t_config_files, t_usage):
     if lang is None:
         raise ValueError("Language is not defined.")
@@ -68,6 +69,13 @@ def extract_dead_toggles(lang, code_files, t_config_files):
 
 
 def extract_spread_toggles(lang, code_files, t_config_files):
+    # find all the toggles
+    # find their usages across the project
+    # for each toggle, compare its usage with each other,
+    # if there >= 2 usages within different root directory,
+    # it is a spread
+    # golang => check package, OOR => check class, last fallback option => directory
+
     toggles = get_toggles_from_config_files(lang, t_config_files)
 
     spread_toggles_check = {}
@@ -77,19 +85,24 @@ def extract_spread_toggles(lang, code_files, t_config_files):
             content = repr(file.read().decode('utf-8'))
             for t in toggles:
                 try:
-                    matches = re.findall(t, content)
+                    matches = re.findall(t, content)  # t => toggle name, content => file content
+                    parent_pattern = language_map[lang].spread_toggle_patterns['parent_finder']
+                    parent = re.findall(parent_pattern % t, content)
                     if len(matches) > 0:
                         for m in matches:
-                            if m not in spread_toggles:
-                                spread_toggles_check[m] = 1
-                            else:
-                                spread_toggles_check[m] += 1
-                                spread_toggles.append(m)
+
+                            if m not in spread_toggles and parent != '':
+                                spread_toggles_check[m] = [parent]
+                            elif parent != '' and parent not in spread_toggles_check[m]:
+                                spread_toggles_check[m].append(parent)
+
                         continue
                 except UnicodeDecodeError:
                     pass
             file.close()
-
+    for t in toggles:
+        if t in spread_toggles_check and len(spread_toggles_check[t]) >= 2:
+            spread_toggles.append(toggles)
     return spread_toggles
 
 
@@ -109,7 +122,7 @@ def extract_mixed_toggles(lang, code_files, t_config_files):
             for t in toggles:
                 try:
                     for pattern in mixed_toggle_var_patterns:
-                        matches = re.findall(pattern%t, content)
+                        matches = re.findall(pattern % t, content)
                         if len(matches) > 0:
                             mixed_toggles.append(t)
 
@@ -162,5 +175,4 @@ def get_mixed_toggle_var_patterns(lang):
 # toggleName string of name of toggle
 # e.g. ([r'%s()'], toggle1) => [r'toggle1()']
 def getRegexWithToggleName(regex, toggleName):
-    return [p%toggleName for p in regex]
-
+    return [p % toggleName for p in regex]
