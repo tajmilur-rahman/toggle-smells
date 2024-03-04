@@ -62,6 +62,7 @@ def extract_dead_toggles(lang, code_files, t_config_files):
     return list(set(dead_toggles))
 
 
+# Take module-path map as parameter in the future
 def extract_spread_toggles(lang, code_files, t_config_files):
     # two-dimensional dictionary to store toggle variables, directories, and counts
     toggle_lookup = defaultdict(lambda: defaultdict(int))
@@ -97,17 +98,19 @@ def extract_spread_toggles(lang, code_files, t_config_files):
     return spread_toggles
 
 
-def extract_nested_toggles(code_files, t_config_files, lang):
+def extract_nested_toggles(lang, code_files, t_config_files):
     inner_scope_count = {}
+
+    # get all toggles from config files
+    toggles = get_toggles_from_config_files(lang, t_config_files)
 
     # get all code file contents in a list
     code_files_contents = get_code_file_contents(lang, code_files)
 
     condensed_code = ''
-
-    for codes in code_files_contents:
+    for content in code_files_contents:
         statements_list = []
-        condensed_code = ''.join(codes).replace(' ', '').replace('\n', ' ')
+        condensed_code = ''.join(content).replace(' ', '').replace('\n', ' ')
         # obtain nested toggle usage pattern
         nested_patterns = get_nested_toggle_patterns(lang)
 
