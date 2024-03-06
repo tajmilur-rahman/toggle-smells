@@ -21,4 +21,3 @@ combinatory_toggle_pattens = {
 spread_toggle_patterns = {
     'parent_finder': r'class (.*( extends|implements \w*)*) \{(.|\n)*%s'
 }
-file_extensions = ['.java']
