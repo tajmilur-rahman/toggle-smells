@@ -12,6 +12,10 @@ nested_toggle_patterns = {
     'elseif_condition': r'elseif\s*\(.*?[k][A-Z][a-z,A-Z]*\}'
 }
 
+mixed_toggle_patterns = {
+    'if_directive': r'#if\s+BUILDFLAG\s*\(\s*(\w+)\s*\)',
+}
+
 general_patterns = {
     'char_seq': r'.*?\}',
     'whitespace': r'\s*(k[A-Z][a-zA-Z0-9]*)',

@@ -56,7 +56,7 @@ def extract_dead_toggles(lang, code_files, t_config_files):
                 # filter dead toggle variables
                 if match not in toggles and len(match) > min_toggle_var_length:
                     # populate dictionary with dead toggle data
-                    dead_toggles.setdefault(match, []).append((code_file, matches.count(match)))
+                    dead_toggles[match].append((code_file, matches.count(match)))
 
     # format dead toggles dictionary
     dead_toggles_data = {"dead_toggles": dead_toggles, "total_count": len(dead_toggles)}
@@ -82,7 +82,7 @@ def extract_spread_toggles(lang, code_files, t_config_files):
                 for toggle in toggles:
                     if toggle in content:
                         # populate dictionary with spread toggle data
-                        toggle_lookup.setdefault(toggle, []).append((code_file, content.count(toggle)))
+                        toggle_lookup[toggle].append((code_file, content.count(toggle)))
             except UnicodeDecodeError:
                 pass
 
@@ -113,7 +113,7 @@ def extract_nested_toggles(lang, code_files, t_config_files):
                 code_lines = match.split('\n')
                 for line in code_lines:
                     # populate dictionary with nested toggle data
-                    nested_toggles.setdefault(code_file, []).extend(re.findall(get_whitespace_patterns(lang), line))
+                    nested_toggles[code_file].extend(re.findall(get_whitespace_patterns(lang), line))
 
     # format nested toggles dictionary
     nested_toggles_data = {"nested_toggles": nested_toggles, "total_count": len(nested_toggles)}
@@ -124,28 +124,27 @@ def extract_nested_toggles(lang, code_files, t_config_files):
 
 
 def extract_mixed_toggles(lang, code_files, t_config_files):
-    toggles = get_toggles_from_config_files(lang, t_config_files)
+    # dictionary to store mixed toggle data
+    mixed_toggles = defaultdict(list)
+    # get all code file contents in a list
+    code_files_contents = get_code_file_contents(lang, code_files)
+    # obtain mixed toggle usage pattern
+    mixed_patterns = get_mixed_toggle_var_patterns(lang)
 
-    mixed_toggle_var_patterns = get_mixed_toggle_var_patterns(lang)
+    for code_file, content in zip(code_files, code_files_contents):
+        for pattern in mixed_patterns:
+            # check for mixed occurrences in file content
+            matches = re.findall(pattern, content)
+            for match in matches:
+                # populate dictionary with mixed toggle data
+                mixed_toggles[match].append((code_file, matches.count(match)))
 
-    mixed_toggles = []
-    for f in code_files:
-        with open(f, 'rb') as file:
-            content = repr(file.read().decode('utf-8'))
-            for t in toggles:
-                try:
-                    for pattern in mixed_toggle_var_patterns:
-                        matches = re.findall(pattern % t, content)
-                        if len(matches) > 0:
-                            mixed_toggles.append(t)
+    # format mixed toggles dictionary
+    mixed_toggles_data = {"mixed_toggles": mixed_toggles, "total_count": len(mixed_toggles)}
+    # convert the dictionary to JSON object
+    mixed_toggles_json = json.dumps(mixed_toggles_data, indent=2)
 
-                            toggles.remove(t)
-                            break
-                except UnicodeDecodeError:
-                    pass
-            file.close()
-
-    return mixed_toggles
+    return mixed_toggles_json
 
 
 def extract_enum_toggles(code_files, t_config_files, lang):
@@ -181,6 +180,10 @@ def get_char_seq_patterns(lang):
 
 def get_whitespace_patterns(lang):
     return language_map[lang.lower()].general_patterns['whitespace']
+
+
+def get_directive_patterns(lang):
+    return language_map[lang.lower()].mixed_toggle_patterns['if_directive']
 
 
 def get_toggle_config_patterns(lang):
