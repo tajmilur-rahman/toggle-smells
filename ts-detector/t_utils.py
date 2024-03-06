@@ -1,4 +1,6 @@
 import re
+import glob
+
 import regex_c as c_patterns
 import regex_java as j_patterns
 import regex_python as py_patterns
@@ -106,7 +108,59 @@ def extract_spread_toggles(lang, code_files, t_config_files):
     return spread_toggles
 
 
-def extract_nested_toggles(code_files, t_config_files, lang):
+def extract_nested_toggles(lang, code_files, t_config_files):
+    nested_toggle_var_patterns = get_nested_toggle_var_patterns(lang)
+
+    if_pattern = nested_toggle_var_patterns['if_condition']
+    else_pattern = nested_toggle_var_patterns['else_condition']
+    elif_pattern = nested_toggle_var_patterns['elseif_condition']
+
+    regx = [if_pattern, else_pattern, elif_pattern]
+
+    innerScopeCount = {}
+
+    for f in code_files:
+        with open(f, 'rb') as file:
+            try:
+                content = file.read().decode('utf-8')
+                condensedCode = ''.join(content).replace(' ', '').replace('\n', ' ')
+                print(condensedCode)
+                statementsList = []
+                for regg in regx:
+                    statementsList.append(re.findall(regg, condensedCode))
+
+                for statements in statementsList:
+                    for s in statements:
+                        total_condition_count = len(re.findall(r'\b(if|else|elseif)\b', s))
+                        innerScopeCount[s] = total_condition_count
+            except UnicodeDecodeError:
+                pass
+
+            file.close()
+
+    print(innerScopeCount)
+    regs = []
+    regMatches = []
+    for key, value in innerScopeCount.items():
+        reg = re.compile(re.escape(key) + r'.*?\}' * value)
+        regs.append(reg)
+
+    print(regs)
+    print(regMatches)
+    for xx in regs:
+        matches = re.findall(xx, condensedCode)
+        regMatches.append(matches)
+
+    codeLines = []
+    for match in regMatches[0]:
+        codeLines.append(match.split(' '))
+
+    nested_toggles = []
+    for nested_toggle in codeLines[0]:
+        nested_toggles.extend(re.findall(r'\s*k[A-Z].*', nested_toggle))
+
+    return nested_toggles
+
     return []
 
 
@@ -169,6 +223,8 @@ def get_general_toggle_var_patterns(lang):
 def get_mixed_toggle_var_patterns(lang):
     return list(language_map[lang.lower()].mixed_toggle_patterns.values())
 
+def get_nested_toggle_var_patterns(lang):
+    return language_map[lang.lower()].nested_toggle_patterns
 
 # Fits a toggle name into regexes
 # regex is [] of patterns
