@@ -1,5 +1,5 @@
 import re
-import os
+import json
 import regex_c as c_patterns
 import regex_java as j_patterns
 import regex_python as py_patterns
@@ -43,26 +43,32 @@ def extract_dead_toggles(lang, code_files, t_config_files):
     code_files_contents = get_code_file_contents(lang, code_files)
     # obtain general toggle usage pattern
     general_toggle_var_patterns = get_general_toggle_var_patterns(lang)
-
-    potential_toggle_vars = []
-    for file_content in code_files_contents:
-        for pattern in general_toggle_var_patterns:
-            matches = re.findall(pattern, file_content)
-            potential_toggle_vars.extend(matches)
-
+    # dictionary to store dead toggle data
+    dead_toggles = defaultdict(list)
     # TODO: Need to get back to this line because the cut-off threshold of 10 is not fully determined
     min_toggle_var_length = 10
 
-    potential_toggle_vars = [var for var in potential_toggle_vars if len(var) > min_toggle_var_length]
-    # filter dead toggles
-    dead_toggles = list(set(potential_toggle_vars) - set(toggles))
+    for code_file, file_content in zip(code_files, code_files_contents):
+        for pattern in general_toggle_var_patterns:
+            # search for toggle matches
+            matches = re.findall(pattern, file_content)
+            for match in matches:
+                # filter dead toggle variables
+                if match not in toggles and len(match) > min_toggle_var_length:
+                    # populate dictionary with dead toggle data
+                    dead_toggles.setdefault(match, []).append((code_file, matches.count(match)))
 
-    return dead_toggles
+    # format dead toggles dictionary
+    dead_toggles_data = {"dead_toggles": dead_toggles, "total_count": len(dead_toggles)}
+    # convert dictionary to JSON object
+    dead_toggles_json = json.dumps(dead_toggles_data, indent=2)
+
+    return dead_toggles_json
 
 
 def extract_spread_toggles(lang, code_files, t_config_files):
-    # dictionary to store toggle variables counts
-    toggle_lookup = defaultdict(int)
+    # dictionary to store spread toggle data
+    toggle_lookup = defaultdict(list)
     # get all toggles from config files as a set
     toggles = set(get_toggles_from_config_files(lang, t_config_files))
 
@@ -75,25 +81,30 @@ def extract_spread_toggles(lang, code_files, t_config_files):
                 # check for toggle occurrences
                 for toggle in toggles:
                     if toggle in content:
-                        # increment toggle count
-                        toggle_lookup[toggle] += 1
+                        # populate dictionary with spread toggle data
+                        toggle_lookup.setdefault(toggle, []).append((code_file, content.count(toggle)))
             except UnicodeDecodeError:
                 pass
 
     # filter toggles used in multiple directories
-    spread_toggles = {toggle: count for toggle, count in toggle_lookup.items() if count > 1}
+    spread_toggles = {toggle: count for toggle, count in toggle_lookup.items() if len(count) > 1}
+    # format spread toggles dictionary
+    spread_toggles_data = {"spread_toggles": spread_toggles, "total_count": len(spread_toggles)}
+    # convert dictionary to JSON object
+    spread_toggles_json = json.dumps(spread_toggles_data, indent=2)
 
-    return spread_toggles
+    return spread_toggles_json
 
 
 def extract_nested_toggles(lang, code_files, t_config_files):
-    nested_toggles = []
+    # dictionary to store nested toggle data
+    nested_toggles = defaultdict(list)
     # get all code file contents in a list
     code_files_contents = get_code_file_contents(lang, code_files)
     # obtain nested toggle usage pattern
     nested_patterns = get_nested_toggle_patterns(lang)
 
-    for content in code_files_contents:
+    for code_file, content in zip(code_files, code_files_contents):
         for pattern in nested_patterns:
             # check for nested occurrences in file content
             matches = re.findall(pattern, content)
@@ -101,10 +112,15 @@ def extract_nested_toggles(lang, code_files, t_config_files):
                 # split the matched code into lines
                 code_lines = match.split('\n')
                 for line in code_lines:
-                    # extract nested toggle variable from each line
-                    nested_toggles.extend(re.findall(get_whitespace_patterns(lang), line))
+                    # populate dictionary with nested toggle data
+                    nested_toggles.setdefault(code_file, []).extend(re.findall(get_whitespace_patterns(lang), line))
 
-    return nested_toggles
+    # format nested toggles dictionary
+    nested_toggles_data = {"nested_toggles": nested_toggles, "total_count": len(nested_toggles)}
+    # convert the dictionary to JSON object
+    nested_toggles_json = json.dumps(nested_toggles_data, indent=2)
+
+    return nested_toggles_json
 
 
 def extract_mixed_toggles(lang, code_files, t_config_files):
