@@ -59,7 +59,10 @@ def extract_dead_toggles(lang, code_files, t_config_files):
                     dead_toggles[match].append((code_file, matches.count(match)))
 
     # format dead toggles dictionary
-    dead_toggles_data = {"dead_toggles": dead_toggles, "total_count": len(dead_toggles)}
+    dead_toggles_data = {
+        "dead_toggles": dead_toggles,
+        "total_count": len(dead_toggles)
+    }
     # convert dictionary to JSON object
     dead_toggles_json = json.dumps(dead_toggles_data, indent=2)
 
@@ -89,7 +92,10 @@ def extract_spread_toggles(lang, code_files, t_config_files):
     # filter toggles used in multiple directories
     spread_toggles = {toggle: count for toggle, count in toggle_lookup.items() if len(count) > 1}
     # format spread toggles dictionary
-    spread_toggles_data = {"spread_toggles": spread_toggles, "total_count": len(spread_toggles)}
+    spread_toggles_data = {
+        "spread_toggles": spread_toggles,
+        "total_count": len(spread_toggles)
+    }
     # convert dictionary to JSON object
     spread_toggles_json = json.dumps(spread_toggles_data, indent=2)
 
@@ -103,6 +109,8 @@ def extract_nested_toggles(lang, code_files, t_config_files):
     code_files_contents = get_code_file_contents(lang, code_files)
     # obtain nested toggle usage pattern
     nested_patterns = get_nested_toggle_patterns(lang)
+    # set to store distinct nested toggle variables
+    distinct_toggles = set()
 
     for code_file, content in zip(code_files, code_files_contents):
         for pattern in nested_patterns:
@@ -115,9 +123,16 @@ def extract_nested_toggles(lang, code_files, t_config_files):
                     # populate dictionary with nested toggle data
                     nested_toggles[code_file].extend(re.findall(get_whitespace_patterns(lang), line))
 
+    # collect distinct nested toggle variables
+    for nested_toggle in nested_toggles.values():
+        distinct_toggles.update(nested_toggle)
     # format nested toggles dictionary
-    nested_toggles_data = {"nested_toggles": nested_toggles, "total_count": len(nested_toggles)}
-    # convert the dictionary to JSON object
+    nested_toggles_data = {
+        "nested_toggles": nested_toggles,
+        "total_count_path": len(nested_toggles),
+        "total_count_toggles": len(distinct_toggles)
+    }
+    # convert dictionary to JSON object
     nested_toggles_json = json.dumps(nested_toggles_data, indent=2)
 
     return nested_toggles_json
@@ -140,8 +155,11 @@ def extract_mixed_toggles(lang, code_files, t_config_files):
                 mixed_toggles[match].append((code_file, matches.count(match)))
 
     # format mixed toggles dictionary
-    mixed_toggles_data = {"mixed_toggles": mixed_toggles, "total_count": len(mixed_toggles)}
-    # convert the dictionary to JSON object
+    mixed_toggles_data = {
+        "mixed_toggles": mixed_toggles,
+        "total_count": len(mixed_toggles)
+    }
+    # convert dictionary to JSON object
     mixed_toggles_json = json.dumps(mixed_toggles_data, indent=2)
 
     return mixed_toggles_json
