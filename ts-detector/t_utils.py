@@ -124,7 +124,6 @@ def extract_nested_toggles(lang, code_files, t_config_files):
             try:
                 content = file.read().decode('utf-8')
                 condensedCode = ''.join(content).replace(' ', '').replace('\n', ' ')
-                print(condensedCode)
                 statementsList = []
                 for regg in regx:
                     statementsList.append(re.findall(regg, condensedCode))
@@ -138,19 +137,19 @@ def extract_nested_toggles(lang, code_files, t_config_files):
 
             file.close()
 
-    print(innerScopeCount)
     regs = []
     regMatches = []
     for key, value in innerScopeCount.items():
         reg = re.compile(re.escape(key) + r'.*?\}' * value)
         regs.append(reg)
 
-    print(regs)
-    print(regMatches)
-    for xx in regs:
-        matches = re.findall(xx, condensedCode)
+
+    for xx in range(10):
+        print(regs[xx])
+        matches = re.findall(regs[xx], condensedCode)
         regMatches.append(matches)
 
+    print(regMatches)
     codeLines = []
     for match in regMatches[0]:
         codeLines.append(match.split(' '))
@@ -191,6 +190,38 @@ def extract_mixed_toggles(lang, code_files, t_config_files):
 
 def extract_enum_toggles(code_files, t_config_files, lang):
     return []
+
+def extract_combinatory_toggles(code_files, t_config_files, lang):
+    toggle_names = get_toggles_from_config_files(lang, t_config_files)
+
+    for code in code_files:
+        # Build regular expression pattern to match toggles within the same conditional statement
+        toggle_pattern = '|'.join(toggle_names)
+        conditional_pattern = r'\b(?:if|else\s*if)\s*\((?:[^{}]*\b(?:' + toggle_pattern + r')\b[^{}]*,?\s*)+\)\s*{'
+
+        # Find all occurrences of conditional statements containing multiple toggles
+        conditional_matches = re.finditer(conditional_pattern, code)
+
+        # Check each conditional statement for combinations of toggles
+        combination_detected = False
+        for match in conditional_matches:
+            conditional_statement = match.group(0)
+            combination_found = False
+            for toggle in toggle_names:
+                if toggle in conditional_statement:
+                    for other_toggle in toggle_names:
+                        if toggle != other_toggle and other_toggle in conditional_statement:
+                            combination_detected = True
+                            combination_found = True
+                            print(f"Combination detected: {toggle} and {other_toggle}")
+                            break
+                    if combination_found:
+                        break
+
+        if not combination_detected:
+            print("No combinatorial toggle pattern detected in the code file.")
+
+
 
 
 def get_toggles_from_config_files(lang, config_files):

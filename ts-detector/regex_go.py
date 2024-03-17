@@ -13,5 +13,7 @@ nested_toggle_patterns = {
 }
 
 spread_toggle_patterns = {
-    'parent_finder': r'package (\w)*\n'
+    'parent_finder': r'package (\w)*\n',
+    'package': r'package .*\n'
 }
+
