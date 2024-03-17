@@ -1,5 +1,5 @@
 general_toggle_var_patterns = {
-    'pattern1': r'\n*(Enable.*): DynamicBool{' #< this is only checked on project cadence for now
+    'pattern1': r'\n*(Enable.*): DynamicBool{'
 }
 
 toggle_config_patterns = {
@@ -11,6 +11,7 @@ nested_toggle_patterns = {
     'else_condition': r'else\s+.*?\}',
     'elseif_condition': r'else if\s+.*?\}'
 }
+
 
 spread_toggle_patterns = {
     'parent_finder': r'package (\w)*\n',

@@ -24,21 +24,25 @@ try:
 except:
     t_usage = None
 
-file_extension = {
-    'python': 'py',
-    'java': 'java',
-    'cpp': 'cc',
-    'go': 'go',
-    'c': 'c'
-}
-
 # Usage: python3 tsd.py <language> </source/path> <config_file_postfix> <toggle_usage_type>
 # Usage: python3 tsd.py C++ /Users/taj/Documents/Research/Data/chromium/ui/base switches.cc dead
 if __name__ == "__main__":
     source_path = source_path.rstrip("/")
-    print("Source path: " + source_path + ", Config file pattern: " + t_conf_file + ", Toggle usage pattern: " + t_usage + ", Language: " + lang)
-    config_files = glob.glob(f'{source_path}/**/*_{t_conf_file}', recursive=True)
-    code_files = glob.glob(f'{source_path}/**/*.{file_extension[lang.lower()]}', recursive=True)
+    print("Language: " + lang + ", Source path: " + source_path + ", Config file pattern: " + t_conf_file + ", Toggle usage pattern: " + t_usage)
 
-    foundToggles = t_utils.detect(lang, code_files, config_files, t_usage)
-    print(foundToggles)
+    config_files = glob.glob(f'{source_path}/**/*_{t_conf_file}', recursive=True)
+
+    if lang.lower() == "c++":
+        c_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
+        cpp_files = glob.glob(f'{source_path}/**/*.cpp', recursive=True)
+        code_files = c_files + cpp_files
+    elif lang.lower() == "go":
+        code_files = glob.glob(f'{source_path}/**/*.go', recursive=True)
+    elif lang.lower() == "java":
+        code_files = glob.glob(f'{source_path}/**/*.java', recursive=True)
+    else:
+        config_files = None
+        code_files = None
+
+    detectedToggles = t_utils.detect(lang, code_files, config_files, t_usage)
+    print(detectedToggles)
