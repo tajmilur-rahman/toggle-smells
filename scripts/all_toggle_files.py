@@ -208,8 +208,7 @@ def extract_nested_toggles():
     nested_toggles = []
     for nested_toggle in codeLines[0]:
         nested_toggles.extend(re.findall(r'\s*k[A-Z].*', nested_toggle))
-    print('Following are the Nested Toggles:')
-    print('---------------------------------')
+
     return nested_toggles
 
 
