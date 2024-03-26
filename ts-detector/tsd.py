@@ -30,7 +30,7 @@ if __name__ == "__main__":
     source_path = source_path.rstrip("/")
     print("Language: " + lang + ", Source path: " + source_path + ", Config file pattern: " + t_conf_file + ", Toggle usage pattern: " + t_usage)
 
-    config_files = glob.glob(f'{source_path}/**/*_{t_conf_file}', recursive=True)
+    config_files = glob.glob(f'{source_path}/**/*{t_conf_file}', recursive=True)
 
     if lang.lower() == "c++":
         c_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
@@ -40,6 +40,10 @@ if __name__ == "__main__":
         code_files = glob.glob(f'{source_path}/**/*.go', recursive=True)
     elif lang.lower() == "java":
         code_files = glob.glob(f'{source_path}/**/*.java', recursive=True)
+    elif lang.lower() == "python":
+        code_files = glob.glob(f'{source_path}/**/*.py', recursive=True)
+    elif lang.lower() == "js":
+        code_files = glob.glob(f'{source_path}/**/*.js', recursive=True)
     else:
         config_files = None
         code_files = None

@@ -23,5 +23,5 @@ general_patterns = {
 }
 
 spread_toggle_patterns = {
-    'parent_finder': r'class (.*) \{(.|\n)*%s'
+    'parent_finder': [r'(class .*) \{(.|\n)*%s', r'(namespace .*) \{(.|\n)*%s']
 }

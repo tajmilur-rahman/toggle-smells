@@ -1,17 +1,23 @@
 general_toggle_var_patterns = {
-    'pattern1': r'switches\:\:([k][A-Z][a-z,A-Z]*)'
+    'pattern1': r'features.has\([^)"]*([^\n),]*)'
 }
 
 toggle_config_patterns = {
-    'pattern1': r'const char (k[A-Z][a-z,A-Z]*)'
+    'pattern2': r'"([^\n"]*:[^\n"]*)": False',
+    'pattern3': r'"([^\n"]*:[^\n"]*)": True'
 }
 
 nested_toggle_patterns = {
-    'if_condition': r'if\s*\(.*?\}',
-    'else_condition': r'else\s*\(.*?\}',
-    'elseif_condition': r'elseif\s*\(.*?\}'
+    'and_condition1': r'and\s*features.has\([^)]*\)',
+    'and_condition2': r'\s*features.has\([^)]*\) and',
+    'or_condition1': r'\s*features.has\([^)]*\) or',
+    'or_condition2': r'or\s*features.has\([^)]*\)'
+}
+
+general_patterns = {
+    'whitespace': r'\s*features.has\([^)"]*([^\n),]*)',
 }
 
 spread_toggle_patterns = {
-    'parent_finder': r'class (.*)\:(.|\n)*%s'
+    'parent_finder': [r'class (.*)\:(.|\n)*%s']
 }
