@@ -5,9 +5,9 @@ We identified six usage patterns in Google Chromium in a preliminary study. Alth
 
 Following are the usage patterns our tool can detect as of now.
 * Dead usage patterns
-* Nested usage patterns -- In progress
-* Spread usage patterns -- In progress
-* Mixed usage patterns -- In progress
+* Nested usage patterns
+* Spread usage patterns
+* Mixed usage patterns 
 * Enumeration usage patterns -- In progress
 * Combinatorial usage patterns -- In progress
 
