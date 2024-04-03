@@ -21,3 +21,7 @@ general_patterns = {
     'whitespace': r'\s*(k[A-Z][a-zA-Z0-9]*)',
     'condition_count': r'\b(if|else|elseif)\b'
 }
+
+spread_toggle_patterns = {
+    'parent_finder': [r'(class .*) \{(.|\n)*%s', r'(namespace .*) \{(.|\n)*%s']
+}
