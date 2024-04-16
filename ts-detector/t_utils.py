@@ -162,7 +162,7 @@ def extract_spread_toggles(lang, code_files, t_config_files):
 
     toggle_parent_patterns = get_spread_toggle_var_patterns(lang)['parent_finder']
 
-    s_toggles = defaultdict(list)
+    toggles = defaultdict(list)
     # find its parent
     for toggle, contents in spread_toggles.items():
         parent_list = []
@@ -179,8 +179,14 @@ def extract_spread_toggles(lang, code_files, t_config_files):
                     if match not in parent_list:
                         parent_list.append(match[0])
 
-        s_toggles[toggle].extend(parent_list)
-        s_toggles[toggle] = list(dict.fromkeys(s_toggles[toggle]))
+        if len(parent_list) != 0:
+            toggles[toggle].extend(parent_list)
+            toggles[toggle] = list(dict.fromkeys(toggles[toggle]))
+
+    s_toggles = defaultdict(list)
+    for t in toggles.keys():
+        if len(toggles[t]) > 1:
+            s_toggles[t] = list(dict.fromkeys(toggles[t]))
 
     # format spread toggles dictionary
     spread_toggles_data = {
