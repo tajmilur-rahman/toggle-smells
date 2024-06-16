@@ -47,8 +47,6 @@ def extract_dead_toggles(lang, code_files, t_config_files):
     general_toggle_var_patterns = get_general_toggle_var_patterns(lang)
     # dictionary to store dead toggle data
     dead_toggles = defaultdict(list)
-    # TODO: Need to get back to this line because the cut-off threshold of 10 is not fully determined
-    min_toggle_var_length = 10
 
     if lang == "python":
         for j in range(len(toggles)):
