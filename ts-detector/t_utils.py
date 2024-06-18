@@ -16,7 +16,7 @@ language_map = {
 }
 
 
-def detect(lang, code_files, t_config_files, t_usage):
+def detect(lang, code_files, t_config_files, t_usage, regex_patterns):
     if lang is None:
         raise ValueError("Language is not defined.")
 
@@ -26,25 +26,29 @@ def detect(lang, code_files, t_config_files, t_usage):
     if t_config_files is None:
         raise ValueError("A list of config files is required.")
 
+    if regex_patterns == {}:
+        regex_patterns["general_pattern"] = get_general_toggle_var_patterns(lang)
+        regex_patterns["config_pattern"] = get_toggle_config_patterns(lang)
+
     if t_usage == "dead":
-        return extract_dead_toggles(lang, code_files, t_config_files)
+        return extract_dead_toggles(lang, code_files, t_config_files, regex_patterns)
     elif t_usage == "spread":
-        return extract_spread_toggles(lang, code_files, t_config_files)
+        return extract_spread_toggles(lang, code_files, t_config_files, regex_patterns)
     elif t_usage == "nested":
-        return extract_nested_toggles(lang, code_files, t_config_files)
+        return extract_nested_toggles(lang, code_files, t_config_files, regex_patterns)
     elif t_usage == "mixed":
-        return extract_mixed_toggles(lang, code_files, t_config_files)
+        return extract_mixed_toggles(lang, code_files, t_config_files, regex_patterns)
     elif t_usage == "enum":
-        return extract_enum_toggles(lang, code_files, t_config_files)
+        return extract_enum_toggles(lang, code_files, t_config_files, regex_patterns)
 
 
-def extract_dead_toggles(lang, code_files, t_config_files):
+def extract_dead_toggles(lang, code_files, t_config_files, regex_patterns):
     # get all toggles from config files
-    toggles = get_toggles_from_config_files(lang, t_config_files)
+    toggles = get_toggles_from_config_files(t_config_files, regex_patterns)
     # get all code file contents in a list
     code_files_contents = get_code_file_contents(lang, code_files)
     # obtain general toggle usage pattern
-    general_toggle_var_patterns = get_general_toggle_var_patterns(lang)
+    general_toggle_var_patterns = regex_patterns["general_pattern"]
     # dictionary to store dead toggle data
     dead_toggles = defaultdict(list)
 
@@ -97,12 +101,12 @@ def extract_dead_toggles(lang, code_files, t_config_files):
     return dead_toggles_json
 
 
-def extract_nested_toggles(lang, code_files, t_config_files):
+def extract_nested_toggles(lang, code_files, t_config_files, regex_patterns):
     # dictionary to store nested toggle data
     nested_toggles = defaultdict(list)
 
     # get all toggles from config files
-    toggles = get_toggles_from_config_files(lang, t_config_files)
+    toggles = get_toggles_from_config_files(t_config_files, regex_patterns)
 
     # get all code file contents in a list
     code_files_contents = get_code_file_contents(lang, code_files)
@@ -127,7 +131,8 @@ def extract_nested_toggles(lang, code_files, t_config_files):
                         for toggle in toggles:
                             nested_toggles[getFileName(lang,code_file)].extend(re.findall(toggle, line))
                     else:
-                        nested_toggles[getFileName(lang,code_file)].extend(re.findall(get_whitespace_patterns(lang), line))
+                        for i in regex_patterns["general_pattern"]:
+                            nested_toggles[getFileName(lang,code_file)].extend(re.findall(i, line))
 
     to_del = []
     for k in nested_toggles.keys():
@@ -149,11 +154,11 @@ def extract_nested_toggles(lang, code_files, t_config_files):
     return nested_toggles_json
 
 
-def extract_spread_toggles(lang, code_files, t_config_files):
+def extract_spread_toggles(lang, code_files, t_config_files, regex_patterns):
     # dictionary to store spread toggle data
     toggle_lookup = defaultdict(list)
     # get all toggles from config files as a set
-    toggles = set(get_toggles_from_config_files(lang, t_config_files))
+    toggles = set(get_toggles_from_config_files(t_config_files, regex_patterns))
     # walk through each directory
     for code_file in code_files:
         with open(code_file, 'rb') as file:
@@ -210,7 +215,7 @@ def extract_spread_toggles(lang, code_files, t_config_files):
     return spread_toggles_json
 
 
-def extract_mixed_toggles(lang, code_files, t_config_files):
+def extract_mixed_toggles(lang, code_files, t_config_files, regex_patterns):
     # dictionary to store mixed toggle data
     mixed_toggles = defaultdict(list)
     # get all code file contents in a list
@@ -242,8 +247,8 @@ def extract_enum_toggles(code_files, t_config_files, lang):
 
 
 # WIP
-def extract_combinatory_toggles(code_files, t_config_files, lang):
-    toggle_names = get_toggles_from_config_files(lang, t_config_files)
+def extract_combinatory_toggles(code_files, t_config_files, lang, regex_patterns):
+    toggle_names = get_toggles_from_config_files(t_config_files, regex_patterns)
 
     for code in code_files:
         # Build regular expression pattern to match toggles within the same conditional statement
@@ -273,7 +278,7 @@ def extract_combinatory_toggles(code_files, t_config_files, lang):
             print("No combinatorial toggle pattern detected in the code file.")
 
 
-def get_toggles_from_config_files(lang, config_files):
+def get_toggles_from_config_files(config_files, regex_patterns):
     toggle_list = []
     for conf_file in config_files:
         with open(conf_file, 'r') as file:
@@ -281,7 +286,7 @@ def get_toggles_from_config_files(lang, config_files):
             toggle_list.append(file_content)
 
     toggle_list = list(filter(None, toggle_list))
-    toggle_patterns = get_toggle_config_patterns(lang)
+    toggle_patterns = regex_patterns['config_pattern']
 
     toggles = []
     for toggle in toggle_list:
@@ -290,18 +295,6 @@ def get_toggles_from_config_files(lang, config_files):
             toggles.extend(matches)
 
     return list(set(filter(None, toggles)))
-
-
-def get_condition_count_patterns(lang):
-    return language_map[lang.lower()].general_patterns['condition_count']
-
-
-def get_char_seq_patterns(lang):
-    return language_map[lang.lower()].general_patterns['char_seq']
-
-
-def get_whitespace_patterns(lang):
-    return language_map[lang.lower()].general_patterns['whitespace']
 
 
 def get_directive_patterns(lang):
