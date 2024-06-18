@@ -135,10 +135,12 @@ if __name__ == "__main__":
         print("Your language is {}".format(lang))
 
         general_pattern = get_repeated_string("Please enter your toggles general usage pattern, how they are used, "
-                                              "e.g: GetBoolProperty.*\(.*.(.*)\)")
+                                              "Make sure they are reg ex format, with r''"
+                                              "e.g: r'GetBoolProperty.*\(.*.(.*)\)'")
 
-        config_pattern = get_repeated_string("Please enter your toggles config pattern, how they are defined in the "
-                                             "config file, e.g: .*(Enable.*): DynamicBool{")
+        config_pattern = get_repeated_string("Please enter your toggles config pattern, how they are defined in the "                                     
+                                             "Make sure they are reg ex format, with r''"
+                                             "config file, e.g: r'.*(Enable.*): DynamicBool{'")
 
         regex_p["general_pattern"] = general_pattern
         regex_p["config_pattern"] = config_pattern
