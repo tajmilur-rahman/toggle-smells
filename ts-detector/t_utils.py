@@ -67,7 +67,7 @@ def extract_dead_toggles(lang, code_files, t_config_files, regex_patterns):
                     # filter dead toggle variables
                     if match not in toggles:
                         # populate dictionary with dead toggle data
-                        dead_toggles[match].append((getFileName(lang,code_file), matches.count(match)))
+                        dead_toggles[match].append((getFileName(lang, code_file), matches.count(match)))
 
         # format dead toggles dictionary
         dead_toggles_data = {
@@ -97,7 +97,6 @@ def extract_dead_toggles(lang, code_files, t_config_files, regex_patterns):
         # convert dictionary to JSON object
         dead_toggles_json = json.dumps(dead_toggles_data, indent=2)
 
-
     return dead_toggles_json
 
 
@@ -121,18 +120,18 @@ def extract_nested_toggles(lang, code_files, t_config_files, regex_patterns):
             matches = re.findall(pattern, content)
             for match in matches:
                 # split the matched code into lines
-                if lang == "python": # python doesn't have {} so we need to take another route
+                if lang == "python":  # python doesn't have {} so we need to take another route
                     code_lines = [match.replace('\n', "")]
                 else:
                     code_lines = match.split('\n')
                 for line in code_lines:
                     # populate dictionary with nested toggle data
-                    if lang == "js": # react doesn't have a middleware usage pattern
+                    if lang == "js":  # react doesn't have a middleware usage pattern
                         for toggle in toggles:
-                            nested_toggles[getFileName(lang,code_file)].extend(re.findall(toggle, line))
+                            nested_toggles[getFileName(lang, code_file)].extend(re.findall(toggle, line))
                     else:
                         for i in regex_patterns["general_pattern"]:
-                            nested_toggles[getFileName(lang,code_file)].extend(re.findall(i, line))
+                            nested_toggles[getFileName(lang, code_file)].extend(re.findall(i, line))
 
     to_del = []
     for k in nested_toggles.keys():
@@ -361,18 +360,17 @@ def getRegexWithToggleName(regex, toggleName):
 
 
 def getFileName(lang, path):
-    if(lang == "python"):
+    if (lang == "python"):
         regex = r"[^\/]*\.py"
         return re.findall(regex, path)[0]
-    elif(lang == "js"):
+    elif (lang == "js"):
         regex = r"[^\/]*\.js"
         return re.findall(regex, path)[0]
-    elif(lang == 'java'):
+    elif (lang == 'java'):
         regex = r"[^\/]*\.java"
         return re.findall(regex, path)[0]
-    elif(lang == 'go'):
+    elif (lang == 'go'):
         regex = r"[^\/]*\.go"
         return re.findall(regex, path)[0]
 
     return path
-
