@@ -3,6 +3,7 @@ import glob
 import argparse
 import t_utils
 
+patterns = ["dead", "spread", "mixed", "nested"]
 
 def auto_detect_language(config_files):
     for config_file in config_files:
@@ -25,7 +26,7 @@ def main():
     parser.add_argument('-p', '--source-path', required=True, help='Source code directory path')
     parser.add_argument('-c', '--config-path', required=True, help='Configuration file path')
     parser.add_argument('-o', '--output', required=False, help='Output file path')
-    parser.add_argument('-t', '--toggle-usage', required=True, choices=["dead", "spread", "mixed", "nested"], help='Toggle usage pattern to detect')
+    parser.add_argument('-t', '--toggle-usage', required=False, choices=patterns, help='Toggle usage pattern to detect')
     parser.add_argument('-l', '--language', required=False, help='Programming language (optional, auto-detect if not provided)')
 
     args = parser.parse_args()
@@ -62,19 +63,26 @@ def main():
         print("Unsupported language. Exiting.")
         sys.exit(1)
 
-    regex_p = {
-        "general_pattern": [],
-        "config_pattern": []
-    }
+    if toggle_usage:
+        detected_toggles = t_utils.detect(lang, code_files, config_files, toggle_usage, {})
 
-    detectedToggles = t_utils.detect(lang, code_files, config_files, toggle_usage, regex_p)
+        if output_path:
+            with open(output_path, 'w') as f:
+                f.write(str(detected_toggles))
+            print(f"Output written to {output_path}")
+        else:
+            print(detected_toggles)
 
-    if output_path:
-        with open(output_path, 'w') as f:
-            f.write(str(detectedToggles))
-        print(f"Output written to {output_path}")
     else:
-        print(detectedToggles)
+        for p in patterns:
+            detected_toggles = t_utils.detect(lang, code_files, config_files, p, regex_p)
+
+            if output_path:
+                with open(output_path+'/'+p, 'w') as f:
+                    f.write(str(detected_toggles))
+                print(f"Output written to {output_path}")
+            else:
+                print(detected_toggles)
 
 
 if __name__ == "__main__":
