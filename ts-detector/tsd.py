@@ -1,158 +1,51 @@
-"""Main Module"""
 import sys
 import glob
-import re
-
+import argparse
 import t_utils
 
-try:
-    lang = sys.argv[1]
-except:
-    lang = None
 
-try:
-    source_path = sys.argv[2]
-except:
-    source_path = None
+def auto_detect_language(config_files):
+    for config_file in config_files:
+        with open(config_file, 'r') as f:
+            content = f.read()
+            if "import java" in content:
+                return "java"
+            elif "#include <" in content:
+                return "c++"
+            elif "def " in content:
+                return "python"
+            elif "package main" in content:
+                return "go"
+            elif "function " in content:
+                return "js"
+    return None
 
-try:
-    t_conf_file = sys.argv[3]
-except:
-    t_conf_file = None
+def main():
+    parser = argparse.ArgumentParser(description='Detect usage patterns in source code.')
+    parser.add_argument('-p', '--source-path', required=True, help='Source code directory path')
+    parser.add_argument('-c', '--config-path', required=True, help='Configuration file path')
+    parser.add_argument('-o', '--output', required=False, help='Output file path')
+    parser.add_argument('-t', '--toggle-usage', required=True, choices=["dead", "spread", "mixed", "nested"], help='Toggle usage pattern to detect')
+    parser.add_argument('-l', '--language', required=False, help='Programming language (optional, auto-detect if not provided)')
 
-try:
-    t_usage = sys.argv[4]
-except:
-    t_usage = None
+    args = parser.parse_args()
 
+    source_path = args.source_path.rstrip("/")
+    config_path = args.config_path
+    output_path = args.output
+    toggle_usage = args.toggle_usage
+    lang = args.language
 
-def is_valid_regex(pattern):
-    try:
-        re.compile(pattern)
-        return True
-    except re.error:
-        return False
+    if not lang:
+        config_files = glob.glob(f'{config_path}/**/*', recursive=True)
+        lang = auto_detect_language(config_files)
+        if not lang:
+            print("Could not auto-detect language. Please provide it using the -l flag.")
+            sys.exit(1)
+    
+    print(f"Language: {lang}, Source path: {source_path}, Config file pattern: {config_path}, Toggle usage pattern: {toggle_usage}")
 
-
-def get_user_string_input(prompt):
-    res = input(prompt).strip()
-    return res
-
-
-def get_user_choice(prompt, option_list):
-    for i in range(len(option_list)):
-        print(i + 1, ") ", option_list[i])
-
-    selected = get_user_string_input(prompt)
-
-    while selected.isdigit() and int(selected) > len(option_list) + 1 or int(selected) < 1:
-        print("Please enter valid number from 1 - ", len(option_list))
-        for i in range(len(option_list)):
-            print(i + 1, ") ", option_list[i])
-        selected = get_user_string_input(prompt)
-
-    return selected
-
-
-def get_repeated_string(prompt):
-    user_inputs = []
-    while True:
-        user_input = get_user_string_input(prompt + " or press Enter to finish): ")
-        if user_input == '':
-            break
-        if is_valid_regex(user_input):
-            user_inputs.append(user_input)
-            print("Current list of values:", user_inputs)
-        else:
-            print("Invalid regular expression. Please try again.")
-    return user_inputs
-
-
-predefined = {
-    "1": {
-        "lang": "c++",
-        "name": "C++ Chromium",
-    },
-    "2": {
-        "lang": "c++",
-        "name": "C++ Dawn",
-    },
-    "3": {
-        "lang": "go",
-        "name": "Go  Uber Cadence",
-    },
-    "4": {
-        "lang": "Java",
-        "name": "Java OpenSearch",
-    },
-    "5": {
-        "lang": "python",
-        "name": "Python OpenSearch",
-    },
-    "6": {
-        "lang": "js",
-        "name": "JS React",
-    },
-}
-
-usage_list = ["dead", "spread", "mixed", "nested"]
-# Usage: python3 tsd.py <language> </source/path> <config_file_postfix> <toggle_usage_type>
-# Usage: python3 tsd.py C++ /Users/taj/Documents/Research/Data/chromium/ui/base switches.cc dead
-if __name__ == "__main__":
-    selected = get_user_choice(
-        "Select predefined projects, enter number only:",
-        [
-            "C++ Chromium",
-            "C++ Dawn",
-            "Go  Uber Cadence",
-            "Java OpenSearch",
-            "Python Sentry",
-            "JS React",
-            "Self Input",
-        ],
-    )
-
-    source_path = get_user_string_input("Enter the source path: ").rstrip("/")
-    print("Your source path is {}".format(source_path))
-
-    t_conf_file = get_user_string_input("Enter the config file: ")
-    print("Your config file postfix is {}".format(t_conf_file))
-
-    t_usage_index = get_user_choice(
-        "Enter the toggle usage type: ",
-        usage_list
-    )
-
-    t_usage = usage_list[int(t_usage_index) - 1]
-    print("Your toggle usage is {}".format(t_usage))
-
-    regex_p = {
-        "general_pattern": [],
-        "config_pattern": []
-    }
-    if selected == "7":
-        lang = get_user_string_input("Enter the programming language: ")
-        print("Your language is {}".format(lang))
-
-        general_pattern = get_repeated_string("Please enter your toggles general usage pattern, how they are used, "
-                                              "Make sure they are reg ex format, with r''"
-                                              "e.g: r'GetBoolProperty.*\(.*.(.*)\)'")
-
-        config_pattern = get_repeated_string("Please enter your toggles config pattern, how they are defined in the "                                     
-                                             "Make sure they are reg ex format, with r''"
-                                             "config file, e.g: r'.*(Enable.*): DynamicBool{'")
-
-        regex_p["general_pattern"] = general_pattern
-        regex_p["config_pattern"] = config_pattern
-
-    else:
-        lang = predefined[selected]["lang"]
-
-    print(
-        "Language: " + lang + ", Source path: " + source_path + ", Config file pattern: " + t_conf_file + ", Toggle usage pattern: " + t_usage)
-
-    config_files = glob.glob(f'{source_path}/**/*{t_conf_file}', recursive=True)
-
+    config_files = glob.glob(f'{config_path}/**/*', recursive=True)
     if lang.lower() == "c++":
         c_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
         cpp_files = glob.glob(f'{source_path}/**/*.cpp', recursive=True)
@@ -166,8 +59,23 @@ if __name__ == "__main__":
     elif lang.lower() == "js":
         code_files = glob.glob(f'{source_path}/**/*.js', recursive=True)
     else:
-        config_files = None
-        code_files = None
+        print("Unsupported language. Exiting.")
+        sys.exit(1)
 
-    detectedToggles = t_utils.detect(lang, code_files, config_files, t_usage, regex_p)
-    print(detectedToggles)
+    regex_p = {
+        "general_pattern": [],
+        "config_pattern": []
+    }
+
+    detectedToggles = t_utils.detect(lang, code_files, config_files, toggle_usage, regex_p)
+
+    if output_path:
+        with open(output_path, 'w') as f:
+            f.write(str(detectedToggles))
+        print(f"Output written to {output_path}")
+    else:
+        print(detectedToggles)
+
+
+if __name__ == "__main__":
+    main()
