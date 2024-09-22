@@ -4,7 +4,6 @@ import regex_c as c_patterns
 import regex_java as j_patterns
 import regex_python as py_patterns
 import regex_go as go_patterns
-import regex_js as js_patterns
 from collections import defaultdict
 
 language_map = {
@@ -12,7 +11,6 @@ language_map = {
     "java": j_patterns,
     "python": py_patterns,
     "go": go_patterns,
-    "js": js_patterns,
 }
 
 
@@ -47,10 +45,6 @@ def extract_dead_toggles(lang, code_files, t_config_files, regex_patterns):
     toggles = get_toggles_from_config_files(t_config_files, regex_patterns)
     # get all code file contents in a list
     code_files_contents = get_code_file_contents(lang, code_files)
-    # obtain general toggle usage pattern
-    general_toggle_var_patterns = regex_patterns["general_pattern"]
-    # dictionary to store dead toggle data
-    dead_toggles = defaultdict(list)
 
     if lang == "python":
         for j in range(len(toggles)):
@@ -212,9 +206,17 @@ def extract_mixed_toggles(lang, code_files, t_config_files, regex_patterns):
     return mixed_toggles_json
 
 
-def extract_enum_toggles(code_files, t_config_files, lang):
+def extract_enum_toggles(code_files, t_config_files, lang, regex_patterns):
     # get all toggle names
+    # dictionary to store spread toggle data
+    toggle_lookup = defaultdict(list)
+    # get all toggles from config files as a set
+    toggles = set(get_toggles_from_config_files(t_config_files, regex_patterns))
+
     # find all enums and check if name in it
+
+
+
 
     return []
 

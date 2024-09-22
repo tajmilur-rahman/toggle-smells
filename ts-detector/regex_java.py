@@ -13,12 +13,6 @@ nested_toggle_patterns = {
     'elseif_condition': r'else if[^}]*?}'
 }
 
-combinatory_toggle_pattens = {
-    'pattern1': r'(%s)((\n|.?){0,1}(&&))',
-    'pattern2': r'&&\n\s*(%s)',
-    'pattern3': r'\n\s*&&\s*(%s)',
-}
-
 general_patterns = {
     'whitespace': r'FeatureFlags.isEnabled\(FeatureFlags.(.*?)\)',
 }
@@ -28,5 +22,7 @@ spread_toggle_patterns = {
 }
 
 enum_toggle_patterns = {
-    'enum_def': [r'enum\s+([A-Za-z_][A-Za-z0-9_]*)']
+    'enum_def': [r'enum\s+([A-Za-z_][A-Za-z0-9_]*)'],
+    "in_enum": r'enum\s+(\w+)\s*{([^}]*)};',
+
 }

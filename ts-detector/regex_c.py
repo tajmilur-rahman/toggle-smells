@@ -27,5 +27,6 @@ spread_toggle_patterns = {
 }
 
 enum_toggle_patterns = {
-    'enum_def': [r'enum\s+(class\s+)?([A-Za-z_][A-Za-z0-9_]*)']
+    'enum_def': [r'enum\s+(class\s+)?([A-Za-z_][A-Za-z0-9_]*)'],
+    "in_enum": r'enum\s+(\w+)\s*{([^}]*)};',
 }

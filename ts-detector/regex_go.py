@@ -16,7 +16,6 @@ nested_toggle_patterns = {
     'elseif_condition': r'} else if\s*[^}]*\}'
 }
 
-
 general_patterns = {
     'whitespace': r'([\w*\.]*\w*Enable\w*)',
 }
@@ -27,5 +26,6 @@ spread_toggle_patterns = {
 }
 
 enum_toggle_patterns = {
-    'enum_def': [r'const\s*\([\s\S]*?\b([A-Za-z_][A-Za-z0-9_]*)\s*=\s*iota']
+    'enum_def': [r'const\s*\([\s\S]*?\b([A-Za-z_][A-Za-z0-9_]*)\s*=\s*iota'],
+    "in_enum": r'enum\s+(\w+)\s*{([^}]*)};',
 }
