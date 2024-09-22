@@ -219,38 +219,6 @@ def extract_enum_toggles(code_files, t_config_files, lang):
     return []
 
 
-# WIP
-def extract_combinatory_toggles(code_files, t_config_files, lang, regex_patterns):
-    toggle_names = get_toggles_from_config_files(t_config_files, regex_patterns)
-
-    for code in code_files:
-        # Build regular expression pattern to match toggles within the same conditional statement
-        toggle_pattern = '|'.join(toggle_names)
-        conditional_pattern = r'\b(?:if|else\s*if)\s*\((?:[^{}]*\b(?:' + toggle_pattern + r')\b[^{}]*,?\s*)+\)\s*{'
-
-        # Find all occurrences of conditional statements containing multiple toggles
-        conditional_matches = re.finditer(conditional_pattern, code)
-
-        # Check each conditional statement for combinations of toggles
-        combination_detected = False
-        for match in conditional_matches:
-            conditional_statement = match.group(0)
-            combination_found = False
-            for toggle in toggle_names:
-                if toggle in conditional_statement:
-                    for other_toggle in toggle_names:
-                        if toggle != other_toggle and other_toggle in conditional_statement:
-                            combination_detected = True
-                            combination_found = True
-                            print(f"Combination detected: {toggle} and {other_toggle}")
-                            break
-                    if combination_found:
-                        break
-
-        if not combination_detected:
-            print("No combinatorial toggle pattern detected in the code file.")
-
-
 def get_toggles_from_config_files(config_files, regex_patterns):
     toggle_list = []
     for conf_file in config_files:
@@ -294,6 +262,10 @@ def get_spread_toggle_var_patterns(lang):
     return language_map[lang.lower()].spread_toggle_patterns
 
 
+def get_nested_toggle_var_patterns(lang):
+    return language_map[lang.lower()].nested_toggle_patterns
+
+
 def get_code_file_contents(lang, code_files):
     code_files_contents = []
     for file in code_files:
@@ -313,16 +285,6 @@ def get_code_file_contents(lang, code_files):
                 except UnicodeDecodeError:
                     pass
     return code_files_contents
-
-    return list(language_map[lang.lower()].general_toggle_var_patterns.values())
-
-
-def get_mixed_toggle_var_patterns(lang):
-    return list(language_map[lang.lower()].mixed_toggle_patterns.values())
-
-
-def get_nested_toggle_var_patterns(lang):
-    return language_map[lang.lower()].nested_toggle_patterns
 
 
 # Fits a toggle name into regexes
