@@ -243,6 +243,9 @@ def extract_mixed_toggles(lang, code_files, t_config_files, regex_patterns):
 
 
 def extract_enum_toggles(code_files, t_config_files, lang):
+    # get all toggle names
+    # find all enums and check if name in it
+
     return []
 
 

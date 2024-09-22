@@ -26,3 +26,7 @@ general_patterns = {
 spread_toggle_patterns = {
     'parent_finder': [r'class (.*( extends|implements \w*)*) \{(.|\n)*%s']
 }
+
+enum_toggle_patterns = {
+    'enum_def': [r'enum\s+([A-Za-z_][A-Za-z0-9_]*)']
+}

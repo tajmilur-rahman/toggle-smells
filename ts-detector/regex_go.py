@@ -26,3 +26,6 @@ spread_toggle_patterns = {
     'parent_finder': [r'\npackage (.*)(\n)'],
 }
 
+enum_toggle_patterns = {
+    'enum_def': [r'const\s*\([\s\S]*?\b([A-Za-z_][A-Za-z0-9_]*)\s*=\s*iota']
+}
