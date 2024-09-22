@@ -56,47 +56,21 @@ def extract_dead_toggles(lang, code_files, t_config_files, regex_patterns):
         for j in range(len(toggles)):
             toggles[j] = "\"" + toggles[j] + "\""
 
-    if lang != 'js':
-        for code_file, file_content in zip(code_files, code_files_contents):
-            for pattern in general_toggle_var_patterns:
-                # search for toggle matches
-                matches = re.findall(pattern, file_content)
-                for match in matches:
-                    if match == "":
-                        continue
-                    # filter dead toggle variables
-                    if match not in toggles:
-                        # populate dictionary with dead toggle data
-                        dead_toggles[match].append((getFileName(lang,code_file), matches.count(match)))
+    dead_toggles = toggles
+    for code_file, file_content in zip(code_files, code_files_contents):
+        for toggle in toggles:
+            # search for toggle matches
+            matches = re.findall(toggle, file_content)
+            if len(matches) > 0:
+                dead_toggles.remove(toggle)
 
-        # format dead toggles dictionary
-        dead_toggles_data = {
-            "dead_toggles": dead_toggles,
-            "total_count": len(dead_toggles)
-        }
-        # convert dictionary to JSON object
-        dead_toggles_json = json.dumps(dead_toggles_data, indent=2)
-    # react uses feature flag value straight, it doesn't have a middleware, so we cannot check just ' (\w*) '
-    # so we check if a defined toggle no longer being used
-    else:
-        dead_toggles = toggles
-        for code_file, file_content in zip(code_files, code_files_contents):
-            if "ReactFeatureFlags" in code_file or "test" in code_file:
-                continue
-            for toggle in toggles:
-                # search for toggle matches
-                matches = re.findall(toggle, file_content)
-                if len(matches) > 0:
-                    dead_toggles.remove(toggle)
-
-        # format dead toggles dictionary
-        dead_toggles_data = {
-            "dead_toggles": dead_toggles,
-            "total_count": len(dead_toggles)
-        }
-        # convert dictionary to JSON object
-        dead_toggles_json = json.dumps(dead_toggles_data, indent=2)
-
+    # format dead toggles dictionary
+    dead_toggles_data = {
+        "dead_toggles": dead_toggles,
+        "total_count": len(dead_toggles)
+    }
+    # convert dictionary to JSON object
+    dead_toggles_json = json.dumps(dead_toggles_data, indent=2)
 
     return dead_toggles_json
 
@@ -127,12 +101,8 @@ def extract_nested_toggles(lang, code_files, t_config_files, regex_patterns):
                     code_lines = match.split('\n')
                 for line in code_lines:
                     # populate dictionary with nested toggle data
-                    if lang == "js": # react doesn't have a middleware usage pattern
-                        for toggle in toggles:
-                            nested_toggles[getFileName(lang,code_file)].extend(re.findall(toggle, line))
-                    else:
-                        for i in regex_patterns["general_pattern"]:
-                            nested_toggles[getFileName(lang,code_file)].extend(re.findall(i, line))
+                    for i in regex_patterns["general_pattern"]:
+                        nested_toggles[getFileName(lang,code_file)].extend(re.findall(i, line))
 
     to_del = []
     for k in nested_toggles.keys():
