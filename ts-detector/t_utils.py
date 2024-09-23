@@ -7,7 +7,7 @@ import regex_go as go_patterns
 import regex_csharp as csharp_patterns
 from collections import defaultdict
 
-from enum_detector.enum_detector import *
+from detectors.enum_detector.enum_detector import *
 
 language_map = {
     "c++": c_patterns,
@@ -219,13 +219,11 @@ def extract_enum_toggles(code_files, t_config_files, lang, regex_patterns):
 
     code_files_contents = get_code_file_contents(lang, code_files)
 
-    patterns = get_enum_toggle_var_patterns()
     # find all enums and check if name in it
     for code_file, file_content in zip(code_files, code_files_contents):
-        for toggle in toggles:
-            # search for toggle matches
-            if is_enum_member(file_content, toggle, lang):
-                toggle_lookup[toggle].append(code_file)
+        res = is_enum_member(file_content, toggles, lang)
+        for toggle in res:
+            toggle_lookup[toggle].append(code_file)
 
     return json.dumps(toggle_lookup, indent=2)
 
