@@ -27,5 +27,5 @@ spread_toggle_patterns = {
 
 enum_toggle_patterns = {
     'enum_def': [r'const\s*\([\s\S]*?\b([A-Za-z_][A-Za-z0-9_]*)\s*=\s*iota'],
-    "in_enum": r'enum\s+(\w+)\s*{([^}]*)};',
+    "in_enum": r'const\s*\((.*?)\)',
 }

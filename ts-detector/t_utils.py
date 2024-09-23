@@ -4,13 +4,17 @@ import regex_c as c_patterns
 import regex_java as j_patterns
 import regex_python as py_patterns
 import regex_go as go_patterns
+import regex_csharp as csharp_patterns
 from collections import defaultdict
+
+from enum_detector.enum_detector import *
 
 language_map = {
     "c++": c_patterns,
     "java": j_patterns,
     "python": py_patterns,
     "go": go_patterns,
+    "csharp": csharp_patterns
 }
 
 
@@ -36,7 +40,7 @@ def detect(lang, code_files, t_config_files, t_usage, regex_patterns):
         return extract_nested_toggles(lang, code_files, t_config_files, regex_patterns)
     elif t_usage == "mixed":
         return extract_mixed_toggles(lang, code_files, t_config_files, regex_patterns)
-    elif t_usage == "enum":
+    elif t_usage == "enum_detector":
         return extract_enum_toggles(lang, code_files, t_config_files, regex_patterns)
 
 
@@ -213,8 +217,14 @@ def extract_enum_toggles(code_files, t_config_files, lang, regex_patterns):
     # get all toggles from config files as a set
     toggles = set(get_toggles_from_config_files(t_config_files, regex_patterns))
 
-    # find all enums and check if name in it
+    code_files_contents = get_code_file_contents(lang, code_files)
 
+    patterns = get_enum_toggle_var_patterns()
+    # find all enums and check if name in it
+    for code_file, file_content in zip(code_files, code_files_contents):
+        for toggle in toggles:
+            # search for toggle matches
+            is_enum_member(file_content, toggle, lang)
 
 
 
@@ -267,6 +277,9 @@ def get_spread_toggle_var_patterns(lang):
 def get_nested_toggle_var_patterns(lang):
     return language_map[lang.lower()].nested_toggle_patterns
 
+
+def get_enum_toggle_var_patterns(lang):
+    return language_map[lang.lower()].enum_toggle_patterns
 
 def get_code_file_contents(lang, code_files):
     code_files_contents = []
