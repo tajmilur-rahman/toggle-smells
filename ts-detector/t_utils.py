@@ -224,11 +224,10 @@ def extract_enum_toggles(code_files, t_config_files, lang, regex_patterns):
     for code_file, file_content in zip(code_files, code_files_contents):
         for toggle in toggles:
             # search for toggle matches
-            is_enum_member(file_content, toggle, lang)
+            if is_enum_member(file_content, toggle, lang):
+                toggle_lookup[toggle].append(code_file)
 
-
-
-    return []
+    return json.dumps(toggle_lookup, indent=2)
 
 
 def get_toggles_from_config_files(config_files, regex_patterns):
