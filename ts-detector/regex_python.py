@@ -21,3 +21,8 @@ general_patterns = {
 spread_toggle_patterns = {
     'parent_finder': [r'class (.*?)\:\n((?!.*class).*?\n)*?.*?%s']
 }
+
+enum_toggle_patterns = {
+    'enum_def': [r'class\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*Enum\s*\)'],
+    'in_enum': r'class\s+(\w+)\(Enum\):\s*([^#]*)'
+}

@@ -17,8 +17,6 @@ def auto_detect_language(config_files):
                 return "python"
             elif "package main" in content:
                 return "go"
-            elif "function " in content:
-                return "js"
     return None
 
 def main():
@@ -57,8 +55,6 @@ def main():
         code_files = glob.glob(f'{source_path}/**/*.java', recursive=True)
     elif lang.lower() == "python":
         code_files = glob.glob(f'{source_path}/**/*.py', recursive=True)
-    elif lang.lower() == "js":
-        code_files = glob.glob(f'{source_path}/**/*.js', recursive=True)
     else:
         print("Unsupported language. Exiting.")
         sys.exit(1)
