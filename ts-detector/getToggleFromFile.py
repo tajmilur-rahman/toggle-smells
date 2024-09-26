@@ -1,9 +1,10 @@
 import re
 
+# Enhancing the provided functions
 
-def extract_variables_and_values(content):
+def extract_variables_and_values_enhanced(content):
     """
-    Extracts all potential variable names and their assigned values from the content of a configuration file.
+    Extracts potential variable names and their assigned values from the content of a configuration file, with enhanced patterns.
 
     Args:
         content (str): The content of the configuration file.
@@ -11,7 +12,7 @@ def extract_variables_and_values(content):
     Returns:
         tuple: List of extracted variable names, and a dictionary of variables with their assigned values.
     """
-    # Regex patterns to capture variable declarations with possible spaces and type annotations
+    # Enhanced regex patterns to capture variable declarations and assignments
     variable_patterns = [
         r'\b(?:bool|boolean|var|const|let|int|float|double|char|auto|final|String|static)\s+([\w_]+)',
         r'\b(?:[\w<>\[\]]+)\s+([\w_]+)\s*(?:=|\()',
@@ -19,7 +20,7 @@ def extract_variables_and_values(content):
         r'\b(?:public|protected|private)?\s*(?:static)?\s*(?:final)?\s*[\w<>\[\]]+\s+([\w_]+)\s*(?:=|\()'
     ]
 
-    # Capture variables and their values
+    # Enhanced assignment patterns for feature flags or boolean-like variables
     assignment_pattern = r'\b([\w_]+)\s*:\s*(?:bool|boolean|Flag|FeatureFlag|Toggle)\s*=\s*(true|false|True|False|0|1)'
     assignment_without_type_pattern = r'\b([\w_]+)\s*=\s*(true|false|True|False|0|1)'
     string_value_pattern = r'\b([\w_]+)\s*=\s*"([\w_:.:-]+)"'
@@ -27,9 +28,11 @@ def extract_variables_and_values(content):
     variable_names = []
     variable_values = {}
 
+    # Extract variables and assignments
     for pattern in variable_patterns:
         variable_names.extend(re.findall(pattern, content))
 
+    # Extract assignments and values
     assignments = re.findall(assignment_pattern, content)
     assignments_without_type = re.findall(assignment_without_type_pattern, content)
     string_values = re.findall(string_value_pattern, content)
@@ -46,7 +49,7 @@ def extract_variables_and_values(content):
     return variable_names, variable_values
 
 
-def identify_boolean_variables(variable_names, variable_values):
+def identify_boolean_variables_enhanced(variable_names, variable_values):
     """
     Identifies variables that are likely to be booleans or custom boolean-like types.
 
@@ -59,7 +62,6 @@ def identify_boolean_variables(variable_names, variable_values):
     """
     boolean_vars = []
 
-    # Check boolean values directly
     for var in variable_names:
         if var in variable_values:
             value = variable_values[var]
@@ -69,9 +71,9 @@ def identify_boolean_variables(variable_names, variable_values):
     return boolean_vars
 
 
-def check_feature_flag_names(variable_names, variable_values):
+def check_feature_flag_names_enhanced(variable_names, variable_values):
     """
-    Checks variable names and values against general feature flag naming conventions.
+    Checks variable names and values against general feature flag naming conventions, with enhanced patterns.
 
     Args:
         variable_names (list of str): List of variable names.
@@ -81,35 +83,33 @@ def check_feature_flag_names(variable_names, variable_values):
         list of str: List of variable names that match general feature flag naming conventions.
     """
     feature_flag_patterns = [
-        r'\b(enable|disable|toggle|flag|feature|proxy)[\w_]*\b',
-        r'\b[kK][\w_]+',  # for patterns like kEnableFeature
-        r'[\w_-]+[:.][\w_-]+',  # for patterns like organizations:feature or flags.feature
-        r'[\w_]+[_-][\w_]+',  # for patterns like check_mutable_operations
+        r'\b(enable|disable|toggle|flag|feature|proxy)[\w_]*\b',  # Common feature flag keywords
+        r'\b[kK][\w_]+',  # Patterns like kEnableFeature
+        r'[\w_-]+[:.][\w_-]+',  # Config-style patterns like feature.enable
+        r'[\w_]+[_-][\w_]+',  # Patterns like check_mutable_operations
     ]
 
     feature_flags = []
 
-    # Check variable names against patterns
     for var in variable_names:
         for pattern in feature_flag_patterns:
             if re.search(pattern, var):
                 feature_flags.append(var)
                 break
 
-    # Check string values against patterns
+    # Also check string values against feature flag patterns
     for var, value in variable_values.items():
         for pattern in feature_flag_patterns:
             if re.search(pattern, value):
                 feature_flags.append(var)
                 break
 
-    # Remove duplicates
     return list(set(feature_flags))
 
 
-def extract_feature_flags_from_file(file_path):
+def extract_feature_flags_from_file_enhanced(file_path):
     """
-    Extracts potential feature flag names from a given configuration file.
+    Extracts potential feature flag names from a given configuration file, with enhanced detection.
 
     Args:
         file_path (str): Path to the configuration file.
@@ -120,27 +120,27 @@ def extract_feature_flags_from_file(file_path):
     with open(file_path, 'r') as file:
         content = file.read()
 
-    # Step 1: Extract all variable names and their values
-    variable_names, variable_values = extract_variables_and_values(content)
-    print("Variable Names:", variable_names)
-    print("Variable Values:", variable_values)
+    # Extract all variables and values
+    variable_names, variable_values = extract_variables_and_values_enhanced(content)
 
-    # Step 2: Identify boolean variables
-    boolean_vars = identify_boolean_variables(variable_names, variable_values)
+    # Identify boolean variables
+    boolean_vars = identify_boolean_variables_enhanced(variable_names, variable_values)
 
-    # Step 3: Check for feature flag naming conventions
-    feature_flags = check_feature_flag_names(variable_names, variable_values)
+    # Check for feature flag naming conventions
+    feature_flags = check_feature_flag_names_enhanced(variable_names, variable_values)
 
-    # Step 4: Combine both lists and remove duplicates
+    # Combine both lists and remove duplicates
     combined_flags = list(set(boolean_vars + feature_flags))
 
     return combined_flags
-
 # Example usage:
-# file_path = '../example-config-files/chrome-feature.cc'
-# file_path = '../example-config-files/opensearch-FeatureFlags.java'
-# file_path = '../example-config-files/pytorch-proxy.py'
-file_path = '../example-config-files/sentry-server.py'
+# file_path = '../getToggleTests/example-config-files/chrome-feature.cc'
+# file_path = '../getToggleTests/example-config-files/opensearch-FeatureFlags.java'
+# file_path = '../getToggleTests/example-config-files/pytorch-proxy.py'
+file_path = '../getToggleTests/example-config-files/sentry-server.py'
+# file_path = '../getToggleTests/example-config-files/azure-pipelines-agent-featureflag.cs'
+# file_path = '../getToggleTests/example-config-files/temporal-constants.go'
+# file_path = '../getToggleTests/example-config-files/dawn-toggles.cpp'
 
-feature_flags = extract_feature_flags_from_file(file_path)
+feature_flags = extract_feature_flags_from_file_enhanced(file_path)
 print("Feature Flags:", feature_flags)
