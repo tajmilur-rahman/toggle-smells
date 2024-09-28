@@ -130,3 +130,5 @@ def get_toggles_from_config_files(config_files, regex_patterns):
     return list(set(filter(None, toggles)))
 
 
+x = get_toggles_from_config_files('../getToggleTests/example-config-files/cadence-constants.go', r'.*(Enable.*): DynamicBool{')
+print(x)
