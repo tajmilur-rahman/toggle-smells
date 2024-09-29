@@ -1,12 +1,14 @@
 # how it is used
 general_toggle_var_patterns = {
-    'pattern': r'\n*(Enable.*): DynamicBool{',
+    'pattern': r'\n*(Enable.*): DynamicBool\{',
     'pattern1': r'GetBoolProperty.*\(.*.(.*)\)'
 }
 
 # how it looks in config file
 toggle_config_patterns = {
-    'pattern1': r'.*(Enable.*): DynamicBool{',
+    'pattern1': r'.*(Enable.*): DynamicBool\{',
+    'pattern2': r'(\w*enable\w*) = \w*Bool\w*',
+    'pattern3': r'(\w*enable\w*): \w*Bool\w*',
 }
 
 # if/else patterns
