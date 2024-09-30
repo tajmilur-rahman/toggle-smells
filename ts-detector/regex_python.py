@@ -8,10 +8,13 @@ toggle_config_patterns = {
 }
 
 nested_toggle_patterns = {
-    'and_condition1': r'and\s*features.has\([^)]*\)',
-    'and_condition2': r'\s*features.has\([^)]*\) and',
-    'or_condition1': r'\s*features.has\([^)]*\) or',
-    'or_condition2': r'or\s*features.has\([^)]*\)'
+    'return_and': r'return\s+(.*?)\s+and',
+    'if_and': r'if\s+(.*?)\s+and',
+    'return_or': r'return\s+(.*?)\s+or',
+    'if_or': r'if\s+(.*?)\s+or',
+
+    'or_enter': r' or\s+(.*?)\n',
+    'and_enter': r' and\s+(.*?)\n'
 }
 
 general_patterns = {
