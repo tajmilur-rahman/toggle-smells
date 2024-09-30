@@ -68,7 +68,7 @@ def main():
     
     print(f"Language: {lang}, Source path: {source_path}, Config file pattern: {config_path}, Toggle usage pattern: {toggle_usage}")
 
-    config_files = glob.glob(f'{config_path}/**/*', recursive=True)
+    config_files = glob.glob(f'{config_path}', recursive=True)
     if lang.lower() == "c++":
         c_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
         cpp_files = glob.glob(f'{source_path}/**/*.cpp', recursive=True)
@@ -84,7 +84,7 @@ def main():
         sys.exit(1)
 
     if toggle_usage:
-        detected_toggles = t_utils.detect(lang, code_files, config_files, toggle_usage, {})
+        detected_toggles = t_utils.detect(lang, code_files, config_files, toggle_usage)
 
         if output_path:
             with open(output_path, 'w') as f:
@@ -95,7 +95,7 @@ def main():
 
     else:
         for p in patterns:
-            detected_toggles = t_utils.detect(lang, code_files, config_files, p, {})
+            detected_toggles = t_utils.detect(lang, code_files, config_files, p)
             if output_path:
                 with open(output_path+'/'+p, 'w') as f:
                     f.write(str(detected_toggles))
@@ -104,7 +104,7 @@ def main():
                 print(detected_toggles)
 
         if lang.lower() == "c++":
-            detected_toggles = t_utils.detect(lang, code_files, config_files, mixPattern, {})
+            detected_toggles = t_utils.detect(lang, code_files, config_files, mixPattern)
             if output_path:
                 with open(output_path+'/'+p, 'w') as f:
                     f.write(str(detected_toggles))

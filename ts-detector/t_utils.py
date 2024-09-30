@@ -24,7 +24,7 @@ language_map = {
 }
 
 
-def detect(lang, code_files, t_config_files, t_usage, regex_patterns):
+def detect(lang, code_files, t_config_files, t_usage):
     if lang is None:
         raise ValueError("Language is not defined.")
 
@@ -34,9 +34,8 @@ def detect(lang, code_files, t_config_files, t_usage, regex_patterns):
     if t_config_files is None:
         raise ValueError("A list of config files is required.")
 
-    if regex_patterns == {}:
-        regex_patterns["general_pattern"] = helper.get_general_toggle_var_patterns(lang)
-        regex_patterns["config_pattern"] = helper.get_toggle_config_patterns(lang)
+    regex_patterns = {"general_pattern": helper.get_general_toggle_var_patterns(lang),
+                      "config_pattern": helper.get_toggle_config_patterns(lang)}
 
     if t_usage == "dead":
         return extract_dead_toggles(lang, code_files, t_config_files, regex_patterns)
@@ -113,7 +112,6 @@ def extract_enum_toggles(code_files, t_config_files, lang, regex_patterns):
 
 def get_toggles_from_config_files(config_files, regex_patterns):
     toggle_list = []
-    print(config_files)
     for conf_file in config_files:
         with open(conf_file, 'r') as file:
             file_content = file.read()
