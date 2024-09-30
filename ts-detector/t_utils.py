@@ -113,6 +113,7 @@ def extract_enum_toggles(code_files, t_config_files, lang, regex_patterns):
 
 def get_toggles_from_config_files(config_files, regex_patterns):
     toggle_list = []
+    print(config_files)
     for conf_file in config_files:
         with open(conf_file, 'r') as file:
             file_content = file.read()
@@ -128,7 +129,3 @@ def get_toggles_from_config_files(config_files, regex_patterns):
             toggles.extend(matches)
 
     return list(set(filter(None, toggles)))
-
-
-x = get_toggles_from_config_files('../getToggleTests/example-config-files/cadence-constants.go', r'.*(Enable.*): DynamicBool{')
-print(x)

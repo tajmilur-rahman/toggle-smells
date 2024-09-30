@@ -7,6 +7,24 @@ patterns = ["dead", "spread", "mixed", "nested"]
 
 def auto_detect_language(config_files):
     for config_file in config_files:
+        file_extension = config_file.split('.')[-1]  # Get the file extension
+        # Check for common programming language extensions
+        if file_extension == "py":
+            return "python"
+        elif file_extension == "java":
+            return "java"
+        elif file_extension in ["cpp", "cc", "cxx", "hpp"]:
+            return "c++"
+        elif file_extension == "go":
+            return "go"
+        elif file_extension == "js":
+            return "javascript"
+        elif file_extension == "ts":
+            return "typescript"
+        elif file_extension == "cs":
+            return "csharp"
+
+        # If extension doesn't provide enough information, check content for more clues
         with open(config_file, 'r') as f:
             content = f.read()
             if "import java" in content:
@@ -17,6 +35,11 @@ def auto_detect_language(config_files):
                 return "python"
             elif "package main" in content:
                 return "go"
+            elif "function " in content or "console.log" in content:
+                return "javascript"
+            elif "namespace " in content or "using System" in content:
+                return "csharp"
+
     return None
 
 def main():
@@ -36,7 +59,7 @@ def main():
     lang = args.language
 
     if not lang:
-        config_files = glob.glob(f'{config_path}/**/*', recursive=True)
+        config_files = glob.glob(f'{config_path}', recursive=True)
         lang = auto_detect_language(config_files)
         if not lang:
             print("Could not auto-detect language. Please provide it using the -l flag.")
@@ -71,8 +94,7 @@ def main():
 
     else:
         for p in patterns:
-            detected_toggles = t_utils.detect(lang, code_files, config_files, p, regex_p)
-
+            detected_toggles = t_utils.detect(lang, code_files, config_files, p, {})
             if output_path:
                 with open(output_path+'/'+p, 'w') as f:
                     f.write(str(detected_toggles))
