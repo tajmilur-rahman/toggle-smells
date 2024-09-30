@@ -3,7 +3,8 @@ import glob
 import argparse
 import t_utils
 
-patterns = ["dead", "spread", "mixed", "nested"]
+patterns = ["dead", "spread", "nested"]
+mixPattern = "mixed"
 
 def auto_detect_language(config_files):
     for config_file in config_files:
@@ -95,6 +96,15 @@ def main():
     else:
         for p in patterns:
             detected_toggles = t_utils.detect(lang, code_files, config_files, p, {})
+            if output_path:
+                with open(output_path+'/'+p, 'w') as f:
+                    f.write(str(detected_toggles))
+                print(f"Output written to {output_path}")
+            else:
+                print(detected_toggles)
+
+        if lang.lower() == "c++":
+            detected_toggles = t_utils.detect(lang, code_files, config_files, mixPattern, {})
             if output_path:
                 with open(output_path+'/'+p, 'w') as f:
                     f.write(str(detected_toggles))
