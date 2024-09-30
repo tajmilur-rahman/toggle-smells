@@ -46,21 +46,15 @@ def clean_nested_toggles(nested_toggles):
 
 
 def format_nested_toggles_data(nested_toggles):
-
-    # Extract the total count of paths and toggles
     total_count_path = len(nested_toggles[0])
-    # Convert the set to a list to make it JSON serializable
     total_count_toggles = len(set(toggle for toggles in nested_toggles for toggle in toggles))
 
-    # Convert sets to lists to be JSON serializable
     nested_toggles_serializable = [list(toggles) if isinstance(toggles, set) else toggles for toggles in nested_toggles]
 
-    # Prepare the data to be serialized
     nested_toggles_data = {
         "nested_toggles": nested_toggles_serializable[1],
         "total_count_path": total_count_path,
         "total_count_toggles": total_count_toggles
     }
 
-    # Return the JSON serialized data
     return json.dumps(nested_toggles_data, indent=2)
