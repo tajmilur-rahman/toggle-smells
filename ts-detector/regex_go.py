@@ -1,6 +1,6 @@
 # how it is used
 general_toggle_var_patterns = {
-    'pattern': r'\n*(Enable.*): DynamicBool\{',
+    'pattern': r'(\w?Enable\w?): (\w?Bool?\w?)?',
     'pattern1': r'GetBoolProperty.*\(.*.(.*)\)'
 }
 
