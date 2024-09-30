@@ -45,7 +45,7 @@ def detect(lang, code_files, t_config_files, t_usage):
         return extract_nested_toggles(lang, code_files, t_config_files, regex_patterns)
     elif t_usage == "mixed":
         return extract_mixed_toggles(lang, code_files, t_config_files, regex_patterns)
-    elif t_usage == "enum_detector":
+    elif t_usage == "enum":
         return extract_enum_toggles(lang, code_files, t_config_files, regex_patterns)
 
 
