@@ -13,7 +13,10 @@ def find_dead_toggles(toggles, code_files, code_files_contents):
         for toggle in toggles:
             matches = re.findall(toggle, file_content)
             if matches:
-                dead_toggles.remove(toggle)
+                try:
+                    dead_toggles.remove(toggle)
+                except ValueError:
+                    pass
 
     return dead_toggles
 
