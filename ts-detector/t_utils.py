@@ -1,19 +1,19 @@
-import re
 import json
-import regex_c as c_patterns
-import regex_java as j_patterns
-import regex_python as py_patterns
-import regex_go as go_patterns
-import regex_csharp as csharp_patterns
+import regex.regex_c as c_patterns
+import regex.regex_java as j_patterns
+import regex.regex_python as py_patterns
+import regex.regex_go as go_patterns
+import regex.regex_csharp as csharp_patterns
 from collections import defaultdict
 
 from detectors.enum_detector.enum_detector import *
+import detectors.mixed_detector.mixed_detector as md
+
 import helper as helper
 
-import spread_detector as sd
-import dead_detector as dd
-import nested_detector as nd
-import mixed_detector as md
+import detectors.spread_detector.spread_detector as sd
+import detectors.dead_detector.dead_detector as dd
+import detectors.nested_detector.nested_detector as nd
 
 language_map = {
     "c++": c_patterns,
