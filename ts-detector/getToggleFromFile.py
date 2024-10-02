@@ -60,7 +60,7 @@ regexes = {
 }
 
 language_keywords = {
-    'python': ['__main__', 'True', 'False', 'None', 'async', 'await', 'self', '"true"', '"false"'],
+    'python': ['__main__', 'True', 'False', 'None', 'async', 'await', 'self', '"true"', '"false"', '__name__'],
     'csharp': ['public', 'private', 'protected', 'const', 'static', 'readonly', 'string', 'Dictionary', 'List', 'bool', '"true"', '"false"'],
     'java': ['public', 'private', 'protected', 'static', 'final', 'volatile', 'transient', 'String', 'Map', 'List', 'boolean', '"true"', '"false"'],
     'golang': ['var', 'const', 'func', 'int', 'string', 'bool', 'map', '"true"', '"false"', 'err', 'ok', ],
@@ -130,7 +130,7 @@ def remove_comments(content, language):
 def extract_toggles_from_config_files(config_files):
     toggle_list = []
     for conf_file in config_files:
-        with open(conf_file, 'r') as file:
+        with open(conf_file, 'r', encoding='utf-8') as file:
             file_content = file.read()
             language = get_language_from_extension(conf_file)
             file_content = remove_comments(file_content, language)
@@ -147,7 +147,13 @@ def extract_toggles_from_config_files(config_files):
 if __name__ == "__main__":
     # config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/chrome-feature.cc"
-    config_files_path = "../getToggleTests/example-config-files/dawn-toggles.cpp"
+    # config_files_path = "../getToggleTests/example-config-files/dawn-toggles.cpp"
+    # config_files_path = "../getToggleTests/example-config-files/opensearch-FeatureFlags.java"
+    # config_files_path = "../getToggleTests/example-config-files/pytorch-proxy.py"
+    # config_files_path = "../getToggleTests/example-config-files/sdb2-feature.java"
+    # config_files_path = "../getToggleTests/example-config-files/sentry-server.py"
+    # config_files_path = "../getToggleTests/example-config-files/temporal-constants.go"
+    config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
     config_files = [config_files_path]
 
     extracted_toggles = extract_toggles_from_config_files(config_files)
