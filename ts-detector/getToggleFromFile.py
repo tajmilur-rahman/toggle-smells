@@ -6,7 +6,6 @@ regexes = {
         'declare': r'(?P<toggle>\w+)\s*(?:\:\s*(?P<type>[^\s=]+))?\s*=\s*',
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'[{,]\s*(?P<toggle>(?:[\'\"][^\'\"]*[\'\"]|[^:]+?))\s*:',
-        'strings': r'(?P<toggle>"[^"]*"|\'[^\']*\')',
         'enum_names': r'class\s+(?P<toggle>\w+)\(Enum\):'
     },
     'csharp': {
@@ -15,7 +14,6 @@ regexes = {
         ),
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'[{,]\s*(?P<toggle>(?:@"[^"]*"|"[^"]*"|\'[^\']*\'|[^,\s]+?))\s*,',
-        'strings': r'(?P<toggle>@?"[^"]*"|\'[^\']*\')',
         'enum_names': r'enum\s+(?P<toggle>\w+)\s*'
     },
     'java': {
@@ -28,7 +26,6 @@ regexes = {
         ),
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'\bput\s*\(\s*(?P<toggle>"[^"]*"|\'[^\']*\'|[^,\s]+?)\s*,',
-        'strings': r'(?P<toggle>"[^"]*"|\'[^\']*\')',
         'enum_names': r'enum\s+(?P<toggle>\w+)\s*'
     },
     'golang': {
@@ -38,7 +35,6 @@ regexes = {
         ),
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'[{,]\s*(?P<toggle>(?:`[^`]*`|"[^"]*"|\'[^\']*\'|[\w.]+?))\s*:',
-        'strings': r'(?P<toggle>"[^"]*"|\'[^\']*\'|`[^`]*`)',
         'enum_names': r'type\s+(?P<toggle>\w+)\s+int\s*'
     },
     'cpp': {
@@ -52,7 +48,6 @@ regexes = {
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'[{,]\s*(?P<toggle>(?:"[^"]*"|\'[^\']*\'|[^,\s]+?))\s*,',
         'toggle_names': r'{\s*Toggle::(?P<toggle>\w+),',
-        'strings': r'(?P<toggle>"[^"]*"|\'[^\']*\')',
         'enum_names': r'enum\s+(?P<toggle>\w+)\s*'
     }
 }
@@ -61,13 +56,12 @@ language_keywords = {
     'python': ['__main__', 'True', 'False', 'None', 'async', 'await', 'self', '"true"', '"false"'],
     'csharp': ['public', 'private', 'protected', 'const', 'static', 'readonly', 'string', 'Dictionary', 'List', 'bool', '"true"', '"false"'],
     'java': ['public', 'private', 'protected', 'static', 'final', 'volatile', 'transient', 'String', 'Map', 'List', 'boolean', '"true"', '"false"'],
-    'golang': ['var', 'const', 'func', 'int', 'string', 'bool', 'map', '"true"', '"false"'],
+    'golang': ['var', 'const', 'func', 'int', 'string', 'bool', 'map', '"true"', '"false"', 'err', 'ok', ],
     'cpp': ['const', 'static', 'public', 'private', 'protected', 'bool', 'int', 'float', 'double', 'std', '"true"', '"false"']
 }
 
-def is_too_short(toggle: str):
-    return len(toggle) <= 3
 def is_pure_number_or_dash_underscore(toggle):
+    print(toggle)
     return bool(re.fullmatch(r'"?\d+([-_\.]\d+)*"?', toggle))
 
 def filter_substrings(toggles):
@@ -80,8 +74,9 @@ def filter_substrings(toggles):
 
 def filter_toggles(toggles, language):
     keywords = language_keywords.get(language, [])
-    filtered_toggles = [t for t in toggles if not is_pure_number_or_dash_underscore(t)]
-    filtered_toggles = [t for t in filtered_toggles if len(t) > 3]
+    filtered_toggles = [t for t in toggles if t is not None and t is not ""]
+    filtered_toggles = [t for t in filtered_toggles if not is_pure_number_or_dash_underscore(t)]
+    filtered_toggles = [t for t in filtered_toggles if len(t) > 5]
     filtered_toggles = [t for t in filtered_toggles if t not in keywords]
     filtered_toggles = filter_substrings(filtered_toggles)
     return filtered_toggles
@@ -128,8 +123,7 @@ def extract_toggles_from_config_files(config_files):
 
 # Example usage
 if __name__ == "__main__":
-    config_files_path = "../getToggleTests/example-config-files/bitwarden-server-Constants.cs"  # Replace with the path to your config files
-
+    config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
     config_files = [config_files_path]
 
     extracted_toggles = extract_toggles_from_config_files(config_files)
