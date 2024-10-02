@@ -1,27 +1,21 @@
-import os
 import re
 
-# Define the regexes dictionary for different languages
 regexes = {
     'python': {
-        'declare': r'^\s*(?P<toggle>\w+)\s*(?:\:\s*(?P<type>[^\s=]+))?\s*=\s*',
+        'declare': r'(?P<toggle>\w+)\s*(?:\:\s*(?P<type>[^\s=]+))?\s*=\s*',
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'[{,]\s*(?P<toggle>(?:[\'\"][^\'\"]*[\'\"]|[^:]+?))\s*:'
     },
     'csharp': {
         'declare': (
-            r'^\s*(public|protected\s+internal|protected|internal|private\s+protected|private)\s+'
-            r'(?:static\s+|const\s+|readonly\s+|volatile\s+)*'
-            r'(?P<type>\w+(?:\s*<[^>]+>)?)\s+'
-            r'(?P<toggle>\w+)\s*'
-            r'(?=\s*(=|;|\[))'
+            r'(public|protected|private\s+protected|private)\s+(?:static\s+|const\s+|readonly\s+)*(\w+(?:\s*<[^>]+>)?)\s+(?P<toggle>\w+)\s*(?=\s*(=|;|\[))'
         ),
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'[{,]\s*(?P<toggle>(?:@"[^"]*"|"[^"]*"|\'[^\']*\'|[^,\s]+?))\s*,'
     },
     'java': {
         'declare': (
-            r'^\s*(public|protected|private)\s+'
+            r'(public|protected|private)\s+'
             r'(?:static\s+|final\s+|volatile\s+|transient\s+)*'
             r'(?P<type>\w+(?:\s*<[^>]+>)?)\s+'
             r'(?P<toggle>\w+)\s*'
@@ -32,7 +26,7 @@ regexes = {
     },
     'golang': {
         'declare': (
-            r'^\s*(?:var\s+(?P<toggle>\w+)\s*(?:\s+(?P<type>[^\s=]+))?\s*(?:=\s*.*)?|'
+            r'(?:var\s+(?P<toggle>\w+)\s*(?:\s+(?P<type>[^\s=]+))?\s*(?:=\s*.*)?|'
             r'(?P<toggle2>\w+)\s*(?:\s+(?P<type2>[^\s=]+))?\s*:=\s*.*)'
         ),
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
@@ -40,7 +34,7 @@ regexes = {
     },
     'cpp': {
         'declare': (
-            r'^\s*(?:(?:const|static|volatile|extern|mutable)\s+)*'
+            r'(?:(?:const|static|volatile|extern|mutable)\s+)*'
             r'(?P<type>(?:[\w:]+)(?:\s*<[^>;]+>)?'
             r'(?:\s*::\s*[\w:]+)*(?:\s*[\*&])?)\s+'
             r'(?P<toggle>\w+)\s*'
@@ -52,25 +46,23 @@ regexes = {
     }
 }
 
-# Function to apply regexes and extract toggles from file content based on language
-def apply_regexes(file_content, language):
-    toggles = set()  # Use a set to avoid duplicates
+def apply_combined_regexes(combined_content, language):
+    toggles = set()
 
-    # Get the regexes for the current language
     patterns = regexes.get(language)
 
     if patterns:
         # Apply each regex and collect results
-        for pattern in patterns.values():
-            compiled_pattern = re.compile(pattern)
-            matches = compiled_pattern.finditer(file_content)
+        for pattern in patterns.keys():
+            compiled_pattern = re.compile(patterns[pattern])
+            matches = compiled_pattern.finditer(combined_content)
             for match in matches:
                 toggle = match.group('toggle')
+                print(match.group('toggle'))
                 toggles.add(toggle)
 
     return toggles
 
-# Determine the language based on file extension
 def get_language_from_extension(file_path):
     if file_path.endswith('.py'):
         return 'python'
@@ -84,28 +76,31 @@ def get_language_from_extension(file_path):
         return 'cpp'
     return None
 
-# Main function to extract all unique toggles from a directory of config files
-def extract_toggles_from_files(config_files_path):
-    all_toggles = set()
+def extract_toggles_from_config_files(config_files):
+    toggle_list = []
+    for conf_file in config_files:
+        with open(conf_file, 'r') as file:
+            file_content = file.read()
+            toggle_list.append(file_content)
 
-    for root, _, files in os.walk(config_files_path):
-        for file_name in files:
-            file_path = os.path.join(root, file_name)
-            language = get_language_from_extension(file_path)
+    toggle_list = list(filter(None, toggle_list))
+    combined_content = "\n".join(toggle_list)
 
-            if language:
-                # Read the file content
-                with open(file_path, 'r') as file:
-                    content = file.read()
+    if config_files:
+        language = get_language_from_extension(config_files[0])
 
-                # Extract toggles using the appropriate regexes
-                file_toggles = apply_regexes(content, language)
-                all_toggles.update(file_toggles)
+        toggles = apply_combined_regexes(combined_content, language)
+        return list(toggles)
 
-    return list(all_toggles)  # Convert set to list and return
+    return []
 
 # Example usage
 if __name__ == "__main__":
-    config_files_path = "/path/to/your/config/files"  # Replace with the path to your config files
-    toggles = extract_toggles_from_files(config_files_path)
-    print("Extracted Toggles:", toggles)
+    config_files_path = "../getToggleTests/example-config-files/bitwarden-server-Constants.cs"  # Replace with the path to your config files
+
+    config_files = [config_files_path]
+
+    extracted_toggles = extract_toggles_from_config_files(config_files)
+
+    print("Extracted Toggles:", extracted_toggles)
+
