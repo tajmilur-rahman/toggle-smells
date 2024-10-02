@@ -1,5 +1,12 @@
 import re
-import os
+
+comment_regexes = {
+    'python': r'^\s*#.*$',
+    'csharp': r'^\s*//.*$',
+    'java': r'^\s*//.*$',
+    'golang': r'^\s*//.*$',
+    'cpp': r'^\s*//.*$',
+}
 
 regexes = {
     'python': {
@@ -20,7 +27,7 @@ regexes = {
         'declare': (
             r'(public|protected|private)\s+' 
             r'(?:static\s+|final\s+|volatile\s+|transient\s+)*'
-            r'(?P<type>\w+(?:\s*<[^>]+>)?)\s+'
+            r'(?P<type>\w+(?:\s*<[^>]+>)?)\s+' 
             r'(?P<toggle>\w+)\s*'
             r'(?=\s*(=|;|\[))'
         ),
@@ -41,7 +48,7 @@ regexes = {
         'declare': (
             r'(?:(?:const|static|volatile|extern|mutable)\s+)*'
             r'(?P<type>(?:[\w:]+)(?:\s*<[^>;]+>)?'
-            r'(?:\s*::\s*[\w:]+)*(?:\s*[\*&])?)\s+'
+            r'(?:\s*::\s*[\w:]+)*(?:\s*[\*&])?)\s+' 
             r'(?P<toggle>\w+)\s*'
             r'(?=\s*(=|;|\[))'
         ),
@@ -61,7 +68,6 @@ language_keywords = {
 }
 
 def is_pure_number_or_dash_underscore(toggle):
-    print(toggle)
     return bool(re.fullmatch(r'"?\d+([-_\.]\d+)*"?', toggle))
 
 def filter_substrings(toggles):
@@ -106,11 +112,20 @@ def get_language_from_extension(file_path):
         return 'cpp'
     return None
 
+def remove_comments(content, language):
+    """Remove comment lines based on the language."""
+    comment_pattern = comment_regexes.get(language)
+    if comment_pattern:
+        content = re.sub(comment_pattern, '', content, flags=re.MULTILINE)
+    return content
+
 def extract_toggles_from_config_files(config_files):
     toggle_list = []
     for conf_file in config_files:
         with open(conf_file, 'r') as file:
             file_content = file.read()
+            language = get_language_from_extension(conf_file)
+            file_content = remove_comments(file_content, language)
             toggle_list.append(file_content)
     toggle_list = list(filter(None, toggle_list))
     combined_content = "\n".join(toggle_list)
@@ -121,7 +136,6 @@ def extract_toggles_from_config_files(config_files):
         return filtered_toggles
     return []
 
-# Example usage
 if __name__ == "__main__":
     config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
     config_files = [config_files_path]
@@ -129,4 +143,3 @@ if __name__ == "__main__":
     extracted_toggles = extract_toggles_from_config_files(config_files)
 
     print("Extracted Toggles:", extracted_toggles)
-
