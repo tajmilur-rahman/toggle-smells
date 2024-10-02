@@ -1,117 +1,111 @@
-import re
 import os
+import re
 
-language_patterns = {
-    'cs': {
-        'variable_patterns': [
-            r'\b(?:bool|boolean|var|const|let|int|float|double|char|String)\s+([\w_]+)',
-            r'FeatureFlag\.(\w+)',  # Common C# feature flag access
-            r'\b([\w_]+)\s*=\s*(true|false)',  # Boolean assignments
-        ],
-        'flag_patterns': [
-            r'if\s*\(\s*FeatureFlags\.(\w+)',  # Checking feature flags
-            r'\b(enable|disable|toggle|flag|feature)[\w_]*',  # Feature-related keywords
-        ]
+# Define the regexes dictionary for different languages
+regexes = {
+    'python': {
+        'declare': r'^\s*(?P<toggle>\w+)\s*(?:\:\s*(?P<type>[^\s=]+))?\s*=\s*',
+        'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
+        'dict_keys': r'[{,]\s*(?P<toggle>(?:[\'\"][^\'\"]*[\'\"]|[^:]+?))\s*:'
     },
-    'go': {
-        'variable_patterns': [
-            r'\b(?:bool|var)\s+([\w_]+)',  # Go boolean or variable declaration
-            r'\b([\w_]+)\s*:=\s*(true|false)',  # Boolean assignment
-        ],
-        'flag_patterns': [
-            r'if\s+(\w+)\s*==\s*(true|false)',  # Feature toggle in conditional statements
-            r'\b(enable|disable|toggle|flag|feature)[\w_]*',
-        ]
+    'csharp': {
+        'declare': (
+            r'^\s*(public|protected\s+internal|protected|internal|private\s+protected|private)\s+'
+            r'(?:static\s+|const\s+|readonly\s+|volatile\s+)*'
+            r'(?P<type>\w+(?:\s*<[^>]+>)?)\s+'
+            r'(?P<toggle>\w+)\s*'
+            r'(?=\s*(=|;|\[))'
+        ),
+        'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
+        'dict_keys': r'[{,]\s*(?P<toggle>(?:@"[^"]*"|"[^"]*"|\'[^\']*\'|[^,\s]+?))\s*,'
     },
     'java': {
-        'variable_patterns': [
-            r'\b(?:boolean|Boolean|String|int|float|long|final|var)\s+([\w_]+)',  # Java variable declaration
-            r'\b([\w_]+)\s*=\s*(true|false|True|False)',  # Boolean assignment
-        ],
-        'flag_patterns': [
-            r'FeatureFlags\.(\w+)',  # Accessing feature flags in Java
-            r'if\s*\(\s*FeatureFlags\.(\w+)',  # Checking feature flags
-            r'\b(enable|disable|toggle|flag|feature)[\w_]*',
-        ]
+        'declare': (
+            r'^\s*(public|protected|private)\s+'
+            r'(?:static\s+|final\s+|volatile\s+|transient\s+)*'
+            r'(?P<type>\w+(?:\s*<[^>]+>)?)\s+'
+            r'(?P<toggle>\w+)\s*'
+            r'(?=\s*(=|;|\[))'
+        ),
+        'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
+        'dict_keys': r'\bput\s*\(\s*(?P<toggle>"[^"]*"|\'[^\']*\'|[^,\s]+?)\s*,'
+    },
+    'golang': {
+        'declare': (
+            r'^\s*(?:var\s+(?P<toggle>\w+)\s*(?:\s+(?P<type>[^\s=]+))?\s*(?:=\s*.*)?|'
+            r'(?P<toggle2>\w+)\s*(?:\s+(?P<type2>[^\s=]+))?\s*:=\s*.*)'
+        ),
+        'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
+        'dict_keys': r'[{,]\s*(?P<toggle>(?:`[^`]*`|"[^"]*"|\'[^\']*\'|[\w.]+?))\s*:'
     },
     'cpp': {
-        'variable_patterns': [
-            r'\b(?:bool|int|float|double|char)\s+([\w_]+)',  # C++ variable declaration
-            r'base::Feature\(\s*"(\w+)"',  # C++ feature flag declaration
-        ],
-        'flag_patterns': [
-            r'if\s*\(\s*IsEnabled\("(\w+)"\)',  # Checking feature flags in C++
-            r'\b(enable|disable|toggle|flag|feature)[\w_]*',
-        ]
-    },
-    'py': {
-        'variable_patterns': [
-            r'\b([\w_]+)\s*=\s*(True|False|true|false)',  # Python boolean assignment
-        ],
-        'flag_patterns': [
-            r'if\s+feature_flags\.(\w+)',  # Checking feature flags in Python
-            r'\b(enable|disable|toggle|flag|feature)[\w_]*',
-        ]
+        'declare': (
+            r'^\s*(?:(?:const|static|volatile|extern|mutable)\s+)*'
+            r'(?P<type>(?:[\w:]+)(?:\s*<[^>;]+>)?'
+            r'(?:\s*::\s*[\w:]+)*(?:\s*[\*&])?)\s+'
+            r'(?P<toggle>\w+)\s*'
+            r'(?=\s*(=|;|\[))'
+        ),
+        'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
+        'dict_keys': r'[{,]\s*(?P<toggle>(?:"[^"]*"|\'[^\']*\'|[^,\s]+?))\s*,',
+        'toggle_names': r'{\s*Toggle::(?P<toggle>\w+),'
     }
 }
 
-# Function to detect feature flags using language-specific patterns
-def detect_language_specific_flags(content, filetype):
-    flags = set()
-    if filetype in language_patterns:
-        patterns = language_patterns[filetype]
+# Function to apply regexes and extract toggles from file content based on language
+def apply_regexes(file_content, language):
+    toggles = set()  # Use a set to avoid duplicates
 
-        # Detect variables
-        for pattern in patterns['variable_patterns']:
-            matches = re.findall(pattern, content)
-            flags.update(matches)
+    # Get the regexes for the current language
+    patterns = regexes.get(language)
 
-        # Detect flags or feature-related checks
-        for pattern in patterns['flag_patterns']:
-            matches = re.findall(pattern, content)
-            flags.update(matches)
+    if patterns:
+        # Apply each regex and collect results
+        for pattern in patterns.values():
+            compiled_pattern = re.compile(pattern)
+            matches = compiled_pattern.finditer(file_content)
+            for match in matches:
+                toggle = match.group('toggle')
+                toggles.add(toggle)
 
-    return list(flags)
+    return toggles
 
-# Mapping file extensions to their corresponding language for easier detection
-filetype_mapping = {
-    'cs': 'cs',
-    'go': 'go',
-    'java': 'java',
-    'cpp': 'cpp',
-    'cc': 'cpp',
-    'py': 'py'
-}
+# Determine the language based on file extension
+def get_language_from_extension(file_path):
+    if file_path.endswith('.py'):
+        return 'python'
+    elif file_path.endswith('.cs'):
+        return 'csharp'
+    elif file_path.endswith('.java'):
+        return 'java'
+    elif file_path.endswith('.go'):
+        return 'golang'
+    elif file_path.endswith('.cpp') or file_path.endswith('.cc'):
+        return 'cpp'
+    return None
 
+# Main function to extract all unique toggles from a directory of config files
+def extract_toggles_from_files(config_files_path):
+    all_toggles = set()
 
+    for root, _, files in os.walk(config_files_path):
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
+            language = get_language_from_extension(file_path)
 
+            if language:
+                # Read the file content
+                with open(file_path, 'r') as file:
+                    content = file.read()
 
-# Example usage:
-file_path1 = '../getToggleTests/example-config-files/chrome-feature.cc'
-file_path2 = '../getToggleTests/example-config-files/opensearch-FeatureFlags.java'
-file_path3 = '../getToggleTests/example-config-files/pytorch-proxy.py'
-file_path4 = '../getToggleTests/example-config-files/sentry-server.py'
-file_path5 = '../getToggleTests/example-config-files/azure-pipelines-agent-featureflag.cs'
-file_path6 = '../getToggleTests/example-config-files/temporal-constants.go'
-file_path7 = '../getToggleTests/example-config-files/dawn-toggles.cpp'
+                # Extract toggles using the appropriate regexes
+                file_toggles = apply_regexes(content, language)
+                all_toggles.update(file_toggles)
 
-extracted_files = [file_path1, file_path2, file_path3, file_path4, file_path5, file_path6, file_path7]
+    return list(all_toggles)  # Convert set to list and return
 
-def read_file_content(filepath):
-    with open(filepath, 'r') as file:
-        return file.read()
-
-# Apply the language-specific feature flag detection
-language_specific_file_flags = {}
-for filepath in extracted_files:
-    ext = filepath.split('.')[-1].lower()
-    filetype = filetype_mapping.get(ext)
-    if filetype:
-        content = read_file_content(filepath)
-        feature_flags_detected = detect_language_specific_flags(content, filetype)
-        if feature_flags_detected:
-            language_specific_file_flags[os.path.basename(filepath)] = feature_flags_detected
-
-# for i in language_specific_file_flags:
-#  print(i)
-#  print(language_specific_file_flags[i])
+# Example usage
+if __name__ == "__main__":
+    config_files_path = "/path/to/your/config/files"  # Replace with the path to your config files
+    toggles = extract_toggles_from_files(config_files_path)
+    print("Extracted Toggles:", toggles)
