@@ -4,25 +4,31 @@ regexes = {
     'python': {
         'declare': r'(?P<toggle>\w+)\s*(?:\:\s*(?P<type>[^\s=]+))?\s*=\s*',
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
-        'dict_keys': r'[{,]\s*(?P<toggle>(?:[\'\"][^\'\"]*[\'\"]|[^:]+?))\s*:'
+        'dict_keys': r'[{,]\s*(?P<toggle>(?:[\'\"][^\'\"]*[\'\"]|[^:]+?))\s*:',
+        'strings': r'(?P<toggle>"[^"]*"|\'[^\']*\')',
+        'enum_names': r'class\s+(?P<toggle>\w+)\(Enum\):'
     },
     'csharp': {
         'declare': (
             r'(public|protected|private\s+protected|private)\s+(?:static\s+|const\s+|readonly\s+)*(\w+(?:\s*<[^>]+>)?)\s+(?P<toggle>\w+)\s*(?=\s*(=|;|\[))'
         ),
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
-        'dict_keys': r'[{,]\s*(?P<toggle>(?:@"[^"]*"|"[^"]*"|\'[^\']*\'|[^,\s]+?))\s*,'
+        'dict_keys': r'[{,]\s*(?P<toggle>(?:@"[^"]*"|"[^"]*"|\'[^\']*\'|[^,\s]+?))\s*,',
+        'strings': r'(?P<toggle>@?"[^"]*"|\'[^\']*\')',
+        'enum_names': r'enum\s+(?P<toggle>\w+)\s*'
     },
     'java': {
         'declare': (
-            r'(public|protected|private)\s+'
+            r'(public|protected|private)\s+' 
             r'(?:static\s+|final\s+|volatile\s+|transient\s+)*'
             r'(?P<type>\w+(?:\s*<[^>]+>)?)\s+'
             r'(?P<toggle>\w+)\s*'
             r'(?=\s*(=|;|\[))'
         ),
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
-        'dict_keys': r'\bput\s*\(\s*(?P<toggle>"[^"]*"|\'[^\']*\'|[^,\s]+?)\s*,'
+        'dict_keys': r'\bput\s*\(\s*(?P<toggle>"[^"]*"|\'[^\']*\'|[^,\s]+?)\s*,',
+        'strings': r'(?P<toggle>"[^"]*"|\'[^\']*\')',
+        'enum_names': r'enum\s+(?P<toggle>\w+)\s*'
     },
     'golang': {
         'declare': (
@@ -30,7 +36,9 @@ regexes = {
             r'(?P<toggle2>\w+)\s*(?:\s+(?P<type2>[^\s=]+))?\s*:=\s*.*)'
         ),
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
-        'dict_keys': r'[{,]\s*(?P<toggle>(?:`[^`]*`|"[^"]*"|\'[^\']*\'|[\w.]+?))\s*:'
+        'dict_keys': r'[{,]\s*(?P<toggle>(?:`[^`]*`|"[^"]*"|\'[^\']*\'|[\w.]+?))\s*:',
+        'strings': r'(?P<toggle>"[^"]*"|\'[^\']*\'|`[^`]*`)',
+        'enum_names': r'type\s+(?P<toggle>\w+)\s+int\s*'
     },
     'cpp': {
         'declare': (
@@ -42,7 +50,9 @@ regexes = {
         ),
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'[{,]\s*(?P<toggle>(?:"[^"]*"|\'[^\']*\'|[^,\s]+?))\s*,',
-        'toggle_names': r'{\s*Toggle::(?P<toggle>\w+),'
+        'toggle_names': r'{\s*Toggle::(?P<toggle>\w+),',
+        'strings': r'(?P<toggle>"[^"]*"|\'[^\']*\')',
+        'enum_names': r'enum\s+(?P<toggle>\w+)\s*'
     }
 }
 
