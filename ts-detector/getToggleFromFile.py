@@ -54,7 +54,7 @@ regexes = {
         ),
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'[{,]\s*(?P<toggle>(?:"[^"]*"|\'[^\']*\'|[^,\s]+?))\s*,',
-        'toggle_names': r'{\s*Toggle::(?P<toggle>\w+),',
+        'toggle_names': r'Toggle::(?P<toggle>\w+),',
         'enum_names': r'enum\s+(?P<toggle>\w+)\s*'
     }
 }
@@ -70,6 +70,13 @@ language_keywords = {
 def is_pure_number_or_dash_underscore(toggle):
     return bool(re.fullmatch(r'"?\d+([-_\.]\d+)*"?', toggle))
 
+def no_invalid_chars(toggle):
+    invalid_chars = ['(', ')', '{', '}', '[', ']', '|', '\\', ';', '<', '>', ' ', '!', '@']
+    for char in invalid_chars:
+        if char in toggle:
+            return False
+    return True
+
 def filter_substrings(toggles):
     toggles = sorted(toggles, key=len, reverse=True)
     filtered_toggles = []
@@ -81,6 +88,7 @@ def filter_substrings(toggles):
 def filter_toggles(toggles, language):
     keywords = language_keywords.get(language, [])
     filtered_toggles = [t for t in toggles if t is not None and t != ""]
+    filtered_toggles = [t for t in filtered_toggles if no_invalid_chars(t)]
     filtered_toggles = [t for t in filtered_toggles if not is_pure_number_or_dash_underscore(t)]
     filtered_toggles = [t for t in filtered_toggles if len(t) > 7]
     filtered_toggles = [t for t in filtered_toggles if t not in keywords]
@@ -137,7 +145,9 @@ def extract_toggles_from_config_files(config_files):
     return []
 
 if __name__ == "__main__":
-    config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
+    # config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
+    # config_files_path = "../getToggleTests/example-config-files/chrome-feature.cc"
+    config_files_path = "../getToggleTests/example-config-files/dawn-toggles.cpp"
     config_files = [config_files_path]
 
     extracted_toggles = extract_toggles_from_config_files(config_files)
