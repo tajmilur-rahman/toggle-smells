@@ -67,15 +67,14 @@ def extract_nested_toggles(lang, code_files, t_config_files, regex_patterns):
 
     nested_toggles = defaultdict(list)
     code_files_contents = helper.get_code_file_contents(lang, code_files)
-    nested_patterns = helper.get_nested_toggle_patterns(lang)
 
     toggles = toggle_extractor.extract_toggles_from_config_files(t_config_files)
 
-    nd.process_code_files(lang, code_files, code_files_contents, nested_patterns, nested_toggles, toggles)
+    res = nd.process_code_files(lang, code_files, code_files_contents, toggles)
 
-    nested_toggles = nd.clean_nested_toggles(nested_toggles)
+    nested_toggles = nd.format_nested_toggles_data(res)
 
-    return nd.format_nested_toggles_data(nested_toggles)
+    return nested_toggles
 
 
 def extract_spread_toggles(lang, code_files, t_config_files, regex_patterns):

@@ -1,57 +1,79 @@
-import json
 import re
-from .. import helper
+import json
 
+def process_code_files(lang, code_files, code_files_contents, toggles):
+    nested_toggles = []
+    total_count_toggles = 0
 
-def process_code_files(lang, code_files, code_files_contents, nested_patterns, nested_toggles, toggles):
+    regex_patterns_by_language = {
+        "python": {
+            'return_and': r'return\s+(.*?)\s+and',
+            'if_and': r'if\s+(.*?)\s+and',
+            'return_or': r'return\s+(.*?)\s+or',
+            'if_or': r'if\s+(.*?)\s+or',
+            'or_enter': r' or\s+(.*?)\n',
+            'and_enter': r' and\s+(.*?)\n',
+            'enter_or': r'$\s+(.*?) or',
+            'enter_and': r'$\s+(.*?) and',
+            'assign_and': r'[^=]=\s+(.*?) and',
+            'assign_or': r'[^=]=\s+(.*?) or'
+        },
+        "java": {
+            "if_statement": r"if\s*\(.*?\)\s*\{",
+            "elif_statement": r"else\s*if\s*\(.*?\)\s*\{",
+            "variable_assignment": r"\w+\s*=\s*.*?;",
+            "return_statement": r"return\s+.*?;"
+        },
+        "cs": {
+            "if_statement": r"if\s*\(.*?\)\s*\{",
+            "elif_statement": r"else\s*if\s*\(.*?\)\s*\{",
+            "variable_assignment": r"\w+\s*=\s*.*?;",
+            "return_statement": r"return\s+.*?;"
+        },
+        "cpp": {
+            "if_statement": r"if\s*\(.*?\)\s*\{",
+            "elif_statement": r"else\s*if\s*\(.*?\)\s*\{",
+            "variable_assignment": r"\w+\s*=\s*.*?;",
+            "return_statement": r"return\s+.*?;"
+        },
+        "go": {
+            "if_statement": r"if\s*\(.*?\)\s*\{",
+            "elif_statement": r"else\s*if\s*\(.*?\)\s*\{",
+            "variable_assignment": r"\w+\s*=\s*.*?;",
+            "return_statement": r"return\s+.*?;"
+        }
+    }
+
+    regex_patterns = regex_patterns_by_language.get(lang.lower())
+
+    if not regex_patterns:
+        raise ValueError(f"Unsupported language: {lang}")
+
     for code_file, content in zip(code_files, code_files_contents):
-        for pattern in nested_patterns:
-            matches = re.findall(pattern, content)
-            for match in matches:
-                code_lines = extract_code_lines(lang, match)
-                populate_nested_toggles(nested_toggles, lang, code_file, code_lines)
+        code_snippets = []
+        for pattern_name, pattern in regex_patterns.items():
+            code_snippets += re.findall(pattern, content, re.MULTILINE)
 
-
-def extract_code_lines(lang, match):
-    if lang == "python":
-        return [match.replace('\n', "")]
-    return match.split('\n')
-
-
-def populate_nested_toggles(nested_toggles, lang, code_file, code_lines):
-    filename = helper.getFileName(lang, code_file)
-    if filename not in nested_toggles:
-        nested_toggles[filename] = []
-
-
-
-
-def clean_nested_toggles(nested_toggles):
-    distinct_toggles = set()
-    to_delete = []
-
-    for key in list(nested_toggles.keys()):
-        nested_toggles[key] = list(dict.fromkeys(nested_toggles[key]))
-        distinct_toggles.update(nested_toggles[key])
-        if len(nested_toggles[key]) == 0:
-            to_delete.append(key)
-
-    for key in to_delete:
-        del nested_toggles[key]
-
-    return nested_toggles, distinct_toggles
-
-
-def format_nested_toggles_data(nested_toggles):
-    total_count_path = len(nested_toggles[0])
-    total_count_toggles = len(set(toggle for toggles in nested_toggles for toggle in toggles))
-
-    nested_toggles_serializable = [list(toggles) if isinstance(toggles, set) else toggles for toggles in nested_toggles]
+        for snippet in code_snippets:
+            matched_toggles = [toggle for toggle in toggles if toggle in snippet]
+            if matched_toggles:
+                nested_toggles.extend(matched_toggles)
+                total_count_toggles += len(matched_toggles)
 
     nested_toggles_data = {
-        "nested_toggles": nested_toggles_serializable[1],
-        "total_count_path": total_count_path,
+        "nested_toggles": nested_toggles,
         "total_count_toggles": total_count_toggles
     }
 
-    return json.dumps(nested_toggles_data, indent=2)
+    return nested_toggles_data
+
+
+def format_nested_toggles_data(nested_toggles_data):
+    unique_toggles = set(nested_toggles_data['nested_toggles'])
+    result = {
+        "pattern": "nested",
+        "qty": len(unique_toggles),
+        "toggles": list(unique_toggles)
+    }
+    return json.dumps(result, indent=2)
+

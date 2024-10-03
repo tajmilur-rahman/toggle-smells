@@ -10,7 +10,12 @@ nested_toggle_patterns = {
     'if_or': r'if\s+(.*?)\s+or',
 
     'or_enter': r' or\s+(.*?)\n',
-    'and_enter': r' and\s+(.*?)\n'
+    'and_enter': r' and\s+(.*?)\n',
+    'enter_or': r'$\s+(.*?) or',
+    'enter_and': r'$\s+(.*?) and',
+
+    'assign_and': r'[^=]=\s+(.*?) and',
+    'assign_or': r'[^=]=\s+(.*?) or'
 }
 
 general_patterns = {
