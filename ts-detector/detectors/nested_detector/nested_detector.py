@@ -3,13 +3,13 @@ import re
 from .. import helper
 
 
-def process_code_files(lang, code_files, code_files_contents, nested_patterns, nested_toggles, regex_patterns):
+def process_code_files(lang, code_files, code_files_contents, nested_patterns, nested_toggles, toggles):
     for code_file, content in zip(code_files, code_files_contents):
         for pattern in nested_patterns:
             matches = re.findall(pattern, content)
             for match in matches:
                 code_lines = extract_code_lines(lang, match)
-                populate_nested_toggles(nested_toggles, lang, code_file, code_lines, regex_patterns)
+                populate_nested_toggles(nested_toggles, lang, code_file, code_lines)
 
 
 def extract_code_lines(lang, match):
@@ -18,14 +18,11 @@ def extract_code_lines(lang, match):
     return match.split('\n')
 
 
-def populate_nested_toggles(nested_toggles, lang, code_file, code_lines, regex_patterns):
+def populate_nested_toggles(nested_toggles, lang, code_file, code_lines):
     filename = helper.getFileName(lang, code_file)
     if filename not in nested_toggles:
         nested_toggles[filename] = []
 
-    for line in code_lines:
-        for pattern in regex_patterns["general_pattern"]:
-            nested_toggles[filename].extend(re.findall(pattern, line))
 
 
 

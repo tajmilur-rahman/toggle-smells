@@ -54,7 +54,7 @@ regexes = {
         ),
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'[{,]\s*(?P<toggle>(?:"[^"]*"|\'[^\']*\'|[^,\s]+?))\s*,',
-        'toggle_names': r'Toggle::(?P<toggle>\w+),',
+        'toggle_names': r'(Feature)?(Toggle|Flag|Enable|Disable)?\w*::(?P<toggle>\w+),',
         'enum_names': r'enum\s+(?P<toggle>\w+)\s*'
     }
 }

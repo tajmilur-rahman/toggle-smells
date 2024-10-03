@@ -1,7 +1,3 @@
-general_toggle_var_patterns = {
-    'pattern1': r'features.has\([^)"]*([^\n),]*)'
-}
-
 toggle_config_patterns = {
     'pattern2': r'"([^\n"]*:[^\n"]*)": False',
     'pattern3': r'"([^\n"]*:[^\n"]*)": True'

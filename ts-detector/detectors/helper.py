@@ -59,10 +59,6 @@ def get_toggle_config_patterns(lang):
     return list(language_map[lang.lower()].toggle_config_patterns.values())
 
 
-def get_general_toggle_var_patterns(lang):
-    return list(language_map[lang.lower()].general_toggle_var_patterns.values())
-
-
 def get_nested_toggle_patterns(lang):
     return list(language_map[lang.lower()].nested_toggle_patterns.values())
 

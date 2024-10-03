@@ -36,8 +36,7 @@ def detect(lang, code_files, t_config_files, t_usage):
     if t_config_files is None:
         raise ValueError("A list of config files is required.")
 
-    regex_patterns = {"general_pattern": helper.get_general_toggle_var_patterns(lang),
-                      "config_pattern": helper.get_toggle_config_patterns(lang)}
+    regex_patterns = {"config_pattern": helper.get_toggle_config_patterns(lang)}
 
     if t_usage == "dead":
         return extract_dead_toggles(lang, code_files, t_config_files, regex_patterns)
@@ -70,7 +69,9 @@ def extract_nested_toggles(lang, code_files, t_config_files, regex_patterns):
     code_files_contents = helper.get_code_file_contents(lang, code_files)
     nested_patterns = helper.get_nested_toggle_patterns(lang)
 
-    nd.process_code_files(lang, code_files, code_files_contents, nested_patterns, nested_toggles, regex_patterns)
+    toggles = toggle_extractor.extract_toggles_from_config_files(t_config_files)
+
+    nd.process_code_files(lang, code_files, code_files_contents, nested_patterns, nested_toggles, toggles)
 
     nested_toggles = nd.clean_nested_toggles(nested_toggles)
 

@@ -1,7 +1,3 @@
-general_toggle_var_patterns = {
-    'pattern1': r'FeatureFlags.isEnabled\(FeatureFlags.(.*?)\)',
-}
-
 toggle_config_patterns = {
     'pattern1': r'\s(\w*) = Setting\.boolSetting\(',  # < this is only checked on project opensearch for now
     'pattern2': r' (\w*) =\n? "opensearch.experimental'
