@@ -90,7 +90,9 @@ def filter_toggles(toggles, language):
     filtered_toggles = [t for t in toggles if t is not None and t != ""]
     filtered_toggles = [t for t in filtered_toggles if no_invalid_chars(t)]
     filtered_toggles = [t for t in filtered_toggles if not is_pure_number_or_dash_underscore(t)]
-    filtered_toggles = [t for t in filtered_toggles if len(t) > 7]
+    filtered_toggles = [t for t in filtered_toggles if len(t) > 8]
+    filtered_toggles = [t for t in filtered_toggles if t[0] == '\"' and t[-1] == '\"' and len(t) > 10]
+
     filtered_toggles = [t for t in filtered_toggles if t not in keywords]
     filtered_toggles = filter_substrings(filtered_toggles)
     return filtered_toggles

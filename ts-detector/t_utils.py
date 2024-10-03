@@ -1,15 +1,17 @@
 import json
-import regex.regex_c as c_patterns
-import regex.regex_java as j_patterns
-import regex.regex_python as py_patterns
-import regex.regex_go as go_patterns
-import regex.regex_csharp as csharp_patterns
+import detectors.regex.regex_c as c_patterns
+import detectors.regex.regex_java as j_patterns
+import detectors.regex.regex_python as py_patterns
+import detectors.regex.regex_go as go_patterns
+import detectors.regex.regex_csharp as csharp_patterns
 from collections import defaultdict
+
+import detectors.toggle_extractor.toggle_extractor as toggle_extractor
 
 from detectors.enum_detector.enum_detector import *
 import detectors.mixed_detector.mixed_detector as md
 
-import helper as helper
+import detectors.helper as helper
 
 import detectors.spread_detector.spread_detector as sd
 import detectors.dead_detector.dead_detector as dd
@@ -50,6 +52,7 @@ def detect(lang, code_files, t_config_files, t_usage):
 
 
 def extract_dead_toggles(lang, code_files, t_config_files, regex_patterns):
+    print("extracting dead toggles")
     toggles = get_toggles_from_config_files(t_config_files, regex_patterns)
     code_files_contents = helper.get_code_file_contents(lang, code_files)
 
@@ -61,6 +64,8 @@ def extract_dead_toggles(lang, code_files, t_config_files, regex_patterns):
 
 
 def extract_nested_toggles(lang, code_files, t_config_files, regex_patterns):
+    print("extracting nested toggles")
+
     nested_toggles = defaultdict(list)
     code_files_contents = helper.get_code_file_contents(lang, code_files)
     nested_patterns = helper.get_nested_toggle_patterns(lang)
@@ -73,6 +78,8 @@ def extract_nested_toggles(lang, code_files, t_config_files, regex_patterns):
 
 
 def extract_spread_toggles(lang, code_files, t_config_files, regex_patterns):
+    print("extracting spread toggles")
+
     toggles = get_toggles_from_config_files(t_config_files, regex_patterns)
     toggle_lookup = sd.find_toggles_in_code_files(code_files, toggles)
     spread_toggles = sd.filter_spread_toggles(toggle_lookup)
@@ -84,6 +91,8 @@ def extract_spread_toggles(lang, code_files, t_config_files, regex_patterns):
 
 
 def extract_mixed_toggles(lang, code_files, t_config_files, regex_patterns):
+    print("extracting mixed toggles")
+
     mixed_toggles = defaultdict(list)
     code_files_contents = helper.get_code_file_contents(lang, code_files)
     mixed_patterns = helper.get_mixed_toggle_var_patterns(lang)
@@ -93,6 +102,8 @@ def extract_mixed_toggles(lang, code_files, t_config_files, regex_patterns):
     return md.format_mixed_toggles_data(mixed_toggles)
 
 def extract_enum_toggles(code_files, t_config_files, lang, regex_patterns):
+    print("extracting enum toggles")
+
     # get all toggle names
     # dictionary to store spread toggle data
     toggle_lookup = defaultdict(list)
@@ -111,19 +122,22 @@ def extract_enum_toggles(code_files, t_config_files, lang, regex_patterns):
 
 
 def get_toggles_from_config_files(config_files, regex_patterns):
-    toggle_list = []
-    for conf_file in config_files:
-        with open(conf_file, 'r') as file:
-            file_content = file.read()
-            toggle_list.append(file_content)
+    # toggle_list = []
+    # for conf_file in config_files:
+    #     with open(conf_file, 'r') as file:
+    #         file_content = file.read()
+    #         toggle_list.append(file_content)
+    #
+    # toggle_list = list(filter(None, toggle_list))
+    # toggle_patterns = regex_patterns['config_pattern']
+    #
+    # toggles = []
+    # for toggle in toggle_list:
+    #     for pattern in toggle_patterns:
+    #         matches = re.findall(pattern, toggle)
+    #         toggles.extend(matches)
+    toggles = toggle_extractor.extract_toggles_from_config_files(config_files)
 
-    toggle_list = list(filter(None, toggle_list))
-    toggle_patterns = regex_patterns['config_pattern']
-
-    toggles = []
-    for toggle in toggle_list:
-        for pattern in toggle_patterns:
-            matches = re.findall(pattern, toggle)
-            toggles.extend(matches)
+    print("found toggles: {}".format(toggles))
 
     return list(set(filter(None, toggles)))

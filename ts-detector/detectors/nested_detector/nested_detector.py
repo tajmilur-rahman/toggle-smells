@@ -1,6 +1,6 @@
 import json
 import re
-import helper
+from .. import helper
 
 
 def process_code_files(lang, code_files, code_files_contents, nested_patterns, nested_toggles, regex_patterns):

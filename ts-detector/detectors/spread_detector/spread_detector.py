@@ -1,6 +1,6 @@
 from collections import defaultdict
 import re
-import helper
+from .. import helper
 
 
 def find_toggles_in_code_files(code_files, toggles):
