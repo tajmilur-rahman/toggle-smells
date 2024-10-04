@@ -36,21 +36,19 @@ def detect(lang, code_files, t_config_files, t_usage):
     if t_config_files is None:
         raise ValueError("A list of config files is required.")
 
-    regex_patterns = {"config_pattern": helper.get_toggle_config_patterns(lang)}
-
     if t_usage == "dead":
-        return extract_dead_toggles(lang, code_files, t_config_files, regex_patterns)
+        return extract_dead_toggles(lang, code_files, t_config_files)
     elif t_usage == "spread":
-        return extract_spread_toggles(lang, code_files, t_config_files, regex_patterns)
+        return extract_spread_toggles(lang, code_files, t_config_files)
     elif t_usage == "nested":
-        return extract_nested_toggles(lang, code_files, t_config_files, regex_patterns)
+        return extract_nested_toggles(lang, code_files, t_config_files)
     elif t_usage == "mixed":
-        return extract_mixed_toggles(lang, code_files, t_config_files, regex_patterns)
+        return extract_mixed_toggles(lang, code_files)
     elif t_usage == "enum":
-        return extract_enum_toggles(lang, code_files, t_config_files, regex_patterns)
+        return extract_enum_toggles(lang, code_files, t_config_files)
 
 
-def extract_dead_toggles(lang, code_files, t_config_files, regex_patterns):
+def extract_dead_toggles(lang, code_files, t_config_files):
     print("extracting dead toggles")
     toggles = get_toggles_from_config_files(t_config_files)
     code_files_contents = helper.get_code_file_contents(lang, code_files)
@@ -62,7 +60,7 @@ def extract_dead_toggles(lang, code_files, t_config_files, regex_patterns):
     return dd.format_dead_toggles_data(dead_toggles)
 
 
-def extract_nested_toggles(lang, code_files, t_config_files, regex_patterns):
+def extract_nested_toggles(lang, code_files, t_config_files):
     print("extracting nested toggles")
 
     nested_toggles = defaultdict(list)
@@ -77,7 +75,7 @@ def extract_nested_toggles(lang, code_files, t_config_files, regex_patterns):
     return nested_toggles
 
 
-def extract_spread_toggles(lang, code_files, t_config_files, regex_patterns):
+def extract_spread_toggles(lang, code_files, t_config_files):
     print("extracting spread toggles")
 
     toggles = get_toggles_from_config_files(t_config_files)
@@ -90,7 +88,7 @@ def extract_spread_toggles(lang, code_files, t_config_files, regex_patterns):
     return json.dumps(spread_toggles_data, indent=2)
 
 
-def extract_mixed_toggles(lang, code_files, t_config_files, regex_patterns):
+def extract_mixed_toggles(lang, code_files):
     print("extracting mixed toggles")
 
     mixed_toggles = defaultdict(list)
@@ -101,7 +99,7 @@ def extract_mixed_toggles(lang, code_files, t_config_files, regex_patterns):
 
     return md.format_mixed_toggles_data(mixed_toggles)
 
-def extract_enum_toggles(code_files, t_config_files, lang, regex_patterns):
+def extract_enum_toggles(code_files, t_config_files, lang):
     print("extracting enum toggles")
     # get all toggle names
     # dictionary to store spread toggle data

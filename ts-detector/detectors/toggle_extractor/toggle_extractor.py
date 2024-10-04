@@ -5,7 +5,7 @@ comment_regexes = {
     'csharp': r'^\s*//.*$',
     'java': r'^\s*//.*$',
     'golang': r'^\s*//.*$',
-    'cpp': r'^\s*//.*$',
+    "c++": r'^\s*//.*$',
 }
 
 regexes = {
@@ -44,7 +44,7 @@ regexes = {
         'dict_keys': r'[{,]\s*(?P<toggle>(?:`[^`]*`|"[^"]*"|\'[^\']*\'|[\w.]+?))\s*:',
         'enum_names': r'type\s+(?P<toggle>\w+)\s+int\s*'
     },
-    'cpp': {
+    "c++": {
         'declare': (
             r'(?:(?:const|static|volatile|extern|mutable)\s+)*'
             r'(?P<type>(?:[\w:]+)(?:\s*<[^>;]+>)?'
@@ -64,7 +64,7 @@ language_keywords = {
     'csharp': ['public', 'private', 'protected', 'const', 'static', 'readonly', 'string', 'Dictionary', 'List', 'bool', '"true"', '"false"'],
     'java': ['public', 'private', 'protected', 'static', 'final', 'volatile', 'transient', 'String', 'Map', 'List', 'boolean', '"true"', '"false"'],
     'golang': ['var', 'const', 'func', 'int', 'string', 'bool', 'map', '"true"', '"false"', 'err', 'ok'],
-    'cpp': ['const', 'static', 'public', 'private', 'protected', 'bool', 'int', 'float', 'double', 'std', '"true"', '"false"']
+    "c++": ['const', 'static', 'public', 'private', 'protected', 'bool', 'int', 'float', 'double', 'std', '"true"', '"false"']
 }
 
 def is_pure_number_or_dash_underscore(toggle):
@@ -123,7 +123,7 @@ def get_language_from_extension(file_path):
     elif file_path.endswith('.go'):
         return 'golang'
     elif file_path.endswith('.cpp') or file_path.endswith('.cc'):
-        return 'cpp'
+        return "c++"
     return None
 
 def remove_comments(content, language):

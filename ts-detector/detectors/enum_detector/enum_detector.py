@@ -4,7 +4,7 @@ REGEX_PATTERNS = {
     'java': r'enum\s+(\w+)\s*{([^}]*)}',
     'python': r'class\s+(\w+)\(Enum\):\s*([^#]*)',
     'go': r'const\s*\((.*?)\)',
-    'cpp': r'enum\s+(\w+)?\s*{([^}]*)}',
+    'c++': r'enum\s+(\w+)?\s*{([^}]*)}',
     'csharp': r'enum\s+(\w+)\s*{([^}]*)}',
     'c': r'enum\s+(\w+)?\s*{([^}]*)}'
 }
@@ -16,7 +16,7 @@ def extract_enum_members(code, language):
 
     Args:
         code (str): The content of a code file as a string.
-        language (str): The programming language ('java', 'python', 'go', 'cpp', 'csharp', 'c').
+        language (str): The programming language ('java', 'python', 'go', "c++", 'csharp', 'c').
 
     Returns:
         dict: A dictionary where keys are enum names and values are lists of enum members.
@@ -28,7 +28,7 @@ def extract_enum_members(code, language):
 
     enum_pattern = re.compile(REGEX_PATTERNS[language], re.DOTALL)
 
-    if language == 'java' or language == 'cpp' or language == 'csharp' or language == 'c':
+    if language == 'java' or language == 'c++' or language == 'csharp' or language == 'c':
         for match in enum_pattern.finditer(code):
             enum_name = match.group(1) or "UnnamedEnum"
             members_block = match.group(2)
@@ -58,7 +58,7 @@ def is_enum_member(code, var_names, language):
     Args:
         code (str): The content of a code file as a string.
         var_names ([str]): a list of variable names to check.
-        language (str): The programming language ('java', 'python', 'go', 'cpp', 'csharp', 'c').
+        language (str): The programming language ('java', 'python', 'go', "c++", 'csharp', 'c').
 
     Returns:
         [str]:  a list of variable names that is enum
