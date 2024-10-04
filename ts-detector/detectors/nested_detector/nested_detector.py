@@ -71,9 +71,8 @@ def process_code_files(lang, code_files, code_files_contents, toggles):
 def format_nested_toggles_data(nested_toggles_data):
     unique_toggles = set(nested_toggles_data['nested_toggles'])
     result = {
-        "pattern": "nested",
         "qty": len(unique_toggles),
         "toggles": list(unique_toggles)
     }
-    return json.dumps(result, indent=2)
+    return result
 

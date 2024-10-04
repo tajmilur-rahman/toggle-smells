@@ -16,7 +16,7 @@ def count_occurrences(code_file, matches, mixed_toggles):
 
 def format_mixed_toggles_data(mixed_toggles):
     mixed_toggles_data = {
-        "mixed_toggles": mixed_toggles,
-        "total_count": len(mixed_toggles)
+        "toggles": mixed_toggles,
+        "qty": len(mixed_toggles)
     }
-    return json.dumps(mixed_toggles_data, indent=2)
+    return mixed_toggles_data

@@ -83,9 +83,11 @@ def extract_spread_toggles(lang, code_files, t_config_files):
     spread_toggles = sd.filter_spread_toggles(toggle_lookup)
 
     parent_toggles = sd.find_parent_toggles(spread_toggles, lang)
-    spread_toggles_data = sd.format_spread_toggles(parent_toggles)
+    toggles = [t for t in parent_toggles if len(parent_toggles[t]) >= 2]
 
-    return json.dumps(spread_toggles_data, indent=2)
+    spread_toggles_data = sd.format_spread_toggles(toggles)
+
+    return spread_toggles_data
 
 
 def extract_mixed_toggles(lang, code_files):
@@ -115,8 +117,12 @@ def extract_enum_toggles(code_files, t_config_files, lang):
         for toggle in res:
             toggle_lookup[toggle].append(code_file)
 
-    return json.dumps(toggle_lookup, indent=2)
+    res = {
+        "toggles": toggle_lookup.keys(),
+        "qty": len(toggle_lookup)
+    }
 
+    return res
 
 def get_toggles_from_config_files(config_files):
     toggles = toggle_extractor.extract_toggles_from_config_files(config_files)

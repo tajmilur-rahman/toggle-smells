@@ -1,3 +1,4 @@
+import json
 import sys
 import glob
 import argparse
@@ -82,27 +83,38 @@ def main():
         print("Unsupported language. Exiting.")
         sys.exit(1)
 
+    for config_file in config_files:
+        if config_file in code_files:
+            code_files.remove(config_file)
+
     if toggle_usage:
         detected_toggles = t_utils.detect(lang, code_files, config_files, toggle_usage)
 
+        res = {toggle_usage: detected_toggles}
+        res_json = json.dumps(res, indent=2)
+
         if output_path:
             with open(output_path, 'w') as f:
-                f.write(str(detected_toggles))
+                f.write(str(res_json))
             print(f"Output written to {output_path}")
         else:
-            print(detected_toggles)
+            print(res_json)
 
     else:
+        res = {}
         for p in patterns:
             if p == "mixed" and lang.lower() != "c++":
                 continue
             detected_toggles = t_utils.detect(lang, code_files, config_files, p)
-            if output_path:
-                with open(output_path+'/'+p, 'a+') as f:
-                    f.write(str(detected_toggles))
-                print(f"Output written to {output_path}")
-            else:
-                print(detected_toggles)
+
+            res[p] = detected_toggles
+        res_json = json.dumps(res, indent=2)
+        if output_path:
+            with open(output_path, 'w') as f:
+                f.write(str(res_json))
+            print(f"Output written to {output_path}")
+        else:
+            print(res_json)
 
 
 if __name__ == "__main__":
