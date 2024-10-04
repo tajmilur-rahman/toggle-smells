@@ -18,10 +18,6 @@ nested_toggle_patterns = {
     'assign_or': r'[^=]=\s+(.*?) or'
 }
 
-general_patterns = {
-    'whitespace': r'\s*features.has\([^)"]*([^\n),]*)',
-}
-
 spread_toggle_patterns = {
     'parent_finder': [r'class (.*?)\:\n((?!.*class).*?\n)*?.*?%s']
 }

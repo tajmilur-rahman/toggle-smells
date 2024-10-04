@@ -12,10 +12,6 @@ nested_toggle_patterns = {
     'elseif_condition': r'} else if\s*[^}]*\}'
 }
 
-general_patterns = {
-    'whitespace': r'([\w*\.]*\w*Enable\w*)',
-}
-
 # how a parent looks like shouldn't need user input
 spread_toggle_patterns = {
     'parent_finder': [r'\npackage (.*)(\n)'],

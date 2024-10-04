@@ -9,9 +9,6 @@ nested_toggle_patterns = {
     'elseif_condition': r'else if[^}]*?}'
 }
 
-general_patterns = {
-    'whitespace': r'FeatureFlags.isEnabled\(FeatureFlags.(.*?)\)',
-}
 
 spread_toggle_patterns = {
     'parent_finder': [r'class (.*( extends|implements \w*)*) \{(.|\n)*%s']
