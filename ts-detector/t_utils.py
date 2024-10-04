@@ -52,7 +52,7 @@ def detect(lang, code_files, t_config_files, t_usage):
 
 def extract_dead_toggles(lang, code_files, t_config_files, regex_patterns):
     print("extracting dead toggles")
-    toggles = get_toggles_from_config_files(t_config_files, regex_patterns)
+    toggles = get_toggles_from_config_files(t_config_files)
     code_files_contents = helper.get_code_file_contents(lang, code_files)
 
     if lang == "python":
@@ -80,7 +80,7 @@ def extract_nested_toggles(lang, code_files, t_config_files, regex_patterns):
 def extract_spread_toggles(lang, code_files, t_config_files, regex_patterns):
     print("extracting spread toggles")
 
-    toggles = get_toggles_from_config_files(t_config_files, regex_patterns)
+    toggles = get_toggles_from_config_files(t_config_files)
     toggle_lookup = sd.find_toggles_in_code_files(code_files, toggles)
     spread_toggles = sd.filter_spread_toggles(toggle_lookup)
 
@@ -103,12 +103,11 @@ def extract_mixed_toggles(lang, code_files, t_config_files, regex_patterns):
 
 def extract_enum_toggles(code_files, t_config_files, lang, regex_patterns):
     print("extracting enum toggles")
-
     # get all toggle names
     # dictionary to store spread toggle data
     toggle_lookup = defaultdict(list)
     # get all toggles from config files as a set
-    toggles = set(get_toggles_from_config_files(t_config_files, regex_patterns))
+    toggles = set(get_toggles_from_config_files(t_config_files))
 
     code_files_contents = helper.get_code_file_contents(lang, code_files)
 
@@ -121,23 +120,7 @@ def extract_enum_toggles(code_files, t_config_files, lang, regex_patterns):
     return json.dumps(toggle_lookup, indent=2)
 
 
-def get_toggles_from_config_files(config_files, regex_patterns):
-    # toggle_list = []
-    # for conf_file in config_files:
-    #     with open(conf_file, 'r') as file:
-    #         file_content = file.read()
-    #         toggle_list.append(file_content)
-    #
-    # toggle_list = list(filter(None, toggle_list))
-    # toggle_patterns = regex_patterns['config_pattern']
-    #
-    # toggles = []
-    # for toggle in toggle_list:
-    #     for pattern in toggle_patterns:
-    #         matches = re.findall(pattern, toggle)
-    #         toggles.extend(matches)
+def get_toggles_from_config_files(config_files):
     toggles = toggle_extractor.extract_toggles_from_config_files(config_files)
-
-    print("found toggles: {}".format(toggles))
 
     return list(set(filter(None, toggles)))
