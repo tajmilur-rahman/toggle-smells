@@ -63,7 +63,7 @@ language_keywords = {
     'python': ['__main__', 'True', 'False', 'None', 'async', 'await', 'self', '"true"', '"false"', '__name__'],
     'csharp': ['public', 'private', 'protected', 'const', 'static', 'readonly', 'string', 'Dictionary', 'List', 'bool', '"true"', '"false"'],
     'java': ['public', 'private', 'protected', 'static', 'final', 'volatile', 'transient', 'String', 'Map', 'List', 'boolean', '"true"', '"false"'],
-    'golang': ['var', 'const', 'func', 'int', 'string', 'bool', 'map', '"true"', '"false"', 'err', 'ok', ],
+    'golang': ['var', 'const', 'func', 'int', 'string', 'bool', 'map', '"true"', '"false"', 'err', 'ok'],
     'cpp': ['const', 'static', 'public', 'private', 'protected', 'bool', 'int', 'float', 'double', 'std', '"true"', '"false"']
 }
 
@@ -71,7 +71,7 @@ def is_pure_number_or_dash_underscore(toggle):
     return bool(re.fullmatch(r'"?\d+([-_\.]\d+)*"?', toggle))
 
 def no_invalid_chars(toggle):
-    invalid_chars = ['(', ')', '{', '}', '[', ']', '|', '\\', ';', '<', '>', ' ', '!', '@']
+    invalid_chars = ['(', ')', '{', '}', '[', ']', '|', '\\', ';', '<', '>', ' ', '!', '@', 'https://', 'http://', 'localhost:']
     for char in invalid_chars:
         if char in toggle:
             return False
@@ -88,10 +88,14 @@ def filter_substrings(toggles):
 def filter_toggles(toggles, language):
     keywords = language_keywords.get(language, [])
     filtered_toggles = [t for t in toggles if t is not None and t != ""]
+
     filtered_toggles = [t for t in filtered_toggles if no_invalid_chars(t)]
+
     filtered_toggles = [t for t in filtered_toggles if not is_pure_number_or_dash_underscore(t)]
+
     filtered_toggles = [t for t in filtered_toggles if len(t) > 10]
-    filtered_toggles = [t for t in filtered_toggles if t[0] == '\"' and t[-1] == '\"' and len(t) > 12]
+
+    filtered_toggles = [t for t in filtered_toggles if (t[0] == '\"' and t[-1] == '\"' and len(t) > 12) or (t[0] != '\"' or t[-1] != '\"')]
 
     filtered_toggles = [t for t in filtered_toggles if t not in keywords]
     filtered_toggles = filter_substrings(filtered_toggles)
@@ -149,13 +153,14 @@ def extract_toggles_from_config_files(config_files):
 if __name__ == "__main__":
     # config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/chrome-feature.cc"
-    # config_files_path = "../getToggleTests/example-config-files/dawn-toggles.cpp"
+    # config_files_path = "./getToggleTests/example-config-files/dawn-toggles.cpp"
+    config_files_path = "../toggle_extractor/example-config-files/dawn-toggles.cpp"
     # config_files_path = "../getToggleTests/example-config-files/opensearch-FeatureFlags.java"
     # config_files_path = "../getToggleTests/example-config-files/pytorch-proxy.py"
     # config_files_path = "../getToggleTests/example-config-files/sdb2-feature.java"
     # config_files_path = "../getToggleTests/example-config-files/sentry-server.py"
     # config_files_path = "../getToggleTests/example-config-files/temporal-constants.go"
-    config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
+    # config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
     config_files = [config_files_path]
 
     extracted_toggles = extract_toggles_from_config_files(config_files)
