@@ -25,9 +25,9 @@ regexes = {
     },
     'java': {
         'declare': (
-            r'(public|protected|private)\s+' 
+            r'(public|protected|private)\s+'
             r'(?:static\s+|final\s+|volatile\s+|transient\s+)*'
-            r'(?P<type>\w+(?:\s*<[^>]+>)?)\s+' 
+            r'(?P<type>\w+(?:\s*<[^>]+>)?)\s+'
             r'(?P<toggle>\w+)\s*'
             r'(?=\s*(=|;|\[))'
         ),
@@ -49,7 +49,7 @@ regexes = {
         'declare': (
             r'(?:(?:const|static|volatile|extern|mutable)\s+)*'
             r'(?P<type>(?:[\w:]+)(?:\s*<[^>;]+>)?'
-            r'(?:\s*::\s*[\w:]+)*(?:\s*[\*&])?)\s+' 
+            r'(?:\s*::\s*[\w:]+)*(?:\s*[\*&])?)\s+'
             r'(?P<toggle>\w+)\s*'
             r'(?=\s*(=|;|\[))'
         ),
@@ -61,22 +61,29 @@ regexes = {
 }
 
 language_keywords = {
-    'python': ['__main__', 'True', 'False', 'None', 'async', 'await', 'self', '"true"', '"false"', '__name__'],
-    'csharp': ['public', 'private', 'protected', 'const', 'static', 'readonly', 'string', 'Dictionary', 'List', 'bool', '"true"', '"false"'],
-    'java': ['public', 'private', 'protected', 'static', 'final', 'volatile', 'transient', 'String', 'Map', 'List', 'boolean', '"true"', '"false"'],
-    'golang': ['var', 'const', 'func', 'int', 'string', 'bool', 'map', '"true"', '"false"', 'err', 'ok'],
-    "c++": ['const', 'static', 'public', 'private', 'protected', 'bool', 'int', 'float', 'double', 'std', '"true"', '"false"']
+    'python': ['__', '__main__', 'True', 'False', 'None', 'async', 'await', 'self', '"true"', '"false"', '__name__', '"CRITICAL"', '"ERROR"', '"WARNING"', '"INFO"'],
+    'csharp': ['public', 'private', 'protected', 'const', 'static', 'readonly', 'string', 'Dictionary', 'List', 'bool',
+               '"true"', '"false"', '"CRITICAL"', '"ERROR"', '"WARNING"', '"INFO"'],
+    'java': ['public', 'private', 'protected', 'static', 'final', 'volatile', 'transient', 'String', 'Map', 'List',
+             'boolean', '"true"', '"false"', '"CRITICAL"', '"ERROR"', '"WARNING"', '"INFO"'],
+    'golang': ['var', 'const', 'func', 'int', 'string', 'bool', 'map', '"true"', '"false"', 'err', 'ok', '"CRITICAL"', '"ERROR"', '"WARNING"', '"INFO"'],
+    "c++": ['const', 'static', 'public', 'private', 'protected', 'bool', 'int', 'float', 'double', 'std', '"true"',
+            '"false"', '"CRITICAL"', '"ERROR"', '"WARNING"', '"INFO"']
 }
+
 
 def is_pure_number_or_dash_underscore(toggle):
     return bool(re.fullmatch(r'"?\d+([-_\.]\d+)*"?', toggle))
 
+
 def no_invalid_chars(toggle):
-    invalid_chars = ['(', ')', '{', '}', '[', ']', '|', '\\', ';', '<', '>', ' ', '!', '@', 'https://', 'http://', 'localhost:']
+    invalid_chars = ['(', ')', '{', '}', '[', ']', '|', '\\', ';', '<', '>', ' ', '!', '@', 'https://', 'http://',
+                     'localhost:']
     for char in invalid_chars:
         if char in toggle:
             return False
     return True
+
 
 def filter_substrings(toggles, config_file_contents):
     toggles = sorted(toggles, key=len, reverse=True)
@@ -93,6 +100,57 @@ def filter_substrings(toggles, config_file_contents):
             filtered_toggles.append(toggle)
     return filtered_toggles
 
+
+def extract_value_for_toggle(toggle, config_file_contents):
+    assignment_pattern = re.compile(rf'{re.escape(toggle)}.*\s*=\s*(.+)\n')
+    match = assignment_pattern.search(config_file_contents)
+
+    if match:
+        value = match.group(1).strip()
+        if value.startswith(("'", '"')) and value.endswith(("'", '"')):
+            value = value[1:-1]
+        return value
+
+    assignment_pattern = (re.compile(rf'{re.escape(toggle)}.*\s*:\s*(.+)\n'))
+    match = assignment_pattern.search(config_file_contents)
+    if match:
+        value = match.group(1).strip()
+        if value.startswith(("'", '"')) and value.endswith(("'", '"')):
+            value = value[1:-1]
+        return value
+
+    return None
+
+
+def filter_wrong_values(toggles, config_file_contents):
+    dict_or_list_pattern = r'[\{\[\(]'
+    ip_address_pattern = r'\b(?:\d{1,3}\.){3}\d{1,3}\b'
+    percentage_pattern = r'\b\d+%+'
+    url_pattern = r'(https?://[^\s]+)'
+    invalid_int_pattern = r'\b(?!0\b|1\b)\d+\b'
+    directory_pattern = r'([a-zA-Z]:\\|\/)[^<>:"|?*]+(?:\\|\/)[^<>:"|?*]*'
+    language_code_pattern = r'\b[a-z]{2}\b'
+    None_pattern = r'None|Null|none|null|undefined'
+
+    filtered_toggles = []
+    for toggle in toggles:
+        value = extract_value_for_toggle(toggle, config_file_contents)
+        if value:
+            if (not re.search(dict_or_list_pattern, value) and
+                    not re.search(ip_address_pattern, value) and
+                    not re.search(percentage_pattern, value) and
+                    not re.search(url_pattern, value) and
+                    not re.search(directory_pattern, value) and
+                    not re.search(language_code_pattern, value) and
+                    not re.search(None_pattern, value) and
+                    not re.search(invalid_int_pattern, value)):
+                filtered_toggles.append(toggle)
+        else:
+            filtered_toggles.append(toggle)
+
+    return filtered_toggles
+
+
 def filter_toggles(toggles, language, file_contents):
     keywords = language_keywords.get(language, [])
     filtered_toggles = [t for t in toggles if t is not None and t != ""]
@@ -101,11 +159,14 @@ def filter_toggles(toggles, language, file_contents):
 
     filtered_toggles = [t for t in filtered_toggles if not is_pure_number_or_dash_underscore(t)]
 
-    filtered_toggles = [t for t in filtered_toggles if len(t) >= 8]
+    filtered_toggles = [t for t in filtered_toggles if len(t) > 10]
 
     filtered_toggles = [t for t in filtered_toggles if t not in keywords]
     filtered_toggles = filter_substrings(filtered_toggles, file_contents)
+    filtered_toggles = filter_wrong_values(filtered_toggles, file_contents)
+
     return filtered_toggles
+
 
 def apply_combined_regexes(combined_content, language):
     toggles = set()
@@ -121,6 +182,7 @@ def apply_combined_regexes(combined_content, language):
                 toggles.add(toggle)
     return toggles
 
+
 def get_language_from_extension(file_path):
     if file_path.endswith('.py'):
         return 'python'
@@ -134,12 +196,14 @@ def get_language_from_extension(file_path):
         return "c++"
     return None
 
+
 def remove_comments(content, language):
     """Remove comment lines based on the language."""
     comment_pattern = comment_regexes.get(language)
     if comment_pattern:
         content = re.sub(comment_pattern, '', content, flags=re.MULTILINE)
     return content
+
 
 def extract_toggles_from_config_files(config_files):
     toggle_list = []
@@ -155,8 +219,10 @@ def extract_toggles_from_config_files(config_files):
         language = get_language_from_extension(config_files[0])
         toggles = apply_combined_regexes(combined_content, language)
         filtered_toggles = filter_toggles(list(toggles), language, combined_content)
+        filtered_toggles = list(set(filtered_toggles))
         return filtered_toggles
     return []
+
 
 if __name__ == "__main__":
     # config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
