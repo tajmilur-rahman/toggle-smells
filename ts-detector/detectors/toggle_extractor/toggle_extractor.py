@@ -78,15 +78,22 @@ def no_invalid_chars(toggle):
             return False
     return True
 
-def filter_substrings(toggles):
+def filter_substrings(toggles, config_file_contents):
     toggles = sorted(toggles, key=len, reverse=True)
     filtered_toggles = []
     for toggle in toggles:
-        if not any(toggle in larger_toggle for larger_toggle in filtered_toggles):
+        flag = True
+        for larger_toggle in filtered_toggles:
+            if toggle in larger_toggle and toggle != larger_toggle:
+                flag = False
+                content = config_file_contents.replace(larger_toggle, "")
+                if toggle in content:
+                    filtered_toggles.append(toggle)
+        if flag:
             filtered_toggles.append(toggle)
     return filtered_toggles
 
-def filter_toggles(toggles, language):
+def filter_toggles(toggles, language, file_contents):
     keywords = language_keywords.get(language, [])
     filtered_toggles = [t for t in toggles if t is not None and t != ""]
 
@@ -94,12 +101,12 @@ def filter_toggles(toggles, language):
 
     filtered_toggles = [t for t in filtered_toggles if not is_pure_number_or_dash_underscore(t)]
 
-    filtered_toggles = [t for t in filtered_toggles if len(t) > 10]
+    filtered_toggles = [t for t in filtered_toggles if len(t) >= 8]
 
-    filtered_toggles = [t for t in filtered_toggles if (t[0] == '\"' and t[-1] == '\"' and len(t) > 12) or (t[0] != '\"' or t[-1] != '\"')]
+    filtered_toggles = [t for t in filtered_toggles if (t[0] == '\"' and t[-1] == '\"' and len(t) >= 10) or (t[0] != '\"' or t[-1] != '\"')]
 
     filtered_toggles = [t for t in filtered_toggles if t not in keywords]
-    filtered_toggles = filter_substrings(filtered_toggles)
+    filtered_toggles = filter_substrings(filtered_toggles, file_contents)
     return filtered_toggles
 
 def apply_combined_regexes(combined_content, language):
@@ -147,21 +154,21 @@ def extract_toggles_from_config_files(config_files):
     if config_files:
         language = get_language_from_extension(config_files[0])
         toggles = apply_combined_regexes(combined_content, language)
-        filtered_toggles = filter_toggles(list(toggles), language)
+        filtered_toggles = filter_toggles(list(toggles), language, combined_content)
         return filtered_toggles
     return []
 
 if __name__ == "__main__":
     # config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/chrome-feature.cc"
-    # config_files_path = "./getToggleTests/example-config-files/dawn-toggles.cpp"
     # config_files_path = "../toggle_extractor/example-config-files/dawn-toggles.cpp"
     # config_files_path = "../getToggleTests/example-config-files/opensearch-FeatureFlags.java"
     # config_files_path = "../getToggleTests/example-config-files/pytorch-proxy.py"
     # config_files_path = "../getToggleTests/example-config-files/sdb2-feature.java"
-    # config_files_path = "../getToggleTests/example-config-files/sentry-server.py"
-    config_files_path = "../toggle_extractor/example-config-files/temporal-constants.go"
+    # config_files_path = "../toggle_extractor/example-config-files/sentry-server.py"
+    # config_files_path = "../toggle_extractor/example-config-files/temporal-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
+    config_files_path = "../toggle_extractor/example-config-files/bitwarden-server-Constants.cs"
     config_files = [config_files_path]
 
     extracted_toggles = extract_toggles_from_config_files(config_files)
