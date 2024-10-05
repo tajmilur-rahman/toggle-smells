@@ -1,6 +1,6 @@
 from collections import defaultdict
 import re
-import helper
+from .. import helper
 
 
 def find_toggles_in_code_files(code_files, toggles):
@@ -41,9 +41,9 @@ def find_parents_for_toggle(toggle, contents, toggle_parent_patterns, lang):
         for pattern in toggle_parent_patterns:
             p = format_pattern(pattern, toggle)
             matches = re.findall(p, content[1])
-            for match in matches:
-                if match not in parent_list:
-                    parent_list.append((match[0], helper.getFileName(lang, content[0])))
+
+            if len(matches)>0 and matches[0] not in parent_list:
+                parent_list.append((matches[0], helper.getFileName(lang, content[0])))
     return parent_list
 
 
@@ -56,6 +56,6 @@ def format_pattern(pattern, toggle):
 
 def format_spread_toggles(parent_toggles):
     return {
-        "spread_toggles": parent_toggles,
-        "total_count": len(parent_toggles)
+        "toggles": parent_toggles,
+        "qty": len(parent_toggles)
     }

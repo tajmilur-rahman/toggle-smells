@@ -1,4 +1,3 @@
-import json
 import re
 
 
@@ -13,14 +12,17 @@ def find_dead_toggles(toggles, code_files, code_files_contents):
         for toggle in toggles:
             matches = re.findall(toggle, file_content)
             if matches:
-                dead_toggles.remove(toggle)
+                try:
+                    dead_toggles.remove(toggle)
+                except ValueError:
+                    pass
 
     return dead_toggles
 
 
 def format_dead_toggles_data(dead_toggles):
     dead_toggles_data = {
-        "dead_toggles": dead_toggles,
-        "total_count": len(dead_toggles)
+        "toggles": dead_toggles,
+        "qty": len(dead_toggles)
     }
-    return json.dumps(dead_toggles_data, indent=2)
+    return dead_toggles_data

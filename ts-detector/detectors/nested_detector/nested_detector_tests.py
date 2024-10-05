@@ -19,7 +19,7 @@ class TestToggleFunctions(unittest.TestCase):
         regex_patterns = {"general_pattern": [r'toggle\d+']}
 
         mock_get_file_name.side_effect = lambda lang, file: file
-        nd.process_code_files(lang, code_files, code_files_contents, nested_patterns, nested_toggles, regex_patterns)
+        nd.process_code_files(lang, code_files, code_files_contents, nested_patterns, nested_toggles)
 
         expected_output = {
             'file1.py': ['toggle1', 'toggle2'],
