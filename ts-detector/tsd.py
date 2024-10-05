@@ -4,7 +4,7 @@ import glob
 import argparse
 import t_utils
 
-patterns = ["dead", "spread", "nested", "mixed"]
+patterns = ["dead", "spread", "nested", "mixed", "enum"]
 
 def auto_detect_language(config_files):
     for config_file in config_files:
@@ -79,6 +79,8 @@ def main():
         code_files = glob.glob(f'{source_path}/**/*.java', recursive=True)
     elif lang.lower() == "python":
         code_files = glob.glob(f'{source_path}/**/*.py', recursive=True)
+    elif lang.lower() == "csharp":
+        code_files = glob.glob(f'{source_path}/**/*.cs', recursive=True)
     else:
         print("Unsupported language. Exiting.")
         sys.exit(1)

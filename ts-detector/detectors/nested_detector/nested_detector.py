@@ -1,5 +1,4 @@
 import re
-import json
 
 def process_code_files(lang, code_files, code_files_contents, toggles):
     nested_toggles = []
@@ -24,7 +23,7 @@ def process_code_files(lang, code_files, code_files_contents, toggles):
             "variable_assignment": r"\w+\s*=\s*.*?;",
             "return_statement": r"return\s+.*?;"
         },
-        "cs": {
+        "csharp": {
             "if_statement": r"if\s*\(.*?\)\s*\{",
             "elif_statement": r"else\s*if\s*\(.*?\)\s*\{",
             "variable_assignment": r"\w+\s*=\s*.*?;",

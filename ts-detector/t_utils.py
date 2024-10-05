@@ -1,4 +1,3 @@
-import json
 import detectors.regex.regex_c as c_patterns
 import detectors.regex.regex_java as j_patterns
 import detectors.regex.regex_python as py_patterns
@@ -101,7 +100,7 @@ def extract_mixed_toggles(lang, code_files):
 
     return md.format_mixed_toggles_data(mixed_toggles)
 
-def extract_enum_toggles(code_files, t_config_files, lang):
+def extract_enum_toggles(lang, code_files, t_config_files):
     print("extracting enum toggles")
     # get all toggle names
     # dictionary to store spread toggle data
@@ -111,15 +110,17 @@ def extract_enum_toggles(code_files, t_config_files, lang):
 
     code_files_contents = helper.get_code_file_contents(lang, code_files)
 
+    res_toggles = []
     # find all enums and check if name in it
     for code_file, file_content in zip(code_files, code_files_contents):
         res = is_enum_member(file_content, toggles, lang)
         for toggle in res:
             toggle_lookup[toggle].append(code_file)
+            res_toggles.append(toggle)
 
     res = {
-        "toggles": toggle_lookup.keys(),
-        "qty": len(toggle_lookup)
+        "toggles": res_toggles,
+        "qty": len(res_toggles)
     }
 
     return res
