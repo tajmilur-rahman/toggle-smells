@@ -133,7 +133,6 @@ def filter_wrong_values(toggles, config_file_contents):
     ip_address_pattern = r'\b(?:\d{1,3}\.){3}\d{1,3}\b'
     percentage_pattern = r'\b\d+%+'
     url_pattern = r'(https?://[^\s]+)'
-    invalid_int_pattern = r'\b(?!0\b|1\b)\d+\b'
     directory_pattern = r'([a-zA-Z]:\\|\/)[^<>:"|?*]+(?:\\|\/)[^<>:"|?*]*'
     language_code_pattern = r'\b[a-z]{2}\b'
     None_pattern = r'None|Null|none|null|undefined'
@@ -150,8 +149,7 @@ def filter_wrong_values(toggles, config_file_contents):
                     not re.search(url_pattern, value) and
                     not re.search(directory_pattern, value) and
                     not re.search(language_code_pattern, value) and
-                    not re.search(None_pattern, value) and
-                    not re.search(invalid_int_pattern, value)) or re.search(function_call_pattern, value):
+                    not re.search(None_pattern, value)) or re.search(function_call_pattern, value):
                 filtered_toggles.append(toggle)
         else:
             filtered_toggles.append(toggle)
@@ -168,7 +166,7 @@ def filter_toggles(toggles, language, file_contents):
     filtered_toggles = [t for t in filtered_toggles if not is_pure_number_or_dash_underscore(t)]
 
     filtered_toggles = [t for t in filtered_toggles if len(t) > 10]
-
+    filtered_toggles = [t for t in filtered_toggles if (t[0] == '\"' and t[-1] == '\"' and len(t) >= 10) or (t[0] != '\"' or t[-1] != '\"')]
     filtered_toggles = [t for t in filtered_toggles if t not in keywords]
     filtered_toggles = filter_substrings(filtered_toggles, file_contents)
     filtered_toggles = filter_wrong_values(filtered_toggles, file_contents)
@@ -185,8 +183,6 @@ def apply_combined_regexes(combined_content, language):
             matches = compiled_pattern.finditer(combined_content)
             for match in matches:
                 toggle = match.group('toggle')
-                if toggle[0] == '\"' and toggle[-1] == '\"':
-                    toggle = toggle[1:-1]
                 toggles.add(toggle)
     return toggles
 
@@ -236,13 +232,14 @@ if __name__ == "__main__":
     # config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/chrome-feature.cc"
     # config_files_path = "../toggle_extractor/example-config-files/dawn-toggles.cpp"
-    config_files_path = "../toggle_extractor/example-config-files/opensearch-FeatureFlags.java"
+    # config_files_path = "../toggle_extractor/example-config-files/opensearch-FeatureFlags.java"
     # config_files_path = "../getToggleTests/example-config-files/pytorch-proxy.py"
     # config_files_path = "../getToggleTests/example-config-files/sdb2-feature.java"
     # config_files_path = "../toggle_extractor/example-config-files/sentry-server.py"
     # config_files_path = "../toggle_extractor/example-config-files/temporal-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
-    # config_files_path = "../toggle_extractor/example-config-files/bitwarden-server-Constants.cs"
+    # config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
+    config_files_path = "../toggle_extractor/example-config-files/sentry-temporary.py"
     config_files = [config_files_path]
 
     extracted_toggles = extract_toggles_from_config_files(config_files)
