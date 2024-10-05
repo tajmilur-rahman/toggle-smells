@@ -8,8 +8,8 @@ Following are the usage patterns our tool can detect as of now.
 * Nested usage patterns
 * Spread usage patterns
 * Mixed usage patterns 
-* Enumeration usage patterns -- In progress
-* Combinatorial usage patterns -- In progress
+* Enumeration usage patterns
+* Combinatorial usage patterns -- Invalid
 
 ## INSTALLATION:
 1. Clone the repository:
@@ -17,6 +17,4 @@ Following are the usage patterns our tool can detect as of now.
 
 2. CD into ts-detector in commandline
 
-3. Use command:
-* python3 tsd.py <_language_> <_/source/code/directory/path_> <_config_file_postfix_> <_toggle_usage_type_>
-* Example: python3 tsd.py C++ /Users/user/Documents/Data/chromium/ui/base switches.cc dead
+3. Use command: python3 tsd.py -p </source/path> -c </config/path> -o </output/path> -t pattern
