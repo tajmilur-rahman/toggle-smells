@@ -85,16 +85,22 @@ def no_invalid_chars(toggle):
     return True
 
 
+def larger_is_from_toggle(content, var_a, var_b):
+    pattern = rf'\b{re.escape(var_a)}\s*=\s*[\s\S]*?{re.escape(var_b)}[\s\S]*?;'
+    matches = re.findall(pattern, content)
+    return len(matches) > 0
+
+
 def filter_substrings(toggles, config_file_contents):
     toggles = sorted(toggles, key=len, reverse=True)
     filtered_toggles = []
     for toggle in toggles:
         flag = True
-        for larger_toggle in filtered_toggles:
+        for larger_toggle in toggles:
             if toggle in larger_toggle and toggle != larger_toggle:
                 flag = False
                 content = config_file_contents.replace(larger_toggle, "")
-                if toggle in content:
+                if toggle in content and not larger_is_from_toggle(config_file_contents, larger_toggle, toggle):
                     filtered_toggles.append(toggle)
         if flag:
             filtered_toggles.append(toggle)
@@ -131,6 +137,8 @@ def filter_wrong_values(toggles, config_file_contents):
     directory_pattern = r'([a-zA-Z]:\\|\/)[^<>:"|?*]+(?:\\|\/)[^<>:"|?*]*'
     language_code_pattern = r'\b[a-z]{2}\b'
     None_pattern = r'None|Null|none|null|undefined'
+    function_call_pattern = r'\w+\s*\(.*'
+
 
     filtered_toggles = []
     for toggle in toggles:
@@ -143,7 +151,7 @@ def filter_wrong_values(toggles, config_file_contents):
                     not re.search(directory_pattern, value) and
                     not re.search(language_code_pattern, value) and
                     not re.search(None_pattern, value) and
-                    not re.search(invalid_int_pattern, value)):
+                    not re.search(invalid_int_pattern, value)) or re.search(function_call_pattern, value):
                 filtered_toggles.append(toggle)
         else:
             filtered_toggles.append(toggle)
@@ -228,10 +236,10 @@ if __name__ == "__main__":
     # config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/chrome-feature.cc"
     # config_files_path = "../toggle_extractor/example-config-files/dawn-toggles.cpp"
-    # config_files_path = "../getToggleTests/example-config-files/opensearch-FeatureFlags.java"
+    config_files_path = "../toggle_extractor/example-config-files/opensearch-FeatureFlags.java"
     # config_files_path = "../getToggleTests/example-config-files/pytorch-proxy.py"
     # config_files_path = "../getToggleTests/example-config-files/sdb2-feature.java"
-    config_files_path = "../toggle_extractor/example-config-files/sentry-server.py"
+    # config_files_path = "../toggle_extractor/example-config-files/sentry-server.py"
     # config_files_path = "../toggle_extractor/example-config-files/temporal-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
     # config_files_path = "../toggle_extractor/example-config-files/bitwarden-server-Constants.cs"
