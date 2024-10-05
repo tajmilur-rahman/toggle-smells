@@ -157,6 +157,50 @@ def filter_wrong_values(toggles, config_file_contents):
     return filtered_toggles
 
 
+def clean_and_remove_duplicates(var_names):
+    """
+    This function takes a list of variable names and performs the following steps:
+
+    1. For each name in the list, if the name starts and ends with a single or double quote
+       (i.e., it's a string in quotes like 'string' or "string"):
+         - It extracts the content inside the quotes.
+         - Cleans the extracted content by removing spaces, dashes, underscores,
+           and converting it to lowercase.
+
+    2. It checks if the cleaned version of this quoted string is part of the cleaned version
+       of any other name in the list. If so, it marks the quoted string for removal.
+
+    3. After processing all names, it returns a list of variable names with the quoted strings
+       removed if they were part of any other name.
+
+    Parameters:
+    - var_names (list): A list of variable names, which could be normal names or strings in quotes.
+
+    Returns:
+    - list: A new list of variable names, excluding the quoted strings that were part of another name.
+    """
+    def clean_string(s):
+        return s.replace(" ", "").replace("-", "").replace("_", "").lower()
+
+    cleaned_names = []
+    to_remove = set()
+
+    for var in var_names:
+        if var.startswith(("'", '"')) and var.endswith(("'", '"')):
+            quoted_content = var[1:-1]
+            cleaned_quoted = clean_string(quoted_content)
+
+            for other_var in var_names:
+                if var != other_var:
+                    cleaned_other = clean_string(other_var)
+                    if cleaned_quoted in cleaned_other:
+                        to_remove.add(var)
+                        break
+        cleaned_names.append(var)
+
+    final_list = [var for var in var_names if var not in to_remove]
+    return final_list
+
 def filter_toggles(toggles, language, file_contents):
     keywords = language_keywords.get(language, [])
     filtered_toggles = [t for t in toggles if t is not None and t != ""]
@@ -170,6 +214,7 @@ def filter_toggles(toggles, language, file_contents):
     filtered_toggles = [t for t in filtered_toggles if t not in keywords]
     filtered_toggles = filter_substrings(filtered_toggles, file_contents)
     filtered_toggles = filter_wrong_values(filtered_toggles, file_contents)
+    filtered_toggles = clean_and_remove_duplicates(filtered_toggles)
 
     return filtered_toggles
 
@@ -231,7 +276,7 @@ def extract_toggles_from_config_files(config_files):
 if __name__ == "__main__":
     # config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/chrome-feature.cc"
-    # config_files_path = "../toggle_extractor/example-config-files/dawn-toggles.cpp"
+    config_files_path = "../toggle_extractor/example-config-files/dawn-toggles.cpp"
     # config_files_path = "../toggle_extractor/example-config-files/opensearch-FeatureFlags.java"
     # config_files_path = "../getToggleTests/example-config-files/pytorch-proxy.py"
     # config_files_path = "../getToggleTests/example-config-files/sdb2-feature.java"
@@ -239,7 +284,7 @@ if __name__ == "__main__":
     # config_files_path = "../toggle_extractor/example-config-files/temporal-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
     # config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
-    config_files_path = "../toggle_extractor/example-config-files/sentry-temporary.py"
+    # config_files_path = "../toggle_extractor/example-config-files/sentry-temporary.py"
     config_files = [config_files_path]
 
     extracted_toggles = extract_toggles_from_config_files(config_files)
