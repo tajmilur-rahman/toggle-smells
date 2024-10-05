@@ -49,12 +49,42 @@ def process_code_files(lang, code_files, code_files_contents, toggles):
         raise ValueError(f"Unsupported language: {lang}")
 
     for code_file, content in zip(code_files, code_files_contents):
+        if lang != "go" and lang != "py":
+            content = content.replace("\n", "")
+
         code_snippets = []
         for pattern_name, pattern in regex_patterns.items():
-            code_snippets += re.findall(pattern, content, re.MULTILINE)
+            if lang != "go" and lang != "py":
+                code_snippets += re.findall(pattern, content)
+            else:
+                code_snippets += re.findall(pattern, content, re.MULTILINE)
+
+
+        var_assignment = []
+        if lang != "go" and lang != "py":
+            p = r"\s\w*\s*=\s+.*?;"
+            var_assignment = re.findall(p, content)
+            var_assignment = list(set(var_assignment))
+
+        toggleDict = {}
+        for toggle in toggles:
+            toggleDict[toggle] = [toggle]
+            for var in var_assignment:
+                if toggle in var:
+                    toggleDict[toggle].extend(re.findall(r"\s(\w*)\s*=\s+.*?;", var))
+
 
         for snippet in code_snippets:
-            matched_toggles = [toggle for toggle in toggles if toggle in snippet]
+            matched_toggles = []
+            for t in toggleDict:
+                for alias in toggleDict[t]:
+                    if alias in snippet:
+                        if lang != "py" and ("||" in snippet or "&&" in snippet):
+                            matched_toggles.append(t)
+                        elif lang == "py" and ("or" in snippet or "and" in snippet):
+                            matched_toggles.append(t)
+                        break
+
             if matched_toggles:
                 nested_toggles.extend(matched_toggles)
                 total_count_toggles += len(matched_toggles)

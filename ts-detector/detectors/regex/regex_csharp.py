@@ -3,6 +3,6 @@ mixed_toggle_patterns = {
 }
 
 spread_toggle_patterns = {
-    'parent_finder': [r'(class .*)\s*\n?\{', r'(namespace .*);']
+    'parent_finder': [r'(namespace .*);']
 }
 

@@ -5,3 +5,14 @@ __pycache__
 */__pycache__/*
 /Data/*
 /repos/
+*.java
+sandbox.py
+ts-detector/dawn-output.json
+/repos/
+ts-detector/bitwarden-server-output.txt
+ts-detector/bitwarden-server-output.json
+ts-detector/opensearch-output.json
+ts-detector/sentry-output.json
+ts-detector/temporal-output.json
+ts-detector/vtest-output.json
+ts-detector/output.json
