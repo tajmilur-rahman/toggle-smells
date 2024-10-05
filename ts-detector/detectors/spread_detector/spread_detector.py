@@ -42,8 +42,10 @@ def find_parents_for_toggle(toggle, contents, toggle_parent_patterns, lang):
             p = format_pattern(pattern, toggle)
             matches = re.findall(p, content[1])
 
-            if len(matches)>0 and matches[0] not in parent_list:
+            if len(matches) > 0 and (matches[0], helper.getFileName(lang, content[0])) not in parent_list:
                 parent_list.append((matches[0], helper.getFileName(lang, content[0])))
+            elif len(matches) == 0 and ("", helper.getFileName(lang, content[0])) not in parent_list:
+                parent_list.append(("", helper.getFileName(lang, content[0])))
     return parent_list
 
 
