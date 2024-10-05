@@ -165,10 +165,10 @@ if __name__ == "__main__":
     # config_files_path = "../getToggleTests/example-config-files/opensearch-FeatureFlags.java"
     # config_files_path = "../getToggleTests/example-config-files/pytorch-proxy.py"
     # config_files_path = "../getToggleTests/example-config-files/sdb2-feature.java"
-    # config_files_path = "../toggle_extractor/example-config-files/sentry-server.py"
+    config_files_path = "../toggle_extractor/example-config-files/sentry-server.py"
     # config_files_path = "../toggle_extractor/example-config-files/temporal-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
-    config_files_path = "../toggle_extractor/example-config-files/bitwarden-server-Constants.cs"
+    # config_files_path = "../toggle_extractor/example-config-files/bitwarden-server-Constants.cs"
     config_files = [config_files_path]
 
     extracted_toggles = extract_toggles_from_config_files(config_files)
