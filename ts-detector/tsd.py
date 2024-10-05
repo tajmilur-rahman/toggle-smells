@@ -46,7 +46,7 @@ def auto_detect_language(config_files):
 def main():
     parser = argparse.ArgumentParser(description='Detect usage patterns in source code.')
     parser.add_argument('-p', '--source-path', required=True, help='Source code directory path')
-    parser.add_argument('-c', '--config-path', required=True, help='Configuration file path')
+    parser.add_argument('-c', '--config-path', required=True, nargs='+', help='Configuration file path')
     parser.add_argument('-o', '--output', required=False, help='Output file path')
     parser.add_argument('-t', '--toggle-usage', required=False, choices=patterns, help='Toggle usage pattern to detect')
     parser.add_argument('-l', '--language', required=False, help='Programming language (optional, auto-detect if not provided)')
@@ -60,7 +60,7 @@ def main():
     lang = args.language
 
     if not lang:
-        config_files = glob.glob(f'{config_path}', recursive=True)
+        config_files = glob.glob(f'{config_path[0]}', recursive=True)
         lang = auto_detect_language(config_files)
         if not lang:
             print("Could not auto-detect language. Please provide it using the -l flag.")
@@ -68,7 +68,10 @@ def main():
     
     print(f"Language: {lang}, Source path: {source_path}, Config file pattern: {config_path}, Toggle usage pattern: {toggle_usage}")
 
-    config_files = glob.glob(f'{config_path}', recursive=True)
+    config_files_pathes = []
+    for c in config_path:
+        config_files_pathes.extend(glob.glob(f'{c}', recursive=True))
+
     if lang.lower() == "c++":
         c_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
         cpp_files = glob.glob(f'{source_path}/**/*.cpp', recursive=True)
@@ -85,12 +88,12 @@ def main():
         print("Unsupported language. Exiting.")
         sys.exit(1)
 
-    for config_file in config_files:
+    for config_file in config_files_pathes:
         if config_file in code_files:
             code_files.remove(config_file)
 
     if toggle_usage:
-        detected_toggles = t_utils.detect(lang, code_files, config_files, toggle_usage)
+        detected_toggles = t_utils.detect(lang, code_files, config_files_pathes, toggle_usage)
 
         res = {toggle_usage: detected_toggles}
         res_json = json.dumps(res, indent=2)
@@ -107,7 +110,7 @@ def main():
         for p in patterns:
             if p == "mixed" and lang.lower() != "c++":
                 continue
-            detected_toggles = t_utils.detect(lang, code_files, config_files, p)
+            detected_toggles = t_utils.detect(lang, code_files, config_files_pathes, p)
 
             res[p] = detected_toggles
         res_json = json.dumps(res, indent=2)
