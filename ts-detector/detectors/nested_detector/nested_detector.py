@@ -79,7 +79,7 @@ def process_code_files(lang, code_files, code_files_contents, toggles):
             for t in toggleDict:
                 for alias in toggleDict[t]:
                     if alias in snippet:
-                        if lang != "python" and ("||" in snippet or "&&" in snippet):
+                        if lang != "python" and ("|" in snippet or "&" in snippet):
                             matched_toggles.append(t)
                         elif lang == "python" and ("or" in snippet or "and" in snippet):
                             matched_toggles.append(t)
