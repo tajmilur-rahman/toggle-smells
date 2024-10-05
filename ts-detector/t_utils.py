@@ -52,9 +52,6 @@ def extract_dead_toggles(lang, code_files, t_config_files):
     toggles = get_toggles_from_config_files(t_config_files)
     code_files_contents = helper.get_code_file_contents(lang, code_files)
 
-    if lang == "python":
-        toggles = dd.format_python_toggles(toggles)
-
     dead_toggles = dd.find_dead_toggles(toggles, code_files, code_files_contents)
     return dd.format_dead_toggles_data(dead_toggles)
 

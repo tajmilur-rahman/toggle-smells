@@ -49,19 +49,19 @@ def process_code_files(lang, code_files, code_files_contents, toggles):
         raise ValueError(f"Unsupported language: {lang}")
 
     for code_file, content in zip(code_files, code_files_contents):
-        if lang != "go" and lang != "py":
+        if lang != "go" and lang != "python":
             content = content.replace("\n", "")
 
         code_snippets = []
         for pattern_name, pattern in regex_patterns.items():
-            if lang != "go" and lang != "py":
+            if lang != "go" and lang != "python":
                 code_snippets += re.findall(pattern, content)
             else:
                 code_snippets += re.findall(pattern, content, re.MULTILINE)
 
 
         var_assignment = []
-        if lang != "go" and lang != "py":
+        if lang != "go" and lang != "python":
             p = r"\s\w*\s*=\s+.*?;"
             var_assignment = re.findall(p, content)
             var_assignment = list(set(var_assignment))
@@ -79,9 +79,9 @@ def process_code_files(lang, code_files, code_files_contents, toggles):
             for t in toggleDict:
                 for alias in toggleDict[t]:
                     if alias in snippet:
-                        if lang != "py" and ("||" in snippet or "&&" in snippet):
+                        if lang != "python" and ("||" in snippet or "&&" in snippet):
                             matched_toggles.append(t)
-                        elif lang == "py" and ("or" in snippet or "and" in snippet):
+                        elif lang == "python" and ("or" in snippet or "and" in snippet):
                             matched_toggles.append(t)
                         break
 
