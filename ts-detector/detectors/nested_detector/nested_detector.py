@@ -36,8 +36,8 @@ def process_code_files(lang, code_files, code_files_contents, toggles):
             "return_statement": r"return\s+.*?;"
         },
         "go": {
-            "if_statement": r"if\s*\(.*?\)\s*\{",
-            "elif_statement": r"else\s*if\s*\(.*?\)\s*\{",
+            "if_statement": r"if\s*.*?\s*\{",
+            "elif_statement": r"else\s*if\s*.*?\s*\{",
             "variable_assignment": r"\w+\s*=\s*.*?;",
             "return_statement": r"return\s+.*?;"
         }
