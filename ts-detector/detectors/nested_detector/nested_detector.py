@@ -54,7 +54,11 @@ def process_code_files(lang, code_files, code_files_contents, toggles):
 
         code_snippets = []
         for pattern_name, pattern in regex_patterns.items():
-            code_snippets += re.findall(pattern, content)
+            if lang != "go" and lang != "py":
+                code_snippets += re.findall(pattern, content)
+            else:
+                code_snippets += re.findall(pattern, content, re.MULTILINE)
+
 
         var_assignment = []
         if lang != "go" and lang != "py":
