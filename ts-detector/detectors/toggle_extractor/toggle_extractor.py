@@ -40,6 +40,7 @@ regexes = {
             r'(?:var\s+(?P<toggle>\w+)\s*(?:\s+(?P<type>[^\s=]+))?\s*(?:=\s*.*)?|'
             r'(?P<toggle2>\w+)\s*(?:\s+(?P<type2>[^\s=]+))?\s*:=\s*.*)'
         ),
+        'declare2': r'\s+(?P<toggle>\w+)\s* =',
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'[{,]\s*(?P<toggle>(?:`[^`]*`|"[^"]*"|\'[^\']*\'|[\w.]+?))\s*:',
         'enum_names': r'type\s+(?P<toggle>\w+)\s+int\s*'
@@ -154,12 +155,12 @@ if __name__ == "__main__":
     # config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/chrome-feature.cc"
     # config_files_path = "./getToggleTests/example-config-files/dawn-toggles.cpp"
-    config_files_path = "../toggle_extractor/example-config-files/dawn-toggles.cpp"
+    # config_files_path = "../toggle_extractor/example-config-files/dawn-toggles.cpp"
     # config_files_path = "../getToggleTests/example-config-files/opensearch-FeatureFlags.java"
     # config_files_path = "../getToggleTests/example-config-files/pytorch-proxy.py"
     # config_files_path = "../getToggleTests/example-config-files/sdb2-feature.java"
     # config_files_path = "../getToggleTests/example-config-files/sentry-server.py"
-    # config_files_path = "../getToggleTests/example-config-files/temporal-constants.go"
+    config_files_path = "../toggle_extractor/example-config-files/temporal-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
     config_files = [config_files_path]
 
