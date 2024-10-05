@@ -159,19 +159,8 @@ def filter_wrong_values(toggles, config_file_contents):
 
 def clean_and_remove_duplicates(var_names):
     """
-    This function takes a list of variable names and performs the following steps:
-
-    1. For each name in the list, if the name starts and ends with a single or double quote
-       (i.e., it's a string in quotes like 'string' or "string"):
-         - It extracts the content inside the quotes.
-         - Cleans the extracted content by removing spaces, dashes, underscores,
-           and converting it to lowercase.
-
-    2. It checks if the cleaned version of this quoted string is part of the cleaned version
-       of any other name in the list. If so, it marks the quoted string for removal.
-
-    3. After processing all names, it returns a list of variable names with the quoted strings
-       removed if they were part of any other name.
+    This function aims finding same toggle that named in different format(camel case vs snake case etc.)
+    It will only remove the string version of the toggle, since we can not determine which is primary
 
     Parameters:
     - var_names (list): A list of variable names, which could be normal names or strings in quotes.
