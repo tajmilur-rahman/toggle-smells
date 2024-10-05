@@ -103,8 +103,6 @@ def filter_toggles(toggles, language, file_contents):
 
     filtered_toggles = [t for t in filtered_toggles if len(t) >= 8]
 
-    filtered_toggles = [t for t in filtered_toggles if (t[0] == '\"' and t[-1] == '\"' and len(t) >= 10) or (t[0] != '\"' or t[-1] != '\"')]
-
     filtered_toggles = [t for t in filtered_toggles if t not in keywords]
     filtered_toggles = filter_substrings(filtered_toggles, file_contents)
     return filtered_toggles
@@ -118,6 +116,8 @@ def apply_combined_regexes(combined_content, language):
             matches = compiled_pattern.finditer(combined_content)
             for match in matches:
                 toggle = match.group('toggle')
+                if toggle[0] == '\"' and toggle[-1] == '\"':
+                    toggle = toggle[1:-1]
                 toggles.add(toggle)
     return toggles
 
@@ -174,3 +174,4 @@ if __name__ == "__main__":
     extracted_toggles = extract_toggles_from_config_files(config_files)
 
     print("Extracted Toggles:", extracted_toggles)
+    print("Extracted Toggles length:", len(extracted_toggles))

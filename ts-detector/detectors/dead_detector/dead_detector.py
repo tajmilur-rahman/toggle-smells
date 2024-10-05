@@ -6,18 +6,16 @@ def format_python_toggles(toggles):
 
 
 def find_dead_toggles(toggles, code_files, code_files_contents):
-    dead_toggles = toggles.copy()
+    dead_toggles = set(toggles)
 
-    for code_file, file_content in zip(code_files, code_files_contents):
-        for toggle in toggles:
-            matches = re.findall(toggle, file_content)
-            if matches:
-                try:
-                    dead_toggles.remove(toggle)
-                except ValueError:
-                    pass
+    for file_content in code_files_contents:
+        for toggle in list(dead_toggles):
+            if re.search(toggle, file_content):
+                dead_toggles.remove(toggle)
+            if not dead_toggles:
+                return []
 
-    return dead_toggles
+    return list(dead_toggles)
 
 
 def format_dead_toggles_data(dead_toggles):
