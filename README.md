@@ -11,7 +11,7 @@ Following are the usage patterns our tool can detect as of now.
 * Enumeration usage patterns
 * Combinatorial usage patterns -- Invalid
 
-## INSTALLATION:
+## How to Use the TS-Detector:
 1. Clone the repository:
 * https://github.com/tajmilur-rahman/toggle-smells.git
 
