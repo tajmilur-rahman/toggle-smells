@@ -75,7 +75,8 @@ def main():
     if lang.lower() == "c++":
         c_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
         cpp_files = glob.glob(f'{source_path}/**/*.cpp', recursive=True)
-        code_files = c_files + cpp_files
+        mm_files = glob.glob(f'{source_path}/**/*.mm', recursive=True)
+        code_files = c_files + cpp_files + mm_files
     elif lang.lower() == "go":
         code_files = glob.glob(f'{source_path}/**/*.go', recursive=True)
     elif lang.lower() == "java":

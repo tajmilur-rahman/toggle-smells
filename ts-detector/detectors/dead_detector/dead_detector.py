@@ -10,7 +10,7 @@ def find_dead_toggles(toggles, code_files, code_files_contents):
 
     for file_content in code_files_contents:
         for toggle in list(dead_toggles):
-            if re.search(toggle, file_content):
+            if re.search(toggle, file_content) or toggle in file_content:
                 dead_toggles.remove(toggle)
             if not dead_toggles:
                 return []
@@ -19,6 +19,7 @@ def find_dead_toggles(toggles, code_files, code_files_contents):
 
 
 def format_dead_toggles_data(dead_toggles):
+    dead_toggles.sort()
     dead_toggles_data = {
         "toggles": dead_toggles,
         "qty": len(dead_toggles)
