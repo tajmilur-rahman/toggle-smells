@@ -98,10 +98,11 @@ def process_code_files(lang, code_files, code_files_contents, toggles):
 
 
 def format_nested_toggles_data(nested_toggles_data):
-    unique_toggles = set(nested_toggles_data['nested_toggles'])
+    unique_toggles = list(set(nested_toggles_data['nested_toggles']))
+    unique_toggles.sort()
     result = {
+        "toggles": unique_toggles,
         "qty": len(unique_toggles),
-        "toggles": list(unique_toggles)
     }
     return result
 

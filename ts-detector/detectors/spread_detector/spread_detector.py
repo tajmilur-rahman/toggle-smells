@@ -57,6 +57,7 @@ def format_pattern(pattern, toggle):
 
 
 def format_spread_toggles(parent_toggles):
+    parent_toggles.sort()
     return {
         "toggles": parent_toggles,
         "qty": len(parent_toggles)

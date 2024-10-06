@@ -17,13 +17,12 @@ def get_code_file_contents(lang, code_files):
     code_files_contents = []
     for file in code_files:
         if lang.lower() == "c++":
-            if 'switch' not in file and 'feature' not in file:
-                with open(file, 'rb') as f:
-                    try:
-                        content = f.read().decode('utf-8')
-                        code_files_contents.append(content)
-                    except UnicodeDecodeError:
-                        pass
+            with open(file, 'rb') as f:
+                try:
+                    content = f.read().decode('utf-8')
+                    code_files_contents.append(content)
+                except UnicodeDecodeError:
+                    pass
         else:
             with open(file, 'rb') as f:
                 try:
