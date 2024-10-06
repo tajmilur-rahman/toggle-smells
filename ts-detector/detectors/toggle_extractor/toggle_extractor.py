@@ -157,6 +157,39 @@ def filter_wrong_values(toggles, config_file_contents):
     return filtered_toggles
 
 
+def clean_and_remove_duplicates(var_names):
+    """
+    This function aims finding same toggle that named in different format(camel case vs snake case etc.)
+    It will only remove the string version of the toggle, since we can not determine which is primary
+
+    Parameters:
+    - var_names (list): A list of variable names, which could be normal names or strings in quotes.
+
+    Returns:
+    - list: A new list of variable names, excluding the quoted strings that were part of another name.
+    """
+    def clean_string(s):
+        return s.replace(" ", "").replace("-", "").replace("_", "").lower()
+
+    cleaned_names = []
+    to_remove = set()
+
+    for var in var_names:
+        if var.startswith(("'", '"')) and var.endswith(("'", '"')):
+            quoted_content = var[1:-1]
+            cleaned_quoted = clean_string(quoted_content)
+
+            for other_var in var_names:
+                if var != other_var:
+                    cleaned_other = clean_string(other_var)
+                    if cleaned_quoted in cleaned_other:
+                        to_remove.add(var)
+                        break
+        cleaned_names.append(var)
+
+    final_list = [var for var in var_names if var not in to_remove]
+    return final_list
+
 def filter_toggles(toggles, language, file_contents):
     keywords = language_keywords.get(language, [])
     filtered_toggles = [t for t in toggles if t is not None and t != ""]
@@ -170,6 +203,7 @@ def filter_toggles(toggles, language, file_contents):
     filtered_toggles = [t for t in filtered_toggles if t not in keywords]
     filtered_toggles = filter_substrings(filtered_toggles, file_contents)
     filtered_toggles = filter_wrong_values(filtered_toggles, file_contents)
+    filtered_toggles = clean_and_remove_duplicates(filtered_toggles)
 
     return filtered_toggles
 
@@ -231,7 +265,7 @@ def extract_toggles_from_config_files(config_files):
 if __name__ == "__main__":
     # config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/chrome-feature.cc"
-    # config_files_path = "../toggle_extractor/example-config-files/dawn-toggles.cpp"
+    config_files_path = "../toggle_extractor/example-config-files/dawn-toggles.cpp"
     # config_files_path = "../toggle_extractor/example-config-files/opensearch-FeatureFlags.java"
     # config_files_path = "../getToggleTests/example-config-files/pytorch-proxy.py"
     # config_files_path = "../getToggleTests/example-config-files/sdb2-feature.java"
@@ -239,7 +273,7 @@ if __name__ == "__main__":
     # config_files_path = "../toggle_extractor/example-config-files/temporal-constants.go"
     # config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
     # config_files_path = "../getToggleTests/example-config-files/vtest-FeatureFlag.cs"
-    config_files_path = "../toggle_extractor/example-config-files/sentry-temporary.py"
+    # config_files_path = "../toggle_extractor/example-config-files/sentry-temporary.py"
     config_files = [config_files_path]
 
     extracted_toggles = extract_toggles_from_config_files(config_files)
