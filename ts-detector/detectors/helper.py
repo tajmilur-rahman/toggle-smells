@@ -22,7 +22,6 @@ def get_code_file_contents(lang, code_files):
                     content = f.read().decode('utf-8')
                     code_files_contents.append(content)
                 except UnicodeDecodeError:
-                    print(file)
                     pass
         else:
             with open(file, 'rb') as f:
