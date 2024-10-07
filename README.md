@@ -145,9 +145,9 @@ enum: No enum toggles were detected.
 
 [Candence](https://github.com/uber/cadence): `python tsd.py -p H:\Repos\temporal -c common\dynamicconfig\constants.go `
 
-[Vstest](https://github.com/microsoft/vstest): `python tsd.py -p H:\Repos\vstest\ -c \src\Microsoft.TestPlatform.CoreUtilities\FeatureFlag\FeatureFlag.cs`
+[Vstest](https://github.com/microsoft/vstest): `python tsd.py -p H:\Repos\vstest\ -c src\Microsoft.TestPlatform.CoreUtilities\FeatureFlag\FeatureFlag.cs`
 
-[Bitwarden/Server](https://github.com/bitwarden/server): `python tsd.py -p H:\Repos\server -c \src\Core\Constants.cs `
+[Bitwarden/Server](https://github.com/bitwarden/server): `python tsd.py -p H:\Repos\server -c src\Core\Constants.cs `
 
 [chromium](https://github.com/chromium/chromium): `python tsd.py -p H:\Repos\chromium -c chrome\browser\flag_descriptions.cc `
 
