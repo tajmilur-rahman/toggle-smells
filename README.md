@@ -133,22 +133,22 @@ enum: No enum toggles were detected.
 
 # Sample commands with known repo
 
-[OpenSearch](https://github.com/opensearch-project/OpenSearch): python tsd.py -p H:\Repos\OpenSearch\ -c server\src\main\java\org\opensearch\common\util\FeatureFlags.java server\src\main\java\org\opensearch\common\settings\FeatureFlagSettings.java 
+[OpenSearch](https://github.com/opensearch-project/OpenSearch): `python tsd.py -p H:\Repos\OpenSearch\ -c server\src\main\java\org\opensearch\common\util\FeatureFlags.java server\src\main\java\org\opensearch\common\settings\FeatureFlagSettings.java`
 
-[SDB2](https://github.com/mathisdt/sdb2/tree/master): python tsd.py -p H:\Repos\chromium -c src\main\java\org\zephyrsoft\sdb2\Feature.java
+[SDB2](https://github.com/mathisdt/sdb2/tree/master): `python tsd.py -p H:\Repos\chromium -c src\main\java\org\zephyrsoft\sdb2\Feature.java`
 
-[Sentry](https://github.com/getsentry/sentry): python tsd.py -p H:\Repos\toggle-smells\repos\sentry\ -c src\sentry\conf\server.py src\sentry\features\temporary.py src\sentry\features\permanent.py  
+[Sentry](https://github.com/getsentry/sentry): `python tsd.py -p H:\Repos\toggle-smells\repos\sentry\ -c src\sentry\conf\server.py src\sentry\features\temporary.py src\sentry\features\permanent.py`
 
-[Pytorch](https://github.com/pytorch/pytorch): python tsd.py -p H:\Repos\temporal -c torch\fx\proxy.py 
+[Pytorch](https://github.com/pytorch/pytorch): `python tsd.py -p H:\Repos\temporal -c torch\fx\proxy.py `
 
-[Temporal](https://github.com/temporalio/temporal): python tsd.py -p H:\Repos\temporal -c common\dynamicconfig\constants.go 
+[Temporal](https://github.com/temporalio/temporal): `python tsd.py -p H:\Repos\temporal -c common\dynamicconfig\constants.go `
 
-[Candence](https://github.com/uber/cadence): python tsd.py -p H:\Repos\temporal -c common\dynamicconfig\constants.go 
+[Candence](https://github.com/uber/cadence): `python tsd.py -p H:\Repos\temporal -c common\dynamicconfig\constants.go `
 
-[Vstest](https://github.com/microsoft/vstest): python tsd.py -p H:\Repos\vstest\ -c \src\Microsoft.TestPlatform.CoreUtilities\FeatureFlag\FeatureFlag.cs 
+[Vstest](https://github.com/microsoft/vstest): `python tsd.py -p H:\Repos\vstest\ -c \src\Microsoft.TestPlatform.CoreUtilities\FeatureFlag\FeatureFlag.cs`
 
-[Bitwarden/Server](https://github.com/bitwarden/server): python tsd.py -p H:\Repos\server -c \src\Core\Constants.cs 
+[Bitwarden/Server](https://github.com/bitwarden/server): `python tsd.py -p H:\Repos\server -c \src\Core\Constants.cs `
 
-[chromium](https://github.com/chromium/chromium): python tsd.py -p H:\Repos\chromium -c chrome\browser\flag_descriptions.cc 
+[chromium](https://github.com/chromium/chromium): `python tsd.py -p H:\Repos\chromium -c chrome\browser\flag_descriptions.cc `
 
-[Dawn](https://github.com/google/dawn): python tsd.py -p H:\Repos\toggle-smells\repos\dawn\ -c src\dawn\native\Toggles.cpp  src\dawn\native\Features.cpp 
+[Dawn](https://github.com/google/dawn): `python tsd.py -p H:\Repos\toggle-smells\repos\dawn\ -c src\dawn\native\Toggles.cpp  src\dawn\native\Features.cpp`
