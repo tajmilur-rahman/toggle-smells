@@ -120,6 +120,10 @@ The result will be a JSON object, either printed to the console or saved to a fi
   "enum": {
     "toggles": [],
     "qty": 0
+  },
+  "mixed": {
+    "toggles": ["TOGGLE_6"],
+    "qty": 1
   }
 }
 ```
@@ -129,6 +133,7 @@ dead: 3 toggles are identified as dead.
 spread: 5 toggles are found to be spread across the code.
 nested: 2 toggles are identified as being nested.
 enum: No enum toggles were detected.
+mixed: 1 toggles are identified as being mixed.
 
 
 # Sample commands with known repo
