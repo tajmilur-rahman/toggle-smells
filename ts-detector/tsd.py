@@ -1,6 +1,7 @@
 import json
 import sys
 import glob
+import os
 import argparse
 import t_utils
 
@@ -46,7 +47,7 @@ def auto_detect_language(config_files):
 def main():
     parser = argparse.ArgumentParser(description='Detect usage patterns in source code.')
     parser.add_argument('-p', '--source-path', required=True, help='Source code directory path')
-    parser.add_argument('-c', '--config-path', required=True, nargs='+', help='Configuration file path')
+    parser.add_argument('-c', '--config-path', required=True, nargs='+', help='Relative configuration file paths (relative to source path)')
     parser.add_argument('-o', '--output', required=False, help='Output file path')
     parser.add_argument('-t', '--toggle-usage', required=False, choices=patterns, help='Toggle usage pattern to detect')
     parser.add_argument('-l', '--language', required=False, help='Programming language (optional, auto-detect if not provided)')
@@ -54,7 +55,7 @@ def main():
     args = parser.parse_args()
 
     source_path = args.source_path.rstrip("/")
-    config_path = args.config_path
+    config_path = [os.path.join(source_path, c) for c in args.config_path]
     output_path = args.output
     toggle_usage = args.toggle_usage
     lang = args.language
@@ -65,7 +66,7 @@ def main():
         if not lang:
             print("Could not auto-detect language. Please provide it using the -l flag.")
             sys.exit(1)
-    
+
     print(f"Language: {lang}, Source path: {source_path}, Config file pattern: {config_path}, Toggle usage pattern: {toggle_usage}")
 
     config_files_pathes = []
