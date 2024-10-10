@@ -8,7 +8,7 @@ comment_regexes = {
     "c++": r'^\s*//.*$',
 }
 
-regexes = {
+general_regexes = {
     'python': {
         'declare': r'(?P<toggle>\w+)\s*(?:\:\s*(?P<type>[^\s=]+))?\s*=\s*',
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
@@ -210,7 +210,7 @@ def filter_toggles(toggles, language, file_contents):
 
 def apply_combined_regexes(combined_content, language):
     toggles = set()
-    patterns = regexes.get(language)
+    patterns = general_regexes.get(language)
     if patterns:
         for pattern in patterns.keys():
             compiled_pattern = re.compile(patterns[pattern])
