@@ -25,6 +25,8 @@ def auto_detect_language(config_files):
             return "typescript"
         elif file_extension == "cs":
             return "csharp"
+        elif file_extension in ["properties", "conf", "cfg"]:
+            return "config"
 
         # If extension doesn't provide enough information, check content for more clues
         with open(config_file, 'r') as f:
@@ -43,6 +45,20 @@ def auto_detect_language(config_files):
                 return "csharp"
 
     return None
+
+def detect_toggles_in_config(file_path):
+    """
+    Detect feature toggles in generic config files like `.properties`.
+    """
+    toggle_keywords = ["toggle", "feature", "flag"]  # Common keywords
+    detected_toggles = []
+
+    with open(file_path, 'r') as file:
+        for line in file:
+            if any(keyword in line for keyword in toggle_keywords):
+                detected_toggles.append(line.strip())
+
+    return detected_toggles
 
 def main():
     parser = argparse.ArgumentParser(description='Detect usage patterns in source code.')
@@ -68,7 +84,8 @@ def main():
             sys.exit(1)
 
     print(f"Language: {lang}, Source path: {source_path}, Config file pattern: {config_path}, Toggle usage pattern: {toggle_usage}")
-
+    
+    code_files = []
     config_files_pathes = []
     for c in config_path:
         config_files_pathes.extend(glob.glob(f'{c}', recursive=True))
@@ -87,16 +104,18 @@ def main():
         code_files = glob.glob(f'{source_path}/**/*.py', recursive=True)
     elif lang.lower() == "csharp":
         code_files = glob.glob(f'{source_path}/**/*.cs', recursive=True)
+    elif lang.lower() == "config":
+        print("Processed config files. Exiting.")
     else:
         print("Unsupported language. Exiting.")
         sys.exit(1)
 
     for config_file in config_files_pathes:
-        if config_file in code_files:
+        if lang != "config" and config_file in code_files:
             code_files.remove(config_file)
 
     if toggle_usage:
-        detected_toggles = t_utils.detect(lang, code_files, config_files_pathes, toggle_usage)
+        detected_toggles = t_utils.detect(lang, code_files or [], config_files_pathes, toggle_usage)
 
         res = {toggle_usage: detected_toggles}
         res_json = json.dumps(res, indent=2)
@@ -113,7 +132,7 @@ def main():
         for p in patterns:
             if p == "mixed" and lang.lower() != "c++":
                 continue
-            detected_toggles = t_utils.detect(lang, code_files, config_files_pathes, p)
+            detected_toggles = t_utils.detect(lang, code_files or [], config_files_pathes, p)
 
             res[p] = detected_toggles
         res_json = json.dumps(res, indent=2)
@@ -124,6 +143,18 @@ def main():
         else:
             print(res_json)
 
+    if lang == "config":
+    # Process config files separately
+        detected_toggles = []
+        for config_file in config_files_pathes:
+            if os.path.exists(config_file):
+                toggles = detect_toggles_in_config(config_file)
+                detected_toggles.extend(toggles)
+        if detected_toggles:
+            print(f"Detected toggles in config files: {detected_toggles}")
+        else:
+            print("No toggles detected in config files.")
+        return 
 
 if __name__ == "__main__":
     main()
