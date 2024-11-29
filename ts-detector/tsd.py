@@ -7,6 +7,7 @@ import t_utils
 
 patterns = ["dead", "spread", "nested", "mixed", "enum"]
 
+
 def auto_detect_language(config_files):
     for config_file in config_files:
         file_extension = config_file.split('.')[-1]  # Get the file extension
@@ -25,8 +26,6 @@ def auto_detect_language(config_files):
             return "typescript"
         elif file_extension == "cs":
             return "csharp"
-        elif file_extension in ["properties", "conf", "cfg"]:
-            return "config"
 
         # If extension doesn't provide enough information, check content for more clues
         with open(config_file, 'r') as f:
@@ -46,6 +45,7 @@ def auto_detect_language(config_files):
 
     return None
 
+
 def detect_toggles_in_config(file_path):
     """
     Detect feature toggles in generic config files like `.properties`.
@@ -60,35 +60,51 @@ def detect_toggles_in_config(file_path):
 
     return detected_toggles
 
+
 def main():
     parser = argparse.ArgumentParser(description='Detect usage patterns in source code.')
     parser.add_argument('-p', '--source-path', required=True, help='Source code directory path')
-    parser.add_argument('-c', '--config-path', required=True, nargs='+', help='Relative configuration file paths (relative to source path)')
+    parser.add_argument('-c', '--config-path', required=True, nargs='+',
+                        help='Relative configuration file paths (relative to source path)')
     parser.add_argument('-o', '--output', required=False, help='Output file path')
     parser.add_argument('-t', '--toggle-usage', required=False, choices=patterns, help='Toggle usage pattern to detect')
-    parser.add_argument('-l', '--language', required=False, help='Programming language (optional, auto-detect if not provided)')
+    parser.add_argument('-l', '--language', required=False,
+                        help='Programming language (optional, auto-detect if not provided)')
 
     args = parser.parse_args()
 
     source_path = args.source_path.rstrip("/")
-    config_path = [os.path.join(source_path, c) for c in args.config_path]
+    config_paths = [os.path.join(source_path, c) for c in args.config_path]
     output_path = args.output
     toggle_usage = args.toggle_usage
     lang = args.language
 
     if not lang:
-        config_files = glob.glob(f'{config_path[0]}', recursive=True)
-        lang = auto_detect_language(config_files)
-        if not lang:
+        config_files = glob.glob(f'{config_paths[0]}', recursive=True)
+
+        # Checking if none of the config files have language specific extension
+        config_file_type = ""
+        for config_file in config_files:
+            file_extension = config_file.split('.')[-1]  # Get the file extension
+            # Check for common programming language extensions
+            if file_extension in ["properties", "conf", "cfg"]:
+                config_file_type = "config"
+
+        detected_lang = ""
+        if config_file_type is not "config":
+            detected_lang = auto_detect_language(config_files)
+
+        if not detected_lang:
             print("Could not auto-detect language. Please provide it using the -l flag.")
             sys.exit(1)
 
-    print(f"Language: {lang}, Source path: {source_path}, Config file pattern: {config_path}, Toggle usage pattern: {toggle_usage}")
-    
+    print(f"Language: {lang}, Source path: {source_path}, Config file pattern: {config_paths}, "
+          f"Toggle usage pattern: {toggle_usage}")
+
     code_files = []
-    config_files_pathes = []
-    for c in config_path:
-        config_files_pathes.extend(glob.glob(f'{c}', recursive=True))
+    config_files_paths = []
+    for c in config_paths:
+        config_files_paths.extend(glob.glob(f'{c}', recursive=True))
 
     if lang.lower() == "c++":
         c_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
@@ -104,18 +120,16 @@ def main():
         code_files = glob.glob(f'{source_path}/**/*.py', recursive=True)
     elif lang.lower() == "csharp":
         code_files = glob.glob(f'{source_path}/**/*.cs', recursive=True)
-    elif lang.lower() == "config":
-        print("Processed config files. Exiting.")
     else:
         print("Unsupported language. Exiting.")
         sys.exit(1)
 
-    for config_file in config_files_pathes:
-        if lang != "config" and config_file in code_files:
+    for config_file in config_files_paths:
+        if config_file in code_files:
             code_files.remove(config_file)
 
     if toggle_usage:
-        detected_toggles = t_utils.detect(lang, code_files or [], config_files_pathes, toggle_usage)
+        detected_toggles = t_utils.detect(lang, code_files or [], config_files_paths, toggle_usage)
 
         res = {toggle_usage: detected_toggles}
         res_json = json.dumps(res, indent=2)
@@ -132,7 +146,7 @@ def main():
         for p in patterns:
             if p == "mixed" and lang.lower() != "c++":
                 continue
-            detected_toggles = t_utils.detect(lang, code_files or [], config_files_pathes, p)
+            detected_toggles = t_utils.detect(lang, code_files or [], config_files_paths, p)
 
             res[p] = detected_toggles
         res_json = json.dumps(res, indent=2)
@@ -142,11 +156,12 @@ def main():
             print(f"Output written to {output_path}")
         else:
             print(res_json)
-
+    # TODO: Move this code inside utils
+    # there is no such language called "config", handle the logic in an appropriate manner
     if lang == "config":
-    # Process config files separately
+        # Process config files separately
         detected_toggles = []
-        for config_file in config_files_pathes:
+        for config_file in config_files_paths:
             if os.path.exists(config_file):
                 toggles = detect_toggles_in_config(config_file)
                 detected_toggles.extend(toggles)
@@ -154,7 +169,8 @@ def main():
             print(f"Detected toggles in config files: {detected_toggles}")
         else:
             print("No toggles detected in config files.")
-        return 
+        return
+
 
 if __name__ == "__main__":
     main()
