@@ -72,29 +72,45 @@ def main():
                         help='Programming language (optional, auto-detect if not provided)')
 
     args = parser.parse_args()
-
     source_path = args.source_path.rstrip("/")
-    config_paths = [os.path.join(source_path, c) for c in args.config_path]
+    config_paths = []
+    for c in args.config_path:
+        config_paths.extend([os.path.join(source_path, path.strip()) for path in c.split(",")])
+
+    # config_paths = [os.path.join(source_path, c) for c in args.config_path]
     output_path = args.output
     toggle_usage = args.toggle_usage
     lang = args.language
 
     if not lang:
-        config_files = glob.glob(f'{config_paths[0]}', recursive=True)
+        config_files = []
+        for config_path in config_paths:
+            resolved_files = glob.glob(f'{config_path}', recursive=True)
+            config_files.extend(resolved_files)
+
+        if not config_files:
+            print("No configuration files found.")
+            sys.exit(1)
 
         # Checking if none of the config files have language specific extension
         config_file_type = ""
         for config_file in config_files:
-            file_extension = config_file.split('.')[-1]  # Get the file extension
-            # Check for common programming language extensions
+            if not os.path.exists(config_file):
+                print(f"File does not exist: {config_file}")
+                continue
+            file_extension = config_file.split('.')[-1]
+            #config files with different extensions like .properties, .conf or .cfg (can add more extensions if found)
             if file_extension in ["properties", "conf", "cfg"]:
                 config_file_type = "config"
+                break
 
-        detected_lang = ""
-        if config_file_type is not "config":
-            detected_lang = auto_detect_language(config_files)
+        if config_file_type == "config":
+            lang = "config"
+        else:
+            lang = auto_detect_language(config_files)
+            print(f"Auto-detected language: {lang}")
 
-        if not detected_lang:
+        if not lang:
             print("Could not auto-detect language. Please provide it using the -l flag.")
             sys.exit(1)
 
@@ -104,9 +120,19 @@ def main():
     code_files = []
     config_files_paths = []
     for c in config_paths:
-        config_files_paths.extend(glob.glob(f'{c}', recursive=True))
+        resolved_files = glob.glob(f'{c}', recursive=True)
+        # Filter out directories
+        valid_files = [f for f in resolved_files if os.path.isfile(f)]
+        config_files_paths.extend(valid_files)
+        print(f"Valid files for path {c}: {valid_files}")
 
-    if lang.lower() == "c++":
+    if not config_files_paths:
+        print("No valid configuration files found.")
+        sys.exit(1)
+
+    if lang.lower() == "config":
+        code_files = []  # No code files needed for config
+    elif lang.lower() == "c++":
         c_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
         cpp_files = glob.glob(f'{source_path}/**/*.cpp', recursive=True)
         mm_files = glob.glob(f'{source_path}/**/*.mm', recursive=True)
@@ -159,14 +185,16 @@ def main():
     # TODO: Move this code inside utils
     # there is no such language called "config", handle the logic in an appropriate manner
     if lang == "config":
-        # Process config files separately
-        detected_toggles = []
-        for config_file in config_files_paths:
-            if os.path.exists(config_file):
-                toggles = detect_toggles_in_config(config_file)
-                detected_toggles.extend(toggles)
+        # Use `t_utils.detect` for consistent processing
+        detected_toggles = t_utils.detect(
+            lang=lang,
+            code_files=[],  # No code files needed for "config"
+            t_config_files=config_files_paths,
+            t_usage=toggle_usage or "spread"  # Default to "spread" if no usage pattern is specified
+        )
+
         if detected_toggles:
-            print(f"Detected toggles in config files: {detected_toggles}")
+            print(f"Detected toggles in config files:\n{json.dumps(detected_toggles, indent=2)}")
         else:
             print("No toggles detected in config files.")
         return

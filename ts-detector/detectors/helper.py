@@ -55,6 +55,30 @@ def getFileName(lang, path):
 def get_mixed_toggle_var_patterns(lang):
     return list(language_map[lang.lower()].mixed_toggle_patterns.values())
 
-
 def get_spread_toggle_var_patterns(lang):
-    return language_map[lang.lower()].spread_toggle_patterns
+    """
+    Returns the regex patterns for spread toggle variables based on language.
+    Supports both programming languages and configuration file types.
+    """
+    lang = lang.lower()
+    
+    # Configuration file-specific patterns
+    config_patterns = {
+        "spread_toggle_patterns": {
+            "parent_finder": [
+                r"(?i)(toggle|feature|flag)\s*[:=]\s*\w+",
+                r"(?i)(parent_toggle|base_toggle)\s*[:=]\s*\w+"
+            ]
+        }
+    }
+
+    # Check if lang is for a configuration file
+    if lang == "config":
+        return config_patterns["spread_toggle_patterns"]
+
+    # Check for programming language patterns in the language_map
+    if lang in language_map:
+        return language_map[lang].spread_toggle_patterns
+
+    # If no patterns are defined for the given language
+    raise ValueError(f"No spread toggle patterns defined for language: {lang}")

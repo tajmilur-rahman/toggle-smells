@@ -1,4 +1,6 @@
 import re
+import os
+from detectors.regex.regex_config import spread_toggle_patterns
 
 comment_regexes = {
     'python': r'^\s*#.*$',
@@ -6,6 +8,7 @@ comment_regexes = {
     'java': r'^\s*//.*$',
     'golang': r'^\s*//.*$',
     "c++": r'^\s*//.*$',
+    "config": r"^\s*[#!].*$",
 }
 
 general_regexes = {
@@ -261,6 +264,21 @@ def extract_toggles_from_config_files(config_files):
         return filtered_toggles
     return []
 
+
+def extract_toggles_from_file(file):
+    """
+    Extracts toggles from a single configuration file.
+    """
+    toggles = []
+    for line in file:
+        line = line.strip()
+        if re.match(spread_toggle_patterns["comment"], line) or re.match(spread_toggle_patterns["empty_line"], line):
+            continue
+        match = re.match(spread_toggle_patterns["toggle_definition"], line)
+        if match:
+            toggle_name = match.group(1)
+            toggles.append(toggle_name)
+    return toggles
 
 if __name__ == "__main__":
     # config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"

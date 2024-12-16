@@ -1,10 +1,7 @@
-config_regex_patterns = {
-    "toggle_definition": r"(?i)(toggle|feature|flag)\s*[:=]\s*\w+", 
-    "parent_finder": r"(?i)(parent_toggle|base_toggle)\s*[:=]\s*\w+",  
-}
 spread_toggle_patterns = {
-    "parent_finder": [
-        r"(?i)(toggle|feature|flag)\s*[:=]\s*\w+", 
-        r"(?i)(parent_toggle|base_toggle)\s*[:=]\s*\w+", 
-    ]
+    "toggle_definition": r"^\s*([\w\.]+)\s*=\s*(.+)$",  
+    "env_variable_reference": r"\${\?\w+}", 
+    "comment": r"^\s*#",  
+    "empty_line": r"^\s*$",
+    "parent_finder": r"^\s*([\w\.]+)\s*=\s*\${\?([\w_]+)}"  
 }
