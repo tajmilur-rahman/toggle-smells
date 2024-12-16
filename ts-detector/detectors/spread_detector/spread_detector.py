@@ -24,7 +24,7 @@ def find_toggles_in_config_files(toggles):
     """
     toggle_lookup = {}
     for toggle in toggles:
-        toggle_lookup[toggle] = toggle_lookup.get(toggle, []) + [1]  # Example structure
+        toggle_lookup[toggle] = toggle_lookup.get(toggle, []) + [1] 
     return toggle_lookup
 
 def filter_spread_toggles(toggle_lookup):

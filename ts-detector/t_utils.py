@@ -158,27 +158,6 @@ def extract_enum_toggles(lang, code_files, t_config_files):
 
 def get_toggles_from_config_files(config_files, lang=None):
     """
-    Extracts toggles from configuration files.
-    Handles both generic toggles and config-specific cases.
+    Wrapper around toggle extraction to manage and return toggles from files.
     """
-    toggles = []
-    if lang == "config":
-        for config_file in config_files:
-            if os.path.isfile(config_file):
-                # print(f"Extracting toggles from config file: {config_file}")
-                with open(config_file, 'r') as file:
-                    extracted_toggles = toggle_extractor.extract_toggles_from_file(file)
-                    toggles.extend(
-                        toggle if isinstance(toggle, str) else str(toggle) for toggle in extracted_toggles
-                    )
-            else:
-                print(f"Skipping invalid or non-file path: {config_file}")
-    else:
-        # General extraction logic for other languages
-        extracted_toggles = toggle_extractor.extract_toggles_from_config_files(config_files)
-        toggles.extend(
-            toggle if isinstance(toggle, str) else str(toggle) for toggle in extracted_toggles
-        )
-
-    # Remove duplicates and filter out invalid entries
-    return list(set(filter(None, toggles)))
+    return toggle_extractor.extract_toggles_from_config_files(config_files, lang=lang)

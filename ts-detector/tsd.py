@@ -182,23 +182,6 @@ def main():
             print(f"Output written to {output_path}")
         else:
             print(res_json)
-    # TODO: Move this code inside utils
-    # there is no such language called "config", handle the logic in an appropriate manner
-    if lang == "config":
-        # Use `t_utils.detect` for consistent processing
-        detected_toggles = t_utils.detect(
-            lang=lang,
-            code_files=[],  # No code files needed for "config"
-            t_config_files=config_files_paths,
-            t_usage=toggle_usage or "spread"  # Default to "spread" if no usage pattern is specified
-        )
-
-        if detected_toggles:
-            print(f"Detected toggles in config files:\n{json.dumps(detected_toggles, indent=2)}")
-        else:
-            print("No toggles detected in config files.")
-        return
-
 
 if __name__ == "__main__":
     main()
