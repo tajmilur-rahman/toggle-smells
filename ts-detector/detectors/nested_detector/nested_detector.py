@@ -91,7 +91,7 @@ def process_code_files(lang, code_files, code_files_contents, toggles):
 
     nested_toggles_data = {
         "nested_toggles": nested_toggles,
-        "total_count_toggles": total_count_toggles
+        "qty": total_count_toggles
     }
 
     return nested_toggles_data
