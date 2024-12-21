@@ -89,16 +89,32 @@ def extract_nested_toggles(lang, code_files, t_config_files):
     print("extracting nested toggles")
 
     toggles = toggle_extractor.extract_toggles_from_config_files(t_config_files)
+    nested_toggles = defaultdict(list)
 
     if lang == "config":
-        # For config files, return toggles directly (nested logic typically not applicable)
-        formatted_nested_toggles = [{"name": toggle, "type": "nested", "usage_count": 0} for toggle in toggles]
-    else:
-        code_files_contents = helper.get_code_file_contents(lang, code_files)
-        nested_data = nd.process_code_files(lang, code_files, code_files_contents, toggles)
-        formatted_nested_toggles = nd.format_nested_toggles_data(nested_data)
+        for config_file in t_config_files:
+            if not os.path.exists(config_file):
+                print(f"Warning: File not found - {config_file}")
+                continue
 
-    return formatted_nested_toggles
+            with open(config_file, 'r') as file:
+                content = file.read()
+                for toggle in toggles:
+                    dependencies = [
+                        dep for dep in toggles if dep in content and dep != toggle
+                    ]
+                    if dependencies:
+                        relative_path = os.path.relpath(config_file)
+                        nested_toggles[toggle].append({
+                            relative_path: dependencies
+                        })
+    else:
+        # Language-specific projects
+        code_files_contents = helper.get_code_file_contents(lang, code_files)
+        nested_data = nd.process_code_files(lang, code_files, code_files_contents, toggles, proximity=3)
+        nested_toggles = nested_data["nested_toggles"]
+
+    return nd.format_nested_toggles_data({"nested_toggles": nested_toggles})
 
 def extract_spread_toggles(lang, code_files, t_config_files):
     print("Extracting spread toggles")
