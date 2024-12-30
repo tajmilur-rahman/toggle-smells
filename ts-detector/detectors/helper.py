@@ -12,7 +12,7 @@ language_map = {
     "python": py_patterns,
     "go": go_patterns,
     "csharp": csharp_patterns,
-    "config": config_patterns,
+    "config": config_patterns
 }
 
 def get_code_file_contents(lang, code_files):

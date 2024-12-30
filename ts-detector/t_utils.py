@@ -117,7 +117,7 @@ def extract_nested_toggles(lang, code_files, t_config_files):
     return nd.format_nested_toggles_data({"nested_toggles": nested_toggles})
 
 def extract_spread_toggles(lang, code_files, t_config_files):
-    print("Extracting spread toggles")
+    print("extracting spread toggles")
 
     spread_toggles = defaultdict(list)
     toggles = get_toggles_from_config_files(t_config_files, lang)

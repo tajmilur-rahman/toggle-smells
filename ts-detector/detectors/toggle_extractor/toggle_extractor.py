@@ -8,7 +8,7 @@ comment_regexes = {
     'java': r'^\s*//.*$',
     'golang': r'^\s*//.*$',
     "c++": r'^\s*//.*$',
-    "config": r'^\s*[#!;].*$', 
+    "config": r'^\s*[#!;].*$'
 }
 
 general_regexes = {
