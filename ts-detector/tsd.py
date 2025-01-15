@@ -7,6 +7,7 @@ import t_utils
 
 patterns = ["dead", "spread", "nested", "mixed", "enum"]
 
+
 def auto_detect_language(config_files):
     for config_file in config_files:
         file_extension = config_file.split('.')[-1]  # Get the file extension
@@ -47,33 +48,78 @@ def auto_detect_language(config_files):
 def main():
     parser = argparse.ArgumentParser(description='Detect usage patterns in source code.')
     parser.add_argument('-p', '--source-path', required=True, help='Source code directory path')
-    parser.add_argument('-c', '--config-path', required=True, nargs='+', help='Relative configuration file paths (relative to source path)')
+    parser.add_argument('-c', '--config-path', required=True, nargs='+',
+                        help='Relative configuration file paths (relative to source path)')
     parser.add_argument('-o', '--output', required=False, help='Output file path')
     parser.add_argument('-t', '--toggle-usage', required=False, choices=patterns, help='Toggle usage pattern to detect')
-    parser.add_argument('-l', '--language', required=False, help='Programming language (optional, auto-detect if not provided)')
+    parser.add_argument('-l', '--language', required=False,
+                        help='Programming language (optional, auto-detect if not provided)')
 
     args = parser.parse_args()
-
     source_path = args.source_path.rstrip("/")
-    config_path = [os.path.join(source_path, c) for c in args.config_path]
+    config_paths = []
+    for c in args.config_path:
+        config_paths.extend([os.path.join(source_path, path.strip()) for path in c.split(",")])
+
+    # config_paths = [os.path.join(source_path, c) for c in args.config_path]
     output_path = args.output
     toggle_usage = args.toggle_usage
     lang = args.language
 
     if not lang:
-        config_files = glob.glob(f'{config_path[0]}', recursive=True)
-        lang = auto_detect_language(config_files)
+        config_files = []
+        for config_path in config_paths:
+            resolved_files = glob.glob(f'{config_path}', recursive=True)
+            config_files.extend(resolved_files)
+
+        if not config_files:
+            print("No configuration files found.")
+            sys.exit(1)
+
+        # Checking if none of the config files have language specific extension
+        config_file_type = ""
+        for config_file in config_files:
+            if not os.path.exists(config_file):
+                print(f"File does not exist: {config_file}")
+                continue
+            file_extension = config_file.split('.')[-1]
+            #config files with different extensions like .properties, .conf or .cfg (can add more extensions if found)
+            if file_extension in ["properties", "conf", "cfg"]:
+                config_file_type = "config"
+                break
+
+        if config_file_type == "config":
+            lang = input("Please provide the programming language associated with this config project: ").strip().lower()
+            if not lang:
+                print("Language input is required. Exiting.")
+                sys.exit(1)
+        else:
+            lang = auto_detect_language(config_files)
+            print(f"Auto-detected language: {lang}")
+
         if not lang:
             print("Could not auto-detect language. Please provide it using the -l flag.")
             sys.exit(1)
 
-    print(f"Language: {lang}, Source path: {source_path}, Config file pattern: {config_path}, Toggle usage pattern: {toggle_usage}")
+    print(f"Language: {lang}, Source path: {source_path}, Config file pattern: {config_paths}, "
+          f"Toggle usage pattern: {toggle_usage}")
 
-    config_files_pathes = []
-    for c in config_path:
-        config_files_pathes.extend(glob.glob(f'{c}', recursive=True))
+    code_files = []
+    config_files_paths = []
+    for c in config_paths:
+        resolved_files = glob.glob(f'{c}', recursive=True)
+        # Filter out directories
+        valid_files = [f for f in resolved_files if os.path.isfile(f)]
+        config_files_paths.extend(valid_files)
+        print(f"Valid files for path {c}: {valid_files}")
 
-    if lang.lower() == "c++":
+    if not config_files_paths:
+        print("No valid configuration files found.")
+        sys.exit(1)
+
+    if lang.lower() == "config":
+        code_files = []  # No code files needed for config
+    elif lang.lower() == "c++":
         c_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
         cpp_files = glob.glob(f'{source_path}/**/*.cpp', recursive=True)
         mm_files = glob.glob(f'{source_path}/**/*.mm', recursive=True)
@@ -91,12 +137,12 @@ def main():
         print("Unsupported language. Exiting.")
         sys.exit(1)
 
-    for config_file in config_files_pathes:
+    for config_file in config_files_paths:
         if config_file in code_files:
             code_files.remove(config_file)
 
     if toggle_usage:
-        detected_toggles = t_utils.detect(lang, code_files, config_files_pathes, toggle_usage)
+        detected_toggles = t_utils.detect(lang, code_files or [], config_files_paths, toggle_usage)
 
         res = {toggle_usage: detected_toggles}
         res_json = json.dumps(res, indent=2)
@@ -113,7 +159,7 @@ def main():
         for p in patterns:
             if p == "mixed" and lang.lower() != "c++":
                 continue
-            detected_toggles = t_utils.detect(lang, code_files, config_files_pathes, p)
+            detected_toggles = t_utils.detect(lang, code_files or [], config_files_paths, p)
 
             res[p] = detected_toggles
         res_json = json.dumps(res, indent=2)
@@ -123,7 +169,6 @@ def main():
             print(f"Output written to {output_path}")
         else:
             print(res_json)
-
 
 if __name__ == "__main__":
     main()

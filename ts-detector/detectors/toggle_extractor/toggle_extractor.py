@@ -1,4 +1,6 @@
 import re
+import os
+from detectors.regex.regex_config import spread_toggle_patterns
 
 comment_regexes = {
     'python': r'^\s*#.*$',
@@ -6,6 +8,7 @@ comment_regexes = {
     'java': r'^\s*//.*$',
     'golang': r'^\s*//.*$',
     "c++": r'^\s*//.*$',
+    "config": r'^\s*[#!;].*$'
 }
 
 general_regexes = {
@@ -57,6 +60,11 @@ general_regexes = {
         'dict_keys': r'[{,]\s*(?P<toggle>(?:"[^"]*"|\'[^\']*\'|[^,\s]+?))\s*,',
         'toggle_names': r'(Feature)?(Toggle|Flag|Enable|Disable)?\w*::(?P<toggle>\w+),',
         'enum_names': r'enum\s+(?P<toggle>\w+)\s*'
+    },
+    "config": {
+        'toggle_definition': r'^\s*(?P<toggle>[a-zA-Z0-9._-]+)\s*=\s*.*$',  
+        'toggle_colon_definition': r'^\s*(?P<toggle>[a-zA-Z0-9._-]+)\s*:\s*.*$',  
+        'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9._-]{2,})', 
     }
 }
 
@@ -68,7 +76,8 @@ language_keywords = {
              'boolean', '"true"', '"false"', '"CRITICAL"', '"ERROR"', '"WARNING"', '"INFO"'],
     'golang': ['var', 'const', 'func', 'int', 'string', 'bool', 'map', '"true"', '"false"', 'err', 'ok', '"CRITICAL"', '"ERROR"', '"WARNING"', '"INFO"'],
     "c++": ['const', 'static', 'public', 'private', 'protected', 'bool', 'int', 'float', 'double', 'std', '"true"',
-            '"false"', '"CRITICAL"', '"ERROR"', '"WARNING"', '"INFO"']
+            '"false"', '"CRITICAL"', '"ERROR"', '"WARNING"', '"INFO"'],
+    "config": ['true', 'false', 'null', 'none', 'undefined', 'enabled', 'disabled'],  
 }
 
 
@@ -205,6 +214,10 @@ def filter_toggles(toggles, language, file_contents):
     filtered_toggles = filter_wrong_values(filtered_toggles, file_contents)
     filtered_toggles = clean_and_remove_duplicates(filtered_toggles)
 
+    if language == "config":
+    # Skip length and invalid char checks for config files
+        filtered_toggles = [t for t in filtered_toggles if t not in keywords]
+
     return filtered_toggles
 
 
@@ -242,25 +255,38 @@ def remove_comments(content, language):
         content = re.sub(comment_pattern, '', content, flags=re.MULTILINE)
     return content
 
-
-def extract_toggles_from_config_files(config_files):
+def extract_toggles_from_config_files(config_files, lang=None):
+    """
+    Extracts toggles from configuration files or language-specific files.
+    Handles both config-specific cases (e.g., properties, conf) and language-specific files.
+    """
     toggle_list = []
+
     for conf_file in config_files:
+        if not os.path.isfile(conf_file):
+            print(f"Skipping invalid or non-file path: {conf_file}")
+            continue
+
         with open(conf_file, 'r', encoding='utf-8') as file:
             file_content = file.read()
-            language = get_language_from_extension(conf_file)
-            file_content = remove_comments(file_content, language)
-            toggle_list.append(file_content)
-    toggle_list = list(filter(None, toggle_list))
-    combined_content = "\n".join(toggle_list)
-    if config_files:
-        language = get_language_from_extension(config_files[0])
-        toggles = apply_combined_regexes(combined_content, language)
-        filtered_toggles = filter_toggles(list(toggles), language, combined_content)
-        filtered_toggles = list(set(filtered_toggles))
-        return filtered_toggles
-    return []
 
+        # Determine the language if not explicitly provided
+        file_lang = lang or get_language_from_extension(conf_file)
+
+        # Remove comments based on the file type
+        file_content = remove_comments(file_content, file_lang)
+
+        # Apply regex patterns to extract toggles
+        combined_toggles = apply_combined_regexes(file_content, file_lang)
+
+        # Filter toggles to remove invalid entries
+        filtered_toggles = filter_toggles(
+            list(combined_toggles), file_lang, file_contents=file_content
+        )
+        toggle_list.extend(filtered_toggles)
+
+    # Remove duplicates and invalid toggles
+    return list(set(filter(None, toggle_list)))
 
 if __name__ == "__main__":
     # config_files_path = "../getToggleTests/example-config-files/cadence-constants.go"

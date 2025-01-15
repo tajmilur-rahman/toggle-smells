@@ -18,7 +18,6 @@ def find_toggles_in_code_files(code_files, toggles):
 
     return toggle_lookup
 
-
 def filter_spread_toggles(toggle_lookup):
     return {toggle: count for toggle, count in toggle_lookup.items() if len(count) > 1}
 

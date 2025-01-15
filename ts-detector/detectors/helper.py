@@ -3,6 +3,7 @@ import detectors.regex.regex_java as j_patterns
 import detectors.regex.regex_python as py_patterns
 import detectors.regex.regex_go as go_patterns
 import detectors.regex.regex_csharp as csharp_patterns
+import detectors.regex.regex_config as config_patterns
 import re
 
 language_map = {
@@ -10,7 +11,8 @@ language_map = {
     "java": j_patterns,
     "python": py_patterns,
     "go": go_patterns,
-    "csharp": csharp_patterns
+    "csharp": csharp_patterns,
+    "config": config_patterns
 }
 
 def get_code_file_contents(lang, code_files):
@@ -53,6 +55,30 @@ def getFileName(lang, path):
 def get_mixed_toggle_var_patterns(lang):
     return list(language_map[lang.lower()].mixed_toggle_patterns.values())
 
-
 def get_spread_toggle_var_patterns(lang):
-    return language_map[lang.lower()].spread_toggle_patterns
+    """
+    Returns the regex patterns for spread toggle variables based on language.
+    Supports both programming languages and configuration file types.
+    """
+    lang = lang.lower()
+    
+    # Configuration file-specific patterns
+    config_patterns = {
+        "spread_toggle_patterns": {
+            "parent_finder": [
+                r"(?i)(toggle|feature|flag)\s*[:=]\s*\w+",
+                r"(?i)(parent_toggle|base_toggle)\s*[:=]\s*\w+"
+            ]
+        }
+    }
+
+    # Check if lang is for a configuration file
+    if lang == "config":
+        return config_patterns["spread_toggle_patterns"]
+
+    # Check for programming language patterns in the language_map
+    if lang in language_map:
+        return language_map[lang].spread_toggle_patterns
+
+    # If no patterns are defined for the given language
+    raise ValueError(f"No spread toggle patterns defined for language: {lang}")

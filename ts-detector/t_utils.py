@@ -15,6 +15,7 @@ import detectors.helper as helper
 import detectors.spread_detector.spread_detector as sd
 import detectors.dead_detector.dead_detector as dd
 import detectors.nested_detector.nested_detector as nd
+import os
 
 language_map = {
     "c++": c_patterns,
@@ -35,56 +36,90 @@ def detect(lang, code_files, t_config_files, t_usage):
     if t_config_files is None:
         raise ValueError("A list of config files is required.")
 
+    toggle_source_files = code_files + t_config_files
+
     if t_usage == "dead":
-        return extract_dead_toggles(lang, code_files, t_config_files)
+        return extract_dead_toggles(lang, toggle_source_files, t_config_files)
     elif t_usage == "spread":
-        return extract_spread_toggles(lang, code_files, t_config_files)
+        return extract_spread_toggles(lang, toggle_source_files, t_config_files)
     elif t_usage == "nested":
-        return extract_nested_toggles(lang, code_files, t_config_files)
-    elif t_usage == "mixed":
-        return extract_mixed_toggles(lang, code_files)
+        return extract_nested_toggles(lang, toggle_source_files, t_config_files)
     elif t_usage == "enum":
-        return extract_enum_toggles(lang, code_files, t_config_files)
-
-
+        return extract_enum_toggles(lang, toggle_source_files, t_config_files)
+    elif t_usage == "mixed" and lang != "config":
+        return extract_mixed_toggles(lang, toggle_source_files)
+    else:
+        print(f"The '{t_usage}' toggle pattern is not supported for {lang}.")
+        return []
+    
+def process_config_toggles(toggles, pattern_type):
+    """
+    Process config toggles based on the toggle type.
+    :param toggles: List of extracted toggles
+    :param pattern_type: Type of toggle pattern (e.g., dead, nested, enum, spread)
+    :return: Dictionary with processed toggle data
+    """
+    if pattern_type == "dead":
+        return {"dead_toggles": toggles}
+    elif pattern_type == "nested":
+        return {"nested_toggles": toggles}
+    elif pattern_type == "enum":
+        return {"enum_toggles": list(toggles), "qty": len(toggles)}
+    elif pattern_type == "spread":
+        return {"spread_toggles": toggles}
+    else:
+        raise ValueError(f"Unsupported pattern type: {pattern_type}")
+    
 def extract_dead_toggles(lang, code_files, t_config_files):
-    print("extracting dead toggles")
-    toggles = get_toggles_from_config_files(t_config_files)
+    print("Extracting dead toggles")
+
+    # Extract toggles from config files
+    toggles = get_toggles_from_config_files(t_config_files, lang)
+
     code_files_contents = helper.get_code_file_contents(lang, code_files)
 
     dead_toggles = dd.find_dead_toggles(toggles, code_files, code_files_contents)
     return dd.format_dead_toggles_data(dead_toggles)
 
-
 def extract_nested_toggles(lang, code_files, t_config_files):
-    print("extracting nested toggles")
-
-    nested_toggles = defaultdict(list)
-    code_files_contents = helper.get_code_file_contents(lang, code_files)
+    print("Extracting nested toggles")
 
     toggles = toggle_extractor.extract_toggles_from_config_files(t_config_files)
+    code_files_contents = helper.get_code_file_contents(lang, code_files)
 
-    res = nd.process_code_files(lang, code_files, code_files_contents, toggles)
-
-    nested_toggles = nd.format_nested_toggles_data(res)
-
-    return nested_toggles
-
+    nested_data = nd.process_code_files(lang, code_files, code_files_contents, toggles, proximity=3)
+    return nd.format_nested_toggles_data({"nested_toggles": nested_data["nested_toggles"]})
 
 def extract_spread_toggles(lang, code_files, t_config_files):
-    print("extracting spread toggles")
+    print("Extracting spread toggles")
+    spread_toggles = defaultdict(list)
+    toggles = get_toggles_from_config_files(t_config_files, lang)
 
-    toggles = get_toggles_from_config_files(t_config_files)
-    toggle_lookup = sd.find_toggles_in_code_files(code_files, toggles)
-    spread_toggles = sd.filter_spread_toggles(toggle_lookup)
+    for code_file in code_files:
+        if not os.path.exists(code_file):
+            print(f"Warning: File not found - {code_file}")
+            continue
+        with open(code_file, 'r') as file:
+            content = file.read()
+            for toggle in toggles:
+                count = content.count(toggle)
+                if count > 0:
+                    relative_path = os.path.relpath(code_file)
+                    spread_toggles[toggle].append({
+                        "file": relative_path,
+                        "count": count
+                    })
+    spread_toggles = {
+        toggle: occurrences
+        for toggle, occurrences in spread_toggles.items()
+        if len({entry["file"] for entry in occurrences}) > 1  
+    }
 
-    parent_toggles = sd.find_parent_toggles(spread_toggles, lang)
-    toggles = [t for t in parent_toggles if len(parent_toggles[t]) >= 2]
-
-    spread_toggles_data = sd.format_spread_toggles(toggles)
-
-    return spread_toggles_data
-
+    formatted_toggles = {
+        "toggles": spread_toggles,
+        "qty": len(spread_toggles)
+    }
+    return formatted_toggles
 
 def extract_mixed_toggles(lang, code_files):
     print("extracting mixed toggles")
@@ -98,31 +133,24 @@ def extract_mixed_toggles(lang, code_files):
     return md.format_mixed_toggles_data(mixed_toggles)
 
 def extract_enum_toggles(lang, code_files, t_config_files):
-    print("extracting enum toggles")
-    # get all toggle names
-    # dictionary to store spread toggle data
-    toggle_lookup = defaultdict(list)
-    # get all toggles from config files as a set
-    toggles = set(get_toggles_from_config_files(t_config_files))
+    print("Extracting enum toggles")
 
+    toggles = set(get_toggles_from_config_files(t_config_files, lang))
     code_files_contents = helper.get_code_file_contents(lang, code_files)
 
-    res_toggles = []
-    # find all enums and check if name in it
+    # Find enums and check if toggle names are part of enums
+    enum_toggles = []
     for code_file, file_content in zip(code_files, code_files_contents):
-        res = is_enum_member(file_content, toggles, lang)
-        for toggle in res:
-            toggle_lookup[toggle].append(code_file)
-            res_toggles.append(toggle)
+        enums_in_file = is_enum_member(file_content, toggles, lang)
+        enum_toggles.extend(enums_in_file)
 
-    res = {
-        "toggles": res_toggles,
-        "qty": len(res_toggles)
+    return {
+        "toggles": enum_toggles,
+        "qty": len(enum_toggles),
     }
 
-    return res
-
-def get_toggles_from_config_files(config_files):
-    toggles = toggle_extractor.extract_toggles_from_config_files(config_files)
-
-    return list(set(filter(None, toggles)))
+def get_toggles_from_config_files(config_files, lang=None):
+    """
+    Wrapper around toggle extraction to manage and return toggles from files.
+    """
+    return toggle_extractor.extract_toggles_from_config_files(config_files, lang=lang)
