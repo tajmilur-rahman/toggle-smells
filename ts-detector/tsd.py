@@ -45,22 +45,6 @@ def auto_detect_language(config_files):
 
     return None
 
-
-def detect_toggles_in_config(file_path):
-    """
-    Detect feature toggles in generic config files like `.properties`.
-    """
-    toggle_keywords = ["toggle", "feature", "flag"]  # Common keywords
-    detected_toggles = []
-
-    with open(file_path, 'r') as file:
-        for line in file:
-            if any(keyword in line for keyword in toggle_keywords):
-                detected_toggles.append(line.strip())
-
-    return detected_toggles
-
-
 def main():
     parser = argparse.ArgumentParser(description='Detect usage patterns in source code.')
     parser.add_argument('-p', '--source-path', required=True, help='Source code directory path')
@@ -105,7 +89,10 @@ def main():
                 break
 
         if config_file_type == "config":
-            lang = "config"
+            lang = input("Please provide the programming language associated with this config project: ").strip().lower()
+            if not lang:
+                print("Language input is required. Exiting.")
+                sys.exit(1)
         else:
             lang = auto_detect_language(config_files)
             print(f"Auto-detected language: {lang}")
