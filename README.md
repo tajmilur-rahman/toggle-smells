@@ -49,7 +49,7 @@ python tsd.py -p <source_path> -c <config_paths> [-o <output_path>] [-t <toggle_
 
 #### Example 1: Detect `nested` usage in a C++ project and print output to the console
 
-`python toggle_usage_detector.py -p /path/to/source/ -c src/module/Toggles.cpp src/module/Features.cpp -t nested
+`python tsd.py -p /path/to/source/ -c src/module/Toggles.cpp src/module/Features.cpp -t nested
 `
 This command will:
 - Use `/path/to/source/` as the source path.
@@ -59,7 +59,7 @@ This command will:
 
 #### Example 2: Detect all toggle usage patterns and write output to a file
 
-`python toggle_usage_detector.py -p /path/to/source/ -c src/module/Toggles.cpp src/module/Features.cpp -o outputs/output.json
+`python tsd.py -p /path/to/source/ -c src/module/Toggles.cpp src/module/Features.cpp -o outputs/output.json
 `
 
 This command will:
@@ -68,7 +68,7 @@ This command will:
 
 #### Example 3: Manually specify the programming language
 
-`python toggle_usage_detector.py -p /path/to/source/ -c src/module/Toggles.cpp src/module/Features.cpp -l python -o outputs/python-output.json
+`python tsd.py -p /path/to/source/ -c src/module/Toggles.cpp src/module/Features.cpp -l python -o outputs/python-output.json
 `
 
 This command will:
