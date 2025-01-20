@@ -45,6 +45,7 @@ def auto_detect_language(config_files):
 
     return None
 
+
 def main():
     parser = argparse.ArgumentParser(description='Detect usage patterns in source code.')
     parser.add_argument('-p', '--source-path', required=True, help='Source code directory path')
@@ -83,13 +84,13 @@ def main():
                 print(f"File does not exist: {config_file}")
                 continue
             file_extension = config_file.split('.')[-1]
-            #config files with different extensions like .properties, .conf or .cfg (can add more extensions if found)
+            # config files with different extensions like .properties, .conf or .cfg (can add more extensions if found)
             if file_extension in ["properties", "conf", "cfg"]:
                 config_file_type = "config"
                 break
 
         if config_file_type == "config":
-            lang = input("Please provide the programming language associated with this config project: ").strip().lower()
+            lang = input("Please provide the programming language associated with this project: ").strip().lower()
             if not lang:
                 print("Language input is required. Exiting.")
                 sys.exit(1)
@@ -104,7 +105,6 @@ def main():
     print(f"Language: {lang}, Source path: {source_path}, Config file pattern: {config_paths}, "
           f"Toggle usage pattern: {toggle_usage}")
 
-    code_files = []
     config_files_paths = []
     for c in config_paths:
         resolved_files = glob.glob(f'{c}', recursive=True)
@@ -117,9 +117,7 @@ def main():
         print("No valid configuration files found.")
         sys.exit(1)
 
-    if lang.lower() == "config":
-        code_files = []  # No code files needed for config
-    elif lang.lower() == "c++":
+    if lang.lower() == "c++":
         c_files = glob.glob(f'{source_path}/**/*.cc', recursive=True)
         cpp_files = glob.glob(f'{source_path}/**/*.cpp', recursive=True)
         mm_files = glob.glob(f'{source_path}/**/*.mm', recursive=True)
@@ -131,12 +129,14 @@ def main():
         code_files = glob.glob(f'{source_path}/**/*.java', recursive=True)
     elif lang.lower() == "python":
         code_files = glob.glob(f'{source_path}/**/*.py', recursive=True)
-    elif lang.lower() == "csharp":
+    elif lang.lower() == "c#" or "csharp":
         code_files = glob.glob(f'{source_path}/**/*.cs', recursive=True)
     else:
         print("Unsupported language. Exiting.")
         sys.exit(1)
 
+    # When all code files are collected above the code_files list may contain config files as well.
+    # Remove config files from the code files list.
     for config_file in config_files_paths:
         if config_file in code_files:
             code_files.remove(config_file)
@@ -169,6 +169,7 @@ def main():
             print(f"Output written to {output_path}")
         else:
             print(res_json)
+
 
 if __name__ == "__main__":
     main()
