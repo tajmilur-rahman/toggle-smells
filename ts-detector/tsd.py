@@ -85,7 +85,7 @@ def main():
                 continue
             file_extension = config_file.split('.')[-1]
             # config files with different extensions like .properties, .conf or .cfg (can add more extensions if found)
-            if file_extension in ["properties", "conf", "cfg"]:
+            if file_extension in ["properties", "conf", "cfg", "tsx"]:
                 config_file_type = "config"
                 break
 

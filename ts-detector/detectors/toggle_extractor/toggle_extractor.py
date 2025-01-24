@@ -34,6 +34,10 @@ general_regexes = {
             r'(?P<toggle>\w+)\s*'
             r'(?=\s*(=|;|\[))'
         ),
+        'getter_method': r'\b\w+\.\w+\((?P<toggle>.*?)\)',
+        'method_call': r'(?P<toggle>[a-zA-Z0-9_]+)\s*=\s*\w+\.\w+\((.*?)\)',  
+        'field_access': r'\b[A-Za-z0-9_]+::(?P<toggle>\w+)\b',  
+        'interface_declaration': r'boolean\s+(?P<toggle>[a-zA-Z0-9_]+)\(\);',
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'\bput\s*\(\s*(?P<toggle>"[^"]*"|\'[^\']*\'|[^,\s]+?)\s*,',
         'enum_names': r'enum\s+(?P<toggle>\w+)\s*'
@@ -43,6 +47,9 @@ general_regexes = {
             r'(?:var\s+(?P<toggle>\w+)\s*(?:\s+(?P<type>[^\s=]+))?\s*(?:=\s*.*)?|'
             r'(?P<toggle2>\w+)\s*(?:\s+(?P<type2>[^\s=]+))?\s*:=\s*.*)'
         ),
+        'toggle_usage': r'\b(?P<toggle>\w+)\b(?=\s*[=:\(\{\},])',
+        'toggle_in_condition': r'(?P<toggle>\w+)\b(?=.*?\()',
+        'struct_declaration': r'\b(?:bool|int|string|float64)\s+(?P<toggle>\w+)',
         'declare2': r'\s+(?P<toggle>\w+)\s* =',
         'capital_identifiers': r'(?P<toggle>[A-Z][A-Z0-9_-]{2,})',
         'dict_keys': r'[{,]\s*(?P<toggle>(?:`[^`]*`|"[^"]*"|\'[^\']*\'|[\w.]+?))\s*:',
