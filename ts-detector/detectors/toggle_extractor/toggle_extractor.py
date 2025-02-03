@@ -258,8 +258,13 @@ def get_language_from_extension(file_path):
 def remove_comments(content, language):
     """Remove comment lines based on the language."""
     comment_pattern = comment_regexes.get(language)
+    # Remove single-line comments
     if comment_pattern:
         content = re.sub(comment_pattern, '', content, flags=re.MULTILINE)
+
+    # Remove block comments (/* ... */)    
+    if language in ['java', 'csharp', 'c++', 'golang', 'c']:
+        content = re.sub(r'/\*[\s\S]*?\*/', '', content, flags=re.MULTILINE)
     return content
 
 def extract_toggles_from_config_files(config_files, lang=None):

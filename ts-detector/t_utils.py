@@ -76,7 +76,6 @@ def extract_dead_toggles(lang, code_files, t_config_files):
 
     # Extract toggles from config files
     toggles = get_toggles_from_config_files(t_config_files, lang)
-    print(toggles, 'toggles')
     code_files_contents = helper.get_code_file_contents(lang, code_files)
 
     dead_toggles = dd.find_dead_toggles(toggles, code_files, code_files_contents)
@@ -100,16 +99,22 @@ def extract_spread_toggles(lang, code_files, t_config_files):
         if not os.path.exists(code_file):
             print(f"Warning: File not found - {code_file}")
             continue
-        with open(code_file, 'r') as file:
-            content = file.read()
-            for toggle in toggles:
-                count = content.lower().count(toggle.lower())
-                if count > 0:
-                    relative_path = os.path.relpath(code_file)
-                    spread_toggles[toggle].append({
-                        "file": relative_path,
-                        "count": count
-                    })
+        try:
+            with open(code_file, 'r', encoding='utf-8') as file:
+                content = file.read()
+        except UnicodeDecodeError:
+            print(f"Unicode error in {code_file}. Retrying with ISO-8859-1")
+            with open(code_file, 'r', encoding='ISO-8859-1') as file:
+                content = file.read()
+
+        for toggle in toggles:
+            count = content.lower().count(toggle.lower())
+            if count > 0:
+                relative_path = os.path.relpath(code_file)
+                spread_toggles[toggle].append({
+                    "file": relative_path,
+                    "count": count
+                })
     spread_toggles = {
         toggle: occurrences
         for toggle, occurrences in spread_toggles.items()
