@@ -6,8 +6,9 @@ import detectors.regex.regex_csharp as csharp_patterns
 from collections import defaultdict
 
 import detectors.toggle_extractor.toggle_extractor as toggle_extractor
+from function_utils import extract_functions, match_toggle_usage
 
-from detectors.enum_detector.enum_detector import *
+import detectors.enum_detector.enum_detector as ed
 import detectors.mixed_detector.mixed_detector as md
 
 import detectors.helper as helper
@@ -92,6 +93,7 @@ def extract_nested_toggles(lang, code_files, t_config_files):
 
 def extract_spread_toggles(lang, code_files, t_config_files):
     print("Extracting spread toggles")
+
     spread_toggles = defaultdict(list)
     toggles = get_toggles_from_config_files(t_config_files, lang)
 
@@ -99,44 +101,80 @@ def extract_spread_toggles(lang, code_files, t_config_files):
         if not os.path.exists(code_file):
             print(f"Warning: File not found - {code_file}")
             continue
+
         try:
             with open(code_file, 'r', encoding='utf-8') as file:
-                content = file.read()
+                source_code = file.read()
         except UnicodeDecodeError:
             print(f"Unicode error in {code_file}. Retrying with ISO-8859-1")
             with open(code_file, 'r', encoding='ISO-8859-1') as file:
-                content = file.read()
+                source_code = file.read()
 
         for toggle in toggles:
-            count = content.lower().count(toggle.lower())
+            count = source_code.lower().count(toggle.lower())
             if count > 0:
                 relative_path = os.path.relpath(code_file)
+
+                # Function-level toggle usage
+                lang_key = lang.lower().replace("c++", "c").replace("c#", "csharp")
+                try:
+                    functions = extract_functions(source_code, lang_key)
+                    function_usage = match_toggle_usage(source_code, functions, toggle)
+                except Exception as e:
+                    print(f"Function parsing failed for {code_file}: {e}")
+                    function_usage = {}
+
                 spread_toggles[toggle].append({
                     "file": relative_path,
+                    "Functions": [function_usage],
                     "count": count
                 })
+
+    # Filter toggles that appear in more than one file
     spread_toggles = {
         toggle: occurrences
         for toggle, occurrences in spread_toggles.items()
-        if len({entry["file"] for entry in occurrences}) > 1  
+        if len({entry["file"] for entry in occurrences}) > 1
     }
 
     formatted_toggles = {
         "toggles": spread_toggles,
         "qty": len(spread_toggles)
     }
+
     return formatted_toggles
 
 def extract_mixed_toggles(lang, code_files):
-    print("extracting mixed toggles")
+    print("Extracting mixed toggles")
 
-    mixed_toggles = defaultdict(list)
+    mixed_toggles = defaultdict(lambda: defaultdict(int))
     code_files_contents = helper.get_code_file_contents(lang, code_files)
     mixed_patterns = helper.get_mixed_toggle_var_patterns(lang)
 
-    md.process_code_files(code_files, code_files_contents, mixed_patterns, mixed_toggles)
+    for code_file, content in zip(code_files, code_files_contents):
+        functions = []
+        try:
+            functions = extract_functions(lang, content)
+        except Exception as e:
+            print(f"Error parsing {code_file}: {e}")
+            continue
+
+        for func_name, func_body, *_ in functions:
+            toggle_candidates = extract_toggle_matches(func_body, mixed_patterns)
+            for toggle in toggle_candidates:
+                mixed_toggles[func_name][toggle] += 1
 
     return md.format_mixed_toggles_data(mixed_toggles)
+
+def extract_toggle_matches(func_body, patterns):
+    matches = []
+    for pattern in patterns:
+        for match in re.findall(pattern, func_body):
+            if isinstance(match, tuple):
+                matches.extend([m for m in match if m])
+            else:
+                matches.append(match)
+    return matches
 
 def extract_enum_toggles(lang, code_files, t_config_files):
     print("Extracting enum toggles")
@@ -144,16 +182,36 @@ def extract_enum_toggles(lang, code_files, t_config_files):
     toggles = set(get_toggles_from_config_files(t_config_files, lang))
     code_files_contents = helper.get_code_file_contents(lang, code_files)
 
-    # Find enums and check if toggle names are part of enums
-    enum_toggles = []
-    for code_file, file_content in zip(code_files, code_files_contents):
-        enums_in_file = is_enum_member(file_content, toggles, lang)
-        enum_toggles.extend(enums_in_file)
-
-    return {
-        "toggles": enum_toggles,
-        "qty": len(enum_toggles),
+    result = {
+        "toggles": defaultdict(list),
+        "qty": 0
     }
+
+    for code_file, content in zip(code_files, code_files_contents):
+        functions = extract_functions(content, lang)
+        file_toggle_data = defaultdict(dict)
+        file_toggle_count = defaultdict(int)
+
+        for func in functions:
+            if len(func) == 3:
+                func_name, func_body, _ = func
+            else:
+                func_name, func_body, *_ = func
+            matched = ed.is_enum_member(func_body, toggles, lang)
+            for toggle in matched:
+                file_toggle_data[toggle][func_name] = file_toggle_data[toggle].get(func_name, 0) + 1
+                file_toggle_count[toggle] += 1
+                result["qty"] += 1
+
+        for toggle, funcs in file_toggle_data.items():
+            result["toggles"][toggle].append({
+                "file": code_file,
+                "Functions": [funcs],
+                "count": file_toggle_count[toggle]
+            })
+
+    result["toggles"] = dict(result["toggles"])
+    return result
 
 def get_toggles_from_config_files(config_files, lang=None):
     """

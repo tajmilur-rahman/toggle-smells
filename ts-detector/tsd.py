@@ -129,7 +129,7 @@ def main():
         code_files = glob.glob(f'{source_path}/**/*.java', recursive=True)
     elif lang.lower() == "python":
         code_files = glob.glob(f'{source_path}/**/*.py', recursive=True)
-    elif lang.lower() == "c#" or "csharp":
+    elif lang.lower() in ["c#", "csharp"]:
         code_files = glob.glob(f'{source_path}/**/*.cs', recursive=True)
     else:
         print("Unsupported language. Exiting.")

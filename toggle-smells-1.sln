@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ts-detector", "ts-detector", "{3671F06E-AFF8-BD2D-E678-DBADC8F2D194}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tree-sitter-c-sharp", "tree-sitter-c-sharp", "{5BBDE3BB-F5A2-CB6B-508A-E1CE61A234A2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{695A8628-4E60-BC4A-0919-C9C7E39E0154}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generator", "ts-detector\tree-sitter-c-sharp\tools\highlight-test-generator\Generator.csproj", "{0DDD53CE-99F9-EEA0-0F04-8B9FCD80E0FA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0DDD53CE-99F9-EEA0-0F04-8B9FCD80E0FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DDD53CE-99F9-EEA0-0F04-8B9FCD80E0FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DDD53CE-99F9-EEA0-0F04-8B9FCD80E0FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DDD53CE-99F9-EEA0-0F04-8B9FCD80E0FA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5BBDE3BB-F5A2-CB6B-508A-E1CE61A234A2} = {3671F06E-AFF8-BD2D-E678-DBADC8F2D194}
+		{695A8628-4E60-BC4A-0919-C9C7E39E0154} = {5BBDE3BB-F5A2-CB6B-508A-E1CE61A234A2}
+		{0DDD53CE-99F9-EEA0-0F04-8B9FCD80E0FA} = {695A8628-4E60-BC4A-0919-C9C7E39E0154}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C541F924-D2F3-49AD-B0D1-075628AEDC37}
+	EndGlobalSection
+EndGlobal
