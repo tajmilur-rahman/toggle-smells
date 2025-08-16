@@ -1,15 +1,14 @@
 # Toggle Smell Detector
-Feature toggle is an worst type of technical debt. There are unknown number of toggle usage patterns created by developers in different source code since there is no standard usage patterns. We identified six usage patterns in Google Chromium in a preliminary study. Although, we are not certain yet which toggle usage patterns are to be called as toggle smells, this project is offering a tool to detect toggle usage patterns in different source code.
+Feature toggles can introduce one of the worst forms of technical debt when not used properly. There are unknown number of toggle usage patterns created by developers in different source code since there is no standard usage patterns. We identified six usage patterns in Google Chromium in a preliminary study. Although, we are not certain yet which toggle usage patterns are to be called as toggle smells, this project is offering a tool to detect toggle usage patterns in different source code.
 
 Following are the usage patterns our tool can detect as of now.
 
-Dead usage patterns
-Nested usage patterns
-Spread usage patterns
-Mixed usage patterns
-Enumeration usage patterns
-Combinatorial usage patterns -- Invalid
-
+- **Dead**: Declared but never used in code.
+- **Spread**: The same toggle appears across multiple files or modules.
+- **Nested**: Toggles used within other toggle conditionals.
+- **Mixed**: A toggle exhibiting multiple patterns (e.g., dead + nested).
+- **Enum**: Toggle that supports multiple states (not just true/false).
+- **Combinatorial**: (Under research – not validated).
 
 ## Features
 
@@ -93,48 +92,53 @@ The result will be a JSON object, either printed to the console or saved to a fi
 ```json
 {
   "dead": {
-    "toggles": [
-      "TOGGLE_1",
-      "TOGGLE_2",
-      "TOGGLE_3"
-    ],
-    "qty": 3
-  },
-  "spread": {
-    "toggles": [
-      "TOGGLE_3",
-      "TOGGLE_4",
-      "TOGGLE_5",
-      "TOGGLE_6",
-      "TOGGLE_7"
-    ],
-    "qty": 5
-  },
-  "nested": {
-    "toggles": [
-      "TOGGLE_1",
-      "TOGGLE_6"
-    ],
+    "toggles": ["TOGGLE_A", "TOGGLE_B"],
     "qty": 2
   },
+  "spread": {
+    "toggles": {
+      "TOGGLE_C": [
+        {"file": "path/component/moduleA.py", "count": 3},
+        {"file": "path/component/moduleC.py", "count": 1}
+      ],
+      "TOGGLE_D": [
+        {"file": "path/core/moduleB.py", "count": 2}
+      ]
+    },
+    "qty": 2
+  },
+  "nested": {
+    "toggles": {
+      "TOGGLE_E": [
+        {"src/component/moduleA.py": ["DEPENDS_ON_TOGGLE_A"]},
+        {"src/component/moduleB.py": ["DEPENDS_ON_TOGGLE_D"]}
+        ],
+    },
+    "qty": 1
+  },
   "enum": {
-    "toggles": [],
-    "qty": 0
+    "toggles": ["TOGGLE_F"],
+    "qty": 1
   },
   "mixed": {
-    "toggles": ["TOGGLE_6"],
+    "toggles": ["TOGGLE_B"],
     "qty": 1
   }
 }
 ```
 In this example:
 
-dead: 3 toggles are identified as dead.
-spread: 5 toggles are found to be spread across the code.
-nested: 2 toggles are identified as being nested.
-enum: No enum toggles were detected.
-mixed: 1 toggles are identified as being mixed.
+- `dead`: 2 toggles are declared but never used.
+- `spread`: Toggles appear in multiple files.
+- `nested`: Toggles appear within another toggle's scope.
+- `enum`: A toggle with multiple conditional values.
+- `mixed`: A toggle that fits more than one pattern.
 
+## Recent Improvements
+
+- Added support for multiple configuration files
+- Output now includes dependency paths for `spread` and `nested` patterns along with its dependency toggle count
+- Updated JSON structure for better clarity
 
 # Sample commands with known repo
 
