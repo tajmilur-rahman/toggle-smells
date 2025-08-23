@@ -24,7 +24,18 @@ Following are the usage patterns our tool can detect as of now.
 https://github.com/tajmilur-rahman/toggle-smells.git
 2. CD into ts-detector in commandline
 
-3.`` 
+3. Create a virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+4. Install the dependencies
+pip install -r requirements.txt
+
+5. Build the languages
+python build_languages.py
+
+6. Run the tool
+`` 
 python tsd.py -p <source_path> -c <config_paths> [-o <output_path>] [-t <toggle_usage_pattern>] [-l <language>]
 ``
 
@@ -73,6 +84,10 @@ This command will:
 This command will:
 - Force the detection to assume Python as the language.
 - Save the results to `outputs/python-output.json`.
+
+
+### Note for macOS Users
+The included `tree-sitter-cpp` grammar is pre-patched with a macro to support `static_assert` on macOS (C11). No manual changes are needed after cloning the repository.
 
 ## Supported Languages
 

@@ -21,6 +21,7 @@ import re
 
 language_map = {
     "c++": c_patterns,
+    "cpp": c_patterns,
     "java": j_patterns,
     "python": py_patterns,
     "go": go_patterns,
@@ -116,7 +117,7 @@ def extract_spread_toggles(lang, code_files, t_config_files):
                 relative_path = os.path.relpath(code_file)
 
                 # Function-level toggle usage
-                lang_key = lang.lower().replace("c++", "c").replace("c#", "csharp")
+                lang_key = lang.lower().replace("c++", "cpp").replace("c#", "csharp")
                 try:
                     functions = extract_functions(source_code, lang_key)
                     function_usage = match_toggle_usage(source_code, functions, toggle)
@@ -156,7 +157,7 @@ def extract_mixed_toggles(lang, code_files):
         try:
             functions = extract_functions(lang, content)
         except Exception as e:
-            print(f"Error parsing {code_file}: {e}")
+            print("Error parsing")
             continue
 
         for func_name, func_body, *_ in functions:

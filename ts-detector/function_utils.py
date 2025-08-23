@@ -4,7 +4,8 @@ LANGUAGE_SO = "build/my-languages.so"
 LANGUAGES = {
     "python": "python",
     "java": "java",
-    "c": "c",
+    "cpp": "cpp",
+    "c++": "cpp",
     "go": "go",
     "csharp": "c_sharp" 
 }

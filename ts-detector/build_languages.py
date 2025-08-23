@@ -9,11 +9,10 @@ Language.build_library(
     [
         'tree-sitter-python',
         'tree-sitter-java',
-        # 'tree-sitter-cpp',   Temporarily comment this
+        'tree-sitter-cpp',
         'tree-sitter-c-sharp',
         'tree-sitter-go',
-        'tree-sitter-c',
     ]
 )
 
-print(" Tree-sitter language library built successfully (without C++)!")
+print(" Tree-sitter language library built successfully!")
