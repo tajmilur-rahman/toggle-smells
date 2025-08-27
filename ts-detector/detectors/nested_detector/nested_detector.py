@@ -83,9 +83,9 @@ def process_code_files(lang, code_files, code_files_contents, toggles, proximity
 
         # Get function ranges using Tree-sitter
         try:
-            functions = extract_functions(content, lang.lower().replace("c++", "c").replace("c#", "csharp"))
+            functions = extract_functions(content, lang.lower().replace("c++", "cpp").replace("c#", "csharp"))
         except Exception as e:
-            print(f"Error parsing functions in {code_file}: {e}")
+            # print(f"Error parsing functions in {code_file}: {e}")
             functions = []
 
         # Map: function name -> [line start, line end]
