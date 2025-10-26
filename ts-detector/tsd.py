@@ -142,32 +142,48 @@ def main():
             code_files.remove(config_file)
 
     if toggle_usage:
-        detected_toggles = t_utils.detect(lang, code_files or [], config_files_paths, toggle_usage)
+        res = {}
+        print(f"Parsing {toggle_usage} toggles")
+        try:
+            detected_toggles = t_utils.detect(lang, code_files or [], config_files_paths, toggle_usage)
+            res[toggle_usage] = detected_toggles
+        except Exception as exc:
+            print(f"Parsing Error ({toggle_usage} toggles): {exc}")
+            res[toggle_usage] = {"error": str(exc)}
 
-        res = {toggle_usage: detected_toggles}
         res_json = json.dumps(res, indent=2)
+        print("Extracting Toggles in JSON Format:")
+        print(res_json)
 
         if output_path:
             with open(output_path, 'w') as f:
                 f.write(str(res_json))
             print(f"Output written to {output_path}")
-        else:
-            print(res_json)
 
     else:
         res = {}
+        print("Parsing toggle patterns:")
         for p in patterns:
             if p == "mixed" and lang.lower() != "c++":
                 continue
-            detected_toggles = t_utils.detect(lang, code_files or [], config_files_paths, p)
 
-            res[p] = detected_toggles
+            print(f"Parsing {p} toggles")
+            try:
+                detected_toggles = t_utils.detect(lang, code_files or [], config_files_paths, p)
+                res[p] = detected_toggles
+            except Exception as exc:
+                print(f"Parsing Error ({p} toggles): {exc}")
+                res[p] = {"error": str(exc)}
+
         res_json = json.dumps(res, indent=2)
         if output_path:
             with open(output_path, 'w') as f:
                 f.write(str(res_json))
+            print("Extracting Toggles in JSON Format:")
+            print(res_json)
             print(f"Output written to {output_path}")
         else:
+            print("Extracting Toggles in JSON Format:")
             print(res_json)
 
 

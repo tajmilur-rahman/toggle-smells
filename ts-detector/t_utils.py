@@ -74,8 +74,6 @@ def process_config_toggles(toggles, pattern_type):
         raise ValueError(f"Unsupported pattern type: {pattern_type}")
     
 def extract_dead_toggles(lang, code_files, t_config_files):
-    print("Extracting dead toggles")
-
     # Extract toggles from config files
     toggles = get_toggles_from_config_files(t_config_files, lang)
     code_files_contents = helper.get_code_file_contents(lang, code_files)
@@ -84,8 +82,6 @@ def extract_dead_toggles(lang, code_files, t_config_files):
     return dd.format_dead_toggles_data(dead_toggles)
 
 def extract_nested_toggles(lang, code_files, t_config_files):
-    print("Extracting nested toggles")
-
     toggles = toggle_extractor.extract_toggles_from_config_files(t_config_files)
     code_files_contents = helper.get_code_file_contents(lang, code_files)
 
@@ -93,8 +89,6 @@ def extract_nested_toggles(lang, code_files, t_config_files):
     return nd.format_nested_toggles_data({"nested_toggles": nested_data["nested_toggles"]})
 
 def extract_spread_toggles(lang, code_files, t_config_files):
-    print("Extracting spread toggles")
-
     spread_toggles = defaultdict(list)
     toggles = get_toggles_from_config_files(t_config_files, lang)
 
@@ -146,8 +140,6 @@ def extract_spread_toggles(lang, code_files, t_config_files):
     return formatted_toggles
 
 def extract_mixed_toggles(lang, code_files):
-    print("Extracting mixed toggles")
-
     mixed_toggles = defaultdict(lambda: defaultdict(int))
     code_files_contents = helper.get_code_file_contents(lang, code_files)
     mixed_patterns = helper.get_mixed_toggle_var_patterns(lang)
@@ -157,7 +149,7 @@ def extract_mixed_toggles(lang, code_files):
         try:
             functions = extract_functions(lang, content)
         except Exception as e:
-            print("Error parsing")
+            print(f"Parsing Error ({code_file})")
             continue
 
         for func_name, func_body, *_ in functions:
@@ -178,8 +170,6 @@ def extract_toggle_matches(func_body, patterns):
     return matches
 
 def extract_enum_toggles(lang, code_files, t_config_files):
-    print("Extracting enum toggles")
-
     toggles = set(get_toggles_from_config_files(t_config_files, lang))
     code_files_contents = helper.get_code_file_contents(lang, code_files)
 
